@@ -1,0 +1,6 @@
+@layer base {
+  ::selection {
+    background: color-mix(in oklab, #ff5a1f 40%, transparent);
+    color: #0a0a0a;
+  }
+}

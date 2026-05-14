@@ -1,0 +1,29 @@
+Grill Gasten — public asset pipeline
+=====================================
+
+Drop final files here (replace remote stock when ready). Use lowercase + hyphens.
+
+Canonical folders (use these for new shoots):
+  images/food/         smash, loaded fries, snacks, sauces, drinks (webp/avif)
+  images/truck/        exterior, window, night, branding on truck
+  images/events/       festival, queues, catering context (faces only with consent)
+  images/founders/     Mike & Matthijs — portrait, behind the grill (consent)
+
+Optional extra crops (still under images/):
+  images/burgers/      legacy: hero smashes, cheese pulls, macro crust
+  images/loaded-fries/ legacy: trays, toppings, sauce drizzle
+  images/festival/     legacy: crowd light, stage bokeh, queue context
+  images/textures/     smoke, grunge overlays, subtle backgrounds (tile/webp)
+
+Discipline: prefer WebP or AVIF, cap file size for mobile, fixed aspect ratios per slot,
+blur placeholder in Next/Image where it matters (hero, above-fold).
+
+videos/hero-loops/     silent 6–12s webm/mp4, <5MB for web
+videos/smoke/          alpha or dark blend loops
+videos/fire/           ember / flame accents (subtle)
+
+logos/svg/             master logo, wordmark, icon mark
+logos/png/             exports @1x/2x for partners / print
+logos/favicon/         favicon.ico + apple touch (replace app/favicon when ready)
+
+One shoot → export multiple crops (1:1, 4:5, 16:9, open graph 1200×630).

@@ -1,0 +1,84 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+type GlowButtonProps = {
+  href?: string;
+  children: React.ReactNode;
+  className?: string;
+  variant?: "flame" | "outline";
+  type?: "button" | "submit";
+  disabled?: boolean;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+};
+
+export function GlowButton({
+  href,
+  children,
+  className,
+  variant = "flame",
+  type = "button",
+  disabled,
+  onClick,
+}: GlowButtonProps) {
+  const reduceMotion = useReducedMotion();
+
+  const base =
+    "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
+
+  const styles =
+    variant === "flame"
+      ? "bg-primary text-primary-foreground shadow-[0_0_40px_-10px_rgba(255,90,31,0.85)] hover:brightness-110"
+      : "border border-white/15 bg-white/5 text-white backdrop-blur hover:border-primary/40 hover:bg-white/[0.08]";
+
+  const content = (
+    <>
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen"
+        style={{
+          background:
+            "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.55), transparent 45%), radial-gradient(circle at 80% 0%, rgba(255,90,31,0.55), transparent 55%)",
+        }}
+      />
+      <span className="relative">{children}</span>
+    </>
+  );
+
+  if (href) {
+    const external = href.startsWith("http");
+    return (
+      <motion.div
+        whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+        whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+        className="inline-flex"
+      >
+        <Link
+          href={href}
+          className={cn(base, styles, !reduceMotion && "animate-glow-pulse", className)}
+          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+        >
+          {content}
+        </Link>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+      whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+      className={cn(base, styles, !reduceMotion && "animate-glow-pulse", className)}
+    >
+      {content}
+    </motion.button>
+  );
+}
+
+export { Button, buttonVariants } from "@/components/ui/button";
