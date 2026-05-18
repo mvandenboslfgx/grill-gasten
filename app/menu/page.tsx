@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AnimatedContainer } from "@/components/animated-container";
 import { MenuCard } from "@/components/menu-card";
 import { SectionTitle } from "@/components/section-title";
+import { MenuBundlesSection } from "@/components/menu-bundles-section";
 import { MenuContactCta } from "@/components/menu-contact-cta";
 import { menuItems, type MenuCategory } from "@/lib/data/menu";
 
@@ -15,7 +16,7 @@ const order: MenuCategory[] = ["Smash Burgers", "Loaded Fries", "Snacks", "Drink
 
 export default function MenuPage() {
   return (
-    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-28 md:pb-24 md:pt-32">
+    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
       <div className="mx-auto max-w-6xl space-y-14 px-4 md:px-6 lg:px-8">
         <AnimatedContainer>
           <SectionTitle
@@ -24,6 +25,8 @@ export default function MenuPage() {
             description="Prijzen zijn indicatief — check onze socials of WhatsApp voor de actuele line-up op jouw event."
           />
         </AnimatedContainer>
+
+        <MenuBundlesSection />
 
         {order.map((category) => {
           const items = menuItems.filter((i) => i.category === category);

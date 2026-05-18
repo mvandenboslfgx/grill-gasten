@@ -57,7 +57,7 @@ const inzetbaarVoor = [
 export default function CateringPage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden border-t border-white/10 pt-24">
+      <section className="relative isolate overflow-hidden border-t border-white/10 pt-24 sm:pt-28 md:pt-32">
         <div className="absolute inset-0">
           <Image
             src={heroImage}

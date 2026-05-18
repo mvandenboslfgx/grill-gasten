@@ -14,12 +14,12 @@ const contactWhatsApp = getWhatsAppHref("contact");
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Contact Grill Gasten ? WhatsApp, bellen of mail. Premium BBQ foodtruck voor festivals, catering en events in heel Nederland.",
+    "Contact Grill Gasten — WhatsApp, bellen of mail. Premium BBQ foodtruck voor festivals, catering en events in heel Nederland.",
 };
 
 export default function ContactPage() {
   return (
-    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-28 md:pb-24 md:pt-32">
+    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
       <div className="mx-auto grid max-w-6xl gap-14 px-4 md:grid-cols-2 md:px-6 lg:px-8">
         <AnimatedContainer className="space-y-8">
           <SectionTitle
@@ -32,7 +32,7 @@ export default function ContactPage() {
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <span>
-                <span className="text-white">Regio Hoeksche Waard</span> ? inzetbaar door heel Nederland
+                <span className="text-white">Regio Hoeksche Waard</span> — inzetbaar door heel Nederland
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -50,7 +50,7 @@ export default function ContactPage() {
             <li className="flex items-start gap-3">
               <MessageCircle className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <span>
-                <span className="text-white">WhatsApp</span> ? snelste reactie voor boekingen
+                <span className="text-white">WhatsApp</span> — snelste reactie voor boekingen
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -64,7 +64,7 @@ export default function ContactPage() {
             <ul className="space-y-4 text-sm text-muted-foreground">
               <li>
                 <a className="hover:text-white" href={contactWhatsApp} rel="noopener noreferrer" target="_blank">
-                  WhatsApp ? boekingen en vragen
+                  WhatsApp — boekingen en vragen
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export default function ContactPage() {
                     <div className="rounded-3xl border border-white/10 bg-[#111] p-6 md:p-8">
             <h2 className="font-heading text-2xl tracking-wide text-white uppercase">Stuur een bericht</h2>
             <p className="text-muted-foreground mt-2 text-sm">
-              Officieel formulier ? wordt verstuurd naar {site.email}. Je krijgt bevestiging op het scherm.
+              Officieel formulier — wordt verstuurd naar {site.email}. Je krijgt bevestiging op het scherm.
             </p>
             <div className="mt-6">
               <ContactForm />

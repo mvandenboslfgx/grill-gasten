@@ -24,7 +24,7 @@ export function MenuCard({ item }: MenuCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             {item.popular ? (
               <Badge className="border border-primary/40 bg-primary/15 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-primary">
-                Popular
+                Meest gekozen
               </Badge>
             ) : null}
             {item.spicy ? (

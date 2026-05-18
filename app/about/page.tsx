@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <section className="border-t border-white/10 bg-[#080808] pb-16 pt-28 md:pb-24 md:pt-32">
+      <section className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6 lg:px-8">
           <AnimatedContainer>
             <SectionTitle

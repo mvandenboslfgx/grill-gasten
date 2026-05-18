@@ -7,7 +7,8 @@ Canonical folders (use these for new shoots):
   images/food/         smash, loaded fries, snacks, sauces, drinks (webp/avif)
   images/truck/        exterior, window, night, branding on truck
   images/events/       festival, queues, catering context (faces only with consent)
-  images/founders/     Mike & Matthijs — portrait, behind the grill (consent)
+  brand/               grill-gasten-logo.png — officieel badge-logo (nav, footer, SEO)
+  images/founders/     Mike en Matthijs — portrait, behind the grill (consent)
 
 Optional extra crops (still under images/):
   images/burgers/      legacy: hero smashes, cheese pulls, macro crust

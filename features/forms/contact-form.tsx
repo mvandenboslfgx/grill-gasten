@@ -32,7 +32,7 @@ export function ContactForm() {
       email: String(fd.get("email") ?? ""),
       subject: String(fd.get("subject") ?? ""),
       message: String(fd.get("message") ?? ""),
-      company: String(fd.get("company") ?? ""),
+      website: String(fd.get("website") ?? ""),
     };
 
     try {
@@ -106,7 +106,7 @@ export function ContactForm() {
       </div>
 
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
-        <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">

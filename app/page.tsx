@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/hero-section";
-import { HomeStatsStrip } from "@/components/home-stats-strip";
+import { TrustBar } from "@/components/trust-bar";
 import { BookEventsSection } from "@/components/book-events-section";
 import { FeaturedFoodSection } from "@/components/featured-food-section";
 import { FestivalExperienceSection } from "@/components/festival-experience-section";
@@ -22,7 +22,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <HomeStatsStrip />
+      <TrustBar />
       <BookEventsSection />
       <FeaturedFoodSection />
       <FestivalExperienceSection />

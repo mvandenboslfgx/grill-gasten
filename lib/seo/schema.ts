@@ -41,7 +41,7 @@ export function organizationJsonLd() {
     "@type": "Organization",
     name: site.name,
     url: site.url,
-    logo: `${site.url}/opengraph-image`,
+    logo: `${site.url}${site.logo}`,
     email: site.email,
     telephone: site.phoneE164,
     founders: site.founders.split(" en ").map((name) => ({

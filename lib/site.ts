@@ -1,6 +1,7 @@
 export const site = {
   name: "Grill Gasten",
-  tagline: "Premium BBQ foodtruck — smashburgers, vuur en festivalenergie door heel Nederland.",
+  tagline:
+    "Smashburgers, loaded fries en premium grillgerechten op festivals, bedrijfsfeesten en privé-events.",
   description:
     "Grill Gasten is dé premium BBQ foodtruck uit de Hoeksche Waard. Smashburgers, loaded fries en premium streetfood voor festivals, catering, bedrijfsfeesten en privé-events.",
   metaDescriptionHome:
@@ -9,6 +10,8 @@ export const site = {
   region: "Hoeksche Waard",
   serviceArea: "Rotterdam · Zuid-Holland · heel Nederland",
   url: "https://grillgasten.eu",
+  logo: "/brand/grill-gasten-logo.png",
+  slogan: "Smaak. Passie. Samen genieten.",
   /** Boekingen & formulieren */
   email: "info@grillgasten.eu",
   phoneDisplay: "+31 6 49 56 56 98",
@@ -23,10 +26,12 @@ export const site = {
 export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
+  { href: "/bestellen", label: "Bestellen" },
   { href: "/foodtruck", label: "Foodtruck" },
   { href: "/catering", label: "Catering" },
   { href: "/festival", label: "Festival" },
   { href: "/zakelijk", label: "Zakelijk" },
+  { href: "/rewards", label: "Rewards" },
   { href: "/about", label: "Over ons" },
   { href: "/contact", label: "Contact" },
 ] as const;

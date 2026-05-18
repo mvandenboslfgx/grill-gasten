@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function EventsPage() {
   return (
-    <div className="border-t border-white/10 bg-[#0a0a0a] pb-16 pt-28 md:pb-24 md:pt-32">
+    <div className="border-t border-white/10 bg-[#0a0a0a] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
       <div className="mx-auto max-w-6xl space-y-12 px-4 md:px-6 lg:px-8">
         <AnimatedContainer>
           <SectionTitle

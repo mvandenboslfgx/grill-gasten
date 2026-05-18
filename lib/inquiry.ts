@@ -1,4 +1,4 @@
-export type InquiryType = "booking" | "contact";
+export type InquiryType = "booking" | "contact" | "preorder" | "rewards";
 
 export type InquiryPayload = {
   type: InquiryType;
@@ -8,18 +8,28 @@ export type InquiryPayload = {
   eventType?: string;
   location?: string;
   date?: string;
+  time?: string;
   guests?: string;
+  budget?: string;
+  company?: string;
   message?: string;
   subject?: string;
+  orderId?: string;
   /** Honeypot — moet leeg blijven */
-  company?: string;
+  website?: string;
 };
 
 export type InquiryResult =
-  | { ok: true; channel: "resend" | "formspree" }
+  | { ok: true; channel: "resend" | "formspree"; orderId?: string; qrDataUrl?: string }
   | { ok: false; error: string; code?: string };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function parseType(raw: unknown): InquiryType | null {
+  const t = String(raw ?? "");
+  if (t === "booking" || t === "contact" || t === "preorder" || t === "rewards") return t;
+  return null;
+}
 
 export function validateInquiry(body: unknown): { data?: InquiryPayload; error?: string } {
   if (!body || typeof body !== "object") {
@@ -27,11 +37,11 @@ export function validateInquiry(body: unknown): { data?: InquiryPayload; error?:
   }
   const raw = body as Record<string, unknown>;
 
-  if (String(raw.company ?? "").trim()) {
+  if (String(raw.website ?? "").trim()) {
     return { error: "Spam gedetecteerd." };
   }
 
-  const type = raw.type === "contact" ? "contact" : raw.type === "booking" ? "booking" : null;
+  const type = parseType(raw.type);
   if (!type) {
     return { error: "Ongeldig formuliertype." };
   }
@@ -47,11 +57,13 @@ export function validateInquiry(body: unknown): { data?: InquiryPayload; error?:
   if (!email || !EMAIL_RE.test(email)) {
     return { error: "Vul een geldig e-mailadres in." };
   }
-  if (type === "booking" && phone.length < 8) {
-    return { error: "Vul een geldig telefoonnummer in." };
-  }
+
   if (type === "contact" && message.length < 10) {
     return { error: "Vul een bericht van minimaal 10 tekens in." };
+  }
+
+  if ((type === "booking" || type === "preorder") && phone.length < 8) {
+    return { error: "Vul een geldig telefoonnummer in." };
   }
 
   const data: InquiryPayload = {
@@ -59,12 +71,16 @@ export function validateInquiry(body: unknown): { data?: InquiryPayload; error?:
     name,
     phone,
     email,
+    company: String(raw.company ?? "").trim() || undefined,
     eventType: String(raw.eventType ?? "").trim() || undefined,
     location: String(raw.location ?? "").trim() || undefined,
     date: String(raw.date ?? "").trim() || undefined,
+    time: String(raw.time ?? "").trim() || undefined,
     guests: String(raw.guests ?? "").trim() || undefined,
+    budget: String(raw.budget ?? "").trim() || undefined,
     message: message || undefined,
     subject: String(raw.subject ?? "").trim() || undefined,
+    orderId: String(raw.orderId ?? "").trim() || undefined,
   };
 
   if (type === "booking") {
@@ -74,32 +90,55 @@ export function validateInquiry(body: unknown): { data?: InquiryPayload; error?:
     if (!data.guests) return { error: "Vul het aantal personen in." };
   }
 
+  if (type === "preorder") {
+    if (!data.date) return { error: "Kies een datum." };
+    if (!data.time) return { error: "Kies een tijdslot." };
+    if (!data.message || data.message.length < 8) return { error: "Je winkelmand is leeg." };
+  }
+
+  if (type === "rewards" && !data.email) {
+    return { error: "E-mail is verplicht." };
+  }
+
   return { data };
 }
 
+const TYPE_LABELS: Record<InquiryType, string> = {
+  booking: "Boekingsaanvraag",
+  contact: "Contactbericht",
+  preorder: "Pre-order / afhalen",
+  rewards: "Grill Rewards aanmelding",
+};
+
 export function formatInquiryEmail(payload: InquiryPayload): { subject: string; text: string; html: string } {
-  const label = payload.type === "booking" ? "Boekingsaanvraag" : "Contactbericht";
+  const label = TYPE_LABELS[payload.type];
   const subject =
     payload.type === "booking"
       ? `[Grill Gasten] ${label} — ${payload.name} (${payload.eventType})`
-      : `[Grill Gasten] ${label} — ${payload.name}`;
+      : payload.type === "preorder"
+        ? `[Grill Gasten] ${label} — ${payload.orderId ?? payload.name}`
+        : `[Grill Gasten] ${label} — ${payload.name}`;
 
   const lines = [
     label,
     "—".repeat(40),
     `Naam: ${payload.name}`,
+    ...(payload.company ? [`Bedrijf: ${payload.company}`] : []),
     `Telefoon: ${payload.phone || "—"}`,
     `E-mail: ${payload.email}`,
-    ...(payload.type === "booking"
+    ...(payload.orderId ? [`Order: ${payload.orderId}`] : []),
+    ...(payload.type === "booking" || payload.type === "preorder"
       ? [
-          `Type event: ${payload.eventType}`,
-          `Locatie: ${payload.location}`,
-          `Datum: ${payload.date}`,
-          `Aantal personen: ${payload.guests}`,
+          `Type: ${payload.eventType ?? "Afhalen"}`,
+          `Locatie: ${payload.location ?? "—"}`,
+          `Datum: ${payload.date ?? "—"}`,
+          ...(payload.time ? [`Tijd: ${payload.time}`] : []),
+          ...(payload.guests ? [`Personen: ${payload.guests}`] : []),
+          ...(payload.budget ? [`Budget: ${payload.budget}`] : []),
         ]
       : [`Onderwerp: ${payload.subject || "—"}`]),
     "",
-    "Bericht:",
+    "Bericht / bestelling:",
     payload.message || "—",
   ];
 

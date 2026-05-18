@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, MapPin, MessageCircle, Music2, Phone, Share2 } from "lucide-react";
 import { PhoneLink } from "@/components/phone-link";
+import { BrandLogo } from "@/components/brand-logo";
 import { navLinks, site } from "@/lib/site";
 import { getWhatsAppHref } from "@/lib/whatsapp";
 
@@ -10,12 +11,13 @@ export function Footer() {
   return (
     <footer className="border-t border-white/10 bg-[#050505]">
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-2 md:px-6 lg:grid-cols-4 lg:px-8">
-        <div className="space-y-4">
-          <p className="font-heading text-3xl tracking-[0.12em] text-white uppercase">
-            Grill <span className="text-primary">Gasten</span>
+        <div className="flex flex-col items-center space-y-4 text-center md:items-start md:text-left">
+          <BrandLogo linked size="footer" className="mx-auto md:mx-0" />
+          <p className="text-primary max-w-xs text-xs font-semibold uppercase tracking-[0.22em] sm:text-sm sm:tracking-[0.26em]">
+            {site.slogan}
           </p>
           <p className="text-muted-foreground text-sm leading-relaxed">{site.description}</p>
-          <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap">
+          <div className="flex w-full flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap sm:justify-start">
             <a
               href={footerWhatsApp}
               target="_blank"

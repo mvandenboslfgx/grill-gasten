@@ -60,6 +60,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: site.url,
   },
+  icons: {
+    icon: site.logo,
+    apple: site.logo,
+  },
 };
 
 export default function RootLayout({

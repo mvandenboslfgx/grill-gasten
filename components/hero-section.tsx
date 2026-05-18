@@ -85,7 +85,7 @@ export function HeroSection() {
       />
       <motion.div
         style={reduceMotion ? undefined : { y: contentY }}
-        className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-4 pb-36 pt-28 md:grid-cols-[1.05fr_0.95fr] md:gap-12 md:px-6 md:pb-28 md:pt-32 lg:px-8"
+        className="relative z-10 mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-4 pb-36 pt-24 sm:pt-28 md:grid-cols-[1.05fr_0.95fr] md:gap-12 md:px-6 md:pb-28 md:pt-32 lg:px-8"
       >
         <div className="max-w-2xl space-y-6 md:space-y-8">
           <motion.p
@@ -103,11 +103,11 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
             className="font-heading text-[clamp(2.75rem,9vw,6.5rem)] leading-[0.88] tracking-wide text-white uppercase"
           >
-            De premium
+            De premium BBQ
             <br />
-            BBQ foodtruck
+            foodtruck voor
             <br />
-            <span className="text-gradient-silver">Voor elk moment.</span>
+            <span className="text-gradient-gold">elk event</span>
           </motion.h1>
 
           <motion.p
@@ -129,7 +129,7 @@ export function HeroSection() {
               Boek direct
             </GlowButton>
             <GlowButton href={getWhatsAppHref("home")} variant="outline" className="w-full sm:w-auto">
-              WhatsApp
+              WhatsApp ons
             </GlowButton>
             <PhoneLink
               showIcon

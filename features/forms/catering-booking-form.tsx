@@ -10,6 +10,7 @@ import { PhoneLink } from "@/components/phone-link";
 import { WhatsAppLink } from "@/components/whatsapp-link";
 import { FormSubmitError } from "@/features/forms/form-submit-error";
 import { INQUIRY_FALLBACK_ERROR } from "@/lib/inquiry-errors";
+import { estimateCateringPrice, tierFromGuests } from "@/lib/pricing/estimate";
 import { site } from "@/lib/site";
 
 const EVENT_TYPES = [
@@ -29,6 +30,14 @@ const selectClass =
 export function CateringBookingForm() {
   const [status, setStatus] = React.useState<FormStatus>("idle");
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
+  const [guestsInput, setGuestsInput] = React.useState("");
+  const [budgetTier, setBudgetTier] = React.useState<"compact" | "festival" | "premium">("festival");
+
+  const guestCount = Number.parseInt(guestsInput, 10);
+  const estimate =
+    guestsInput && Number.isFinite(guestCount) && guestCount > 0
+      ? estimateCateringPrice(guestCount, budgetTier)
+      : null;
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,17 +46,26 @@ export function CateringBookingForm() {
     setErrorMsg(null);
 
     const fd = new FormData(form);
+    const guests = String(fd.get("guests") ?? "");
+    const guestN = Number.parseInt(guests, 10);
+    const tier = budgetTier;
+    const priceHint =
+      Number.isFinite(guestN) && guestN > 0 ? estimateCateringPrice(guestN, tier) : null;
+
     const payload = {
       type: "booking" as const,
       name: String(fd.get("name") ?? ""),
       phone: String(fd.get("phone") ?? ""),
       email: String(fd.get("email") ?? ""),
+      company: String(fd.get("company") ?? ""),
       eventType: String(fd.get("eventType") ?? ""),
       location: String(fd.get("location") ?? ""),
       date: String(fd.get("date") ?? ""),
-      guests: String(fd.get("guests") ?? ""),
+      time: String(fd.get("time") ?? ""),
+      guests,
+      budget: priceHint ? `${tier} — ${priceHint.label}` : tier,
       message: String(fd.get("message") ?? ""),
-      company: String(fd.get("company") ?? ""),
+      website: String(fd.get("website") ?? ""),
     };
 
     try {
@@ -122,7 +140,7 @@ export function CateringBookingForm() {
       </div>
 
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
-        <input type="text" name="company" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
+        <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
 
         <p className="text-muted-foreground text-xs font-semibold uppercase tracking-[0.22em]">
           Offerte per e-mail
@@ -166,6 +184,11 @@ export function CateringBookingForm() {
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="booking-company">Bedrijf (optioneel)</Label>
+          <Input id="booking-company" name="company" autoComplete="organization" placeholder="Organisatie" />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="booking-eventType">Type event *</Label>
           <select id="booking-eventType" name="eventType" required className={selectClass} defaultValue="">
             <option value="" disabled>
@@ -190,9 +213,48 @@ export function CateringBookingForm() {
           </div>
         </div>
 
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="booking-time">Starttijd (indicatie)</Label>
+            <Input id="booking-time" name="time" type="time" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="booking-budget">Budget indicatie</Label>
+            <select
+              id="booking-budget"
+              name="budget"
+              className={selectClass}
+              value={budgetTier}
+              onChange={(e) => setBudgetTier(e.target.value as typeof budgetTier)}
+            >
+              <option value="compact">Compact (tot ~75 gasten)</option>
+              <option value="festival">Festival / standaard</option>
+              <option value="premium">Premium experience</option>
+            </select>
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="booking-guests">Aantal personen *</Label>
-          <Input id="booking-guests" name="guests" inputMode="numeric" required placeholder="Bijv. 150" />
+          <Input
+            id="booking-guests"
+            name="guests"
+            inputMode="numeric"
+            required
+            placeholder="Bijv. 150"
+            value={guestsInput}
+            onChange={(e) => {
+              const v = e.target.value;
+              setGuestsInput(v);
+              const n = Number.parseInt(v, 10);
+              if (Number.isFinite(n) && n > 0) setBudgetTier(tierFromGuests(n));
+            }}
+          />
+          {estimate ? (
+            <p className="rounded-xl border border-[#d4af37]/35 bg-[#d4af37]/10 px-3 py-2 text-sm text-[#f5e6c8]">
+              {estimate.label}
+            </p>
+          ) : null}
         </div>
 
         <div className="space-y-2">
