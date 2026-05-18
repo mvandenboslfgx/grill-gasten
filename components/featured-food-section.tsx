@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
+import { FoodImage } from "@/components/food-image";
 import { featuredHighlights } from "@/lib/data/menu";
 import { AnimatedContainer } from "@/components/animated-container";
 import { SectionTitle } from "@/components/section-title";
@@ -15,9 +15,9 @@ export function FeaturedFoodSection() {
       <div className="mx-auto max-w-6xl space-y-12 px-4 md:px-6 lg:px-8">
         <AnimatedContainer>
           <SectionTitle
-            eyebrow="Signature"
-            title="Food die cravings triggert"
-            description="Smash, loaded trays, melted cheese, crispy bites — warm, juicy, high contrast. Straks: jullie eigen shoots i.p.v. stock."
+            eyebrow="Signatuur"
+            title="Eten waar je trek van krijgt"
+            description="Smash, loaded trays, gesmolten kaas en knapperige bites — warm, sappig en met contrast."
           />
         </AnimatedContainer>
 
@@ -32,18 +32,19 @@ export function FeaturedFoodSection() {
                 }
                 transition={{ type: "spring", stiffness: 260, damping: 22 }}
                 className={cn(
-                  "group relative overflow-hidden rounded-3xl border border-white/10 bg-[#111]",
+                  "premium-media-card group relative overflow-hidden rounded-3xl border border-white/10 bg-[#111]",
                   "shadow-[0_18px_60px_-30px_rgba(0,0,0,0.9)]",
                 )}
               >
                 <div className="relative aspect-[4/5]">
-                  <Image
+                  <FoodImage
                     src={item.image}
                     alt={`Grill Gasten — ${item.title.toLowerCase()}`}
+                    tier="featured"
                     fill
                     loading={index === 0 ? "eager" : "lazy"}
-                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover transition duration-700 group-hover:scale-105"
+                    sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover object-center transition duration-700 group-hover:scale-[1.03]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                 </div>

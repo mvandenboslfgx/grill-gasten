@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AnimatedContainer } from "@/components/animated-container";
 import { MenuCard } from "@/components/menu-card";
 import { SectionTitle } from "@/components/section-title";
+import { MenuContactCta } from "@/components/menu-contact-cta";
 import { menuItems, type MenuCategory } from "@/lib/data/menu";
 
 export const metadata: Metadata = {
@@ -44,6 +45,8 @@ export default function MenuPage() {
           );
         })}
       </div>
+      <MenuContactCta />
     </div>
   );
 }
+

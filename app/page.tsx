@@ -1,37 +1,36 @@
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/hero-section";
+import { HomeStatsStrip } from "@/components/home-stats-strip";
+import { BookEventsSection } from "@/components/book-events-section";
 import { FeaturedFoodSection } from "@/components/featured-food-section";
 import { FestivalExperienceSection } from "@/components/festival-experience-section";
 import { WhySection } from "@/components/why-section";
-import { SocialFeedSection } from "@/components/social-feed-section";
+import { PremiumGallerySection } from "@/components/premium-gallery-section";
+import { PremiumBookingCta } from "@/components/premium-booking-cta";
 import { TestimonialSection } from "@/components/testimonial-section";
-import { CTASection } from "@/components/cta-section";
+import { HomeFaqSection } from "@/components/home-faq-section";
 import { site } from "@/lib/site";
+import { SEO_KEYWORDS } from "@/lib/seo/keywords";
 
 export const metadata: Metadata = {
-  title: "Home",
+  title: "Premium BBQ foodtruck & catering",
   description: site.metaDescriptionHome,
+  keywords: [...SEO_KEYWORDS],
 };
 
 export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <HomeStatsStrip />
+      <BookEventsSection />
       <FeaturedFoodSection />
       <FestivalExperienceSection />
       <WhySection />
       <TestimonialSection />
-      <SocialFeedSection />
-      <CTASection
-        title="Klaar voor jouw line-up?"
-        description="Hoogste conversie: offerte via catering, of direct een app voor snelle beschikbaarheid — Mike & Matthijs reageren het liefst via WhatsApp."
-        primaryHref="/catering"
-        primaryLabel="Catering — offerte"
-        secondaryHref={site.whatsapp}
-        secondaryLabel="WhatsApp"
-        tertiaryHref="/contact"
-        tertiaryLabel="Contact"
-      />
+      <PremiumGallerySection />
+      <HomeFaqSection />
+      <PremiumBookingCta />
     </>
   );
 }

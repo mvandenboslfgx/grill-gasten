@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/lib/site";
+import { getWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -15,7 +16,7 @@ export default function PrivacyPage() {
           <h1 className="font-heading text-4xl uppercase tracking-wide text-white md:text-5xl">Privacy</h1>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Korte, eerlijke uitleg — geen corporate law wall. Vragen?{" "}
-            <a className="text-primary hover:underline" href={site.whatsapp} rel="noreferrer" target="_blank">
+            <a className="text-primary hover:underline" href={getWhatsAppHref("contact")} rel="noopener noreferrer" target="_blank">
               WhatsApp
             </a>{" "}
             of{" "}

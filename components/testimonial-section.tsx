@@ -11,9 +11,9 @@ export function TestimonialSection() {
         <AnimatedContainer>
           <SectionTitle
             align="center"
-            eyebrow="Social proof"
+            eyebrow="Ervaringen"
             title="Waar we voor staan"
-            description="Echte impressies van events en catering — korte quotes, geen sterren-cijfers tot jullie echte reviews live gaan."
+            description="Korte impressies van events en catering — echte feedback van opdrachtgevers en locaties."
           />
         </AnimatedContainer>
         <div className="grid gap-6 md:grid-cols-3">

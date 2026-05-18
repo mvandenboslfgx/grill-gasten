@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { AnimatedContainer } from "@/components/animated-container";
 import { CTASection } from "@/components/cta-section";
+import { FoodImage } from "@/components/food-image";
 import { SectionTitle } from "@/components/section-title";
-import { IMG_BURGER_PLATE } from "@/lib/data/food-imagery";
-import { site } from "@/lib/site";
+import { FOOD } from "@/lib/data/food-imagery";
+import { getWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
-  title: "Story",
+  title: "Over ons",
   description:
     "Mike en Matthijs uit de Hoeksche Waard — Grill Gasten: premium smashburgers, loaded snacks en festival streetfood door heel Nederland.",
 };
-
-const duo = IMG_BURGER_PLATE;
 
 export default function AboutPage() {
   return (
@@ -21,18 +19,18 @@ export default function AboutPage() {
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 md:grid-cols-2 md:px-6 lg:px-8">
           <AnimatedContainer>
             <SectionTitle
-              eyebrow="Onze story"
-              title="Mike & Matthijs"
-              description="Twee gasten uit de Hoeksche Waard met één drive: bouwen aan een foodtruck die kraakt van energie — smashburgers, loaded snacks en festival streetfood zonder corporate saus eroverheen."
+              eyebrow="Ons verhaal"
+              title="Mike en Matthijs"
+              description="Twee gasten uit de Hoeksche Waard met één drive: een foodtruck die kraakt van energie — smashburgers, loaded snacks en festival streetfood zonder saaie bedrijfstaal."
             />
             <div className="text-muted-foreground mt-6 space-y-4 text-sm leading-relaxed md:text-base">
               <p>
                 Geen standaard burgers. Geen standaard snacks. Wel harde shifts, hete grill en gasten die terugkomen
                 voor die ene cheese pull. Alles draait om smaak, kwaliteit en beleving: vers waar het kan, snel waar het
-                moet, altijd GG-attitude.
+                moet — altijd met GG-attitude.
               </p>
               <p>
-                Festivals, markten, bedrijfsfeesten, late-night spots — waar honger en sfeer samenkomen, rijden wij
+                Festivals, markten, bedrijfsfeesten en late-night spots — waar honger en sfeer samenkomen, rijden wij
                 graag naartoe. Vanuit de Hoeksche Waard, voor heel Nederland.
               </p>
             </div>
@@ -40,12 +38,13 @@ export default function AboutPage() {
 
           <AnimatedContainer delay={0.08} className="relative">
             <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem] border border-white/10 shadow-[0_40px_120px_-40px_rgba(255,90,31,0.55)]">
-              <Image
-                src={duo}
-                alt="Smashburger en streetfood van Grill Gasten"
+              <FoodImage
+                src={FOOD.smashHands.src}
+                alt="Smashburger in handen — Grill Gasten streetfood"
+                tier="featured"
                 fill
-                className="object-cover"
-                sizes="(min-width: 768px) 45vw, 100vw"
+                className="object-cover object-center"
+                sizes="(min-width: 768px) 480px, 100vw"
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -70,7 +69,7 @@ export default function AboutPage() {
                 <p className="text-primary text-xs font-semibold uppercase tracking-[0.35em]">Co-founder</p>
                 <h3 className="font-heading mt-2 text-4xl uppercase tracking-wide text-white">Mike</h3>
                 <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-                  Operations &amp; grill — tempo, kwaliteit en crew die elke shift scherp blijft.
+                  Operatie en grill — tempo, kwaliteit en een crew die elke shift scherp blijft.
                 </p>
               </article>
             </AnimatedContainer>
@@ -79,7 +78,7 @@ export default function AboutPage() {
                 <p className="text-primary text-xs font-semibold uppercase tracking-[0.35em]">Co-founder</p>
                 <h3 className="font-heading mt-2 text-4xl uppercase tracking-wide text-white">Matthijs</h3>
                 <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-                  Brand &amp; events — van menu tot vibe: alles moet kloppen als de queue lang wordt.
+                  Merk en events — van menu tot sfeer: alles moet kloppen als de rij lang wordt.
                 </p>
               </article>
             </AnimatedContainer>
@@ -94,7 +93,7 @@ export default function AboutPage() {
               align="center"
               eyebrow="Waar we voor staan"
               title="Smaak. Kwaliteit. Beleving."
-              description="Geen template foodtruck — custom energy, premium smash en loaded classics waar je zin in krijgt om te filmen."
+              description="Geen standaard foodtruck — eigen energie, premium smash en loaded classics die je wilt vastleggen."
             />
           </AnimatedContainer>
           <div className="grid gap-6 md:grid-cols-3">
@@ -125,10 +124,10 @@ export default function AboutPage() {
 
       <CTASection
         title="Boek ons voor je volgende event."
-        description="Mike & Matthijs — snelste lijn: WhatsApp. Voor uitgebreide offertes: cateringformulier."
+        description="Mike en Matthijs — snelste lijn: WhatsApp. Voor een uitgewerkte offerte: cateringformulier."
         primaryHref="/catering"
         primaryLabel="Catering"
-        secondaryHref={site.whatsapp}
+        secondaryHref={getWhatsAppHref("about")}
         secondaryLabel="WhatsApp"
         tertiaryHref="/contact"
         tertiaryLabel="Contact"

@@ -17,7 +17,7 @@ export function TrustStrip() {
         ))}
       </ul>
       <p className="text-muted-foreground mt-4 text-center text-xs leading-relaxed md:text-left">
-        Reviews op Trustpilot of Google kunnen hier later worden gekoppeld — geen nep-scores.
+        Van intiem bedrijfsfeest tot festivalterrein — vertel ons je datum en wij denken mee over setup en menu.
       </p>
     </div>
   );

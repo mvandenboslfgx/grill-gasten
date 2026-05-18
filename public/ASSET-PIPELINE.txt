@@ -18,6 +18,11 @@ Optional extra crops (still under images/):
 Discipline: prefer WebP or AVIF, cap file size for mobile, fixed aspect ratios per slot,
 blur placeholder in Next/Image where it matters (hero, above-fold).
 
+Minimum resolution (voorkomt wazige upscale):
+  hero / full-bleed: min. 1600px breed
+  cards / social: min. 1200px breed
+  na upload: npm run optimize:food  (genereert .webp uit .png)
+
 videos/hero-loops/     silent 6–12s webm/mp4, <5MB for web
 videos/smoke/          alpha or dark blend loops
 videos/fire/           ember / flame accents (subtle)

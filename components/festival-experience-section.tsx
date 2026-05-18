@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import { FoodImage } from "@/components/food-image";
+import { FOOD } from "@/lib/data/food-imagery";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedContainer } from "@/components/animated-container";
 import { SectionTitle } from "@/components/section-title";
 import { GlowButton } from "@/components/button";
-import { IMG_FESTIVAL_FOOD } from "@/lib/data/food-imagery";
-
-const bg = IMG_FESTIVAL_FOOD;
 
 export function FestivalExperienceSection() {
   const reduceMotion = useReducedMotion();
@@ -15,13 +13,13 @@ export function FestivalExperienceSection() {
   return (
     <section className="relative isolate min-h-[420px] overflow-hidden border-t border-white/10 py-24 md:min-h-[520px] md:py-32">
       <div className="absolute inset-0">
-        <Image
-          src={bg}
+        <FoodImage
+          src={FOOD.loadedTray.src}
           alt="Streetfood van de grill — close-up eten en warme sfeer"
+          tier="featured"
           fill
-          className="object-cover"
+          className="object-cover object-center"
           sizes="100vw"
-          priority={false}
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />
@@ -40,7 +38,7 @@ export function FestivalExperienceSection() {
           <SectionTitle
             eyebrow="Festival DNA"
             title="Van de grill. Op je bord."
-            description="Macro’s, smash, loaded trays en saus die plakt — alles draait om smaak en tempo, zonder afleiding van niet-food beelden."
+            description="Close-ups van smash, loaded trays en saus die blijft plakken — alles draait om smaak en tempo op het terrein."
           />
         </AnimatedContainer>
 
@@ -52,7 +50,7 @@ export function FestivalExperienceSection() {
           className="flex flex-col gap-4 md:items-end"
         >
           <p className="text-right text-sm text-muted-foreground md:max-w-xs">
-            Alleen eten & drank in beeld — premium plating, grillmarks en loaded classics.
+            Premium presentatie, grillmarks en loaded classics — puur eten en drank.
           </p>
           <GlowButton href="/events" variant="flame">
             Zie events

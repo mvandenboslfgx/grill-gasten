@@ -180,3 +180,27 @@
 @utility animate-glow-pulse {
   animation: glow-pulse 2.8s ease-in-out infinite;
 }
+
+@layer components {
+  .premium-card {
+    @apply transition duration-500 ease-out;
+  }
+  .premium-card:hover {
+    border-color: color-mix(in oklab, #ff5a1f 45%, transparent);
+    box-shadow: 0 24px 70px -36px rgba(255, 90, 31, 0.55);
+    transform: translateY(-4px);
+  }
+  .premium-media-card {
+    @apply transition duration-500 ease-out;
+  }
+  .premium-media-card:hover {
+    border-color: color-mix(in oklab, #ff5a1f 35%, transparent);
+    box-shadow: 0 20px 60px -30px rgba(255, 90, 31, 0.45);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .premium-card:hover,
+    .premium-media-card:hover {
+      transform: none;
+    }
+  }
+}

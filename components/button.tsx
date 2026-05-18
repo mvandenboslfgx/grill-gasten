@@ -31,8 +31,8 @@ export function GlowButton({
 
   const styles =
     variant === "flame"
-      ? "bg-primary text-primary-foreground shadow-[0_0_40px_-10px_rgba(255,90,31,0.85)] hover:brightness-110"
-      : "border border-white/15 bg-white/5 text-white backdrop-blur hover:border-primary/40 hover:bg-white/[0.08]";
+      ? "bg-primary text-primary-foreground shadow-[0_0_40px_-10px_rgba(255,90,31,0.85)] hover:brightness-110 hover:shadow-[0_0_52px_-6px_rgba(255,90,31,0.95)]"
+      : "border border-white/15 bg-white/5 text-white backdrop-blur hover:border-primary/50 hover:bg-white/[0.1] hover:shadow-[0_0_32px_-12px_rgba(255,90,31,0.4)]";
 
   const content = (
     <>

@@ -15,7 +15,9 @@ import { CateringBookingForm } from "@/features/forms/catering-booking-form";
 import { cateringFaqs, cateringPackages } from "@/lib/data/catering";
 import { GlowButton } from "@/components/button";
 import { TrustStrip } from "@/components/trust-strip";
+import { PhoneLink } from "@/components/phone-link";
 import { site } from "@/lib/site";
+import { getWhatsAppHref } from "@/lib/whatsapp";
 import { IMG_FOOD_TRUCK } from "@/lib/data/food-imagery";
 
 export const metadata: Metadata = {
@@ -45,11 +47,11 @@ const eventImpressiePoints = [
 const inzetbaarVoor = [
   "Festivals",
   "Bedrijfsfeesten",
-  "Car meets",
-  "Gym events",
   "Markten",
+  "Sportevents",
   "Schoolfeesten",
-  "Voetbalclubs",
+  "Bruiloften",
+  "Late night",
 ] as const;
 
 export default function CateringPage() {
@@ -71,14 +73,14 @@ export default function CateringPage() {
         <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 py-20 md:flex-row md:items-stretch md:justify-between md:gap-12 md:px-6 md:py-28 lg:px-8">
           <div className="max-w-xl space-y-6 md:py-1">
             <p className="text-primary text-xs font-semibold uppercase tracking-[0.42em]">
-              Premium streetfood · Mike &amp; Matthijs
+              Premium streetfood · Mike en Matthijs
             </p>
             <h1 className="font-heading text-[clamp(2.25rem,6vw,4.5rem)] leading-[0.95] tracking-[0.03em] text-white uppercase">
               Premium streetfood
               <span className="mt-1 block text-white/95">Voor jouw event</span>
             </h1>
             <p className="text-muted-foreground text-base leading-relaxed md:text-lg">
-              Truck op locatie, smash die kraakt, queues die bewegen — gebouwd voor drukte zonder in te leveren op smaak.
+              Truck op locatie, smash die kraakt, rijen die doorlopen — gebouwd voor drukte zonder in te leveren op smaak.
             </p>
             <div className="flex flex-wrap gap-2">
               {heroContextTags.map((label) => (
@@ -92,12 +94,16 @@ export default function CateringPage() {
             </div>
             <p className="text-sm font-medium text-white/80">
               Datum onder druk?{" "}
-              <span className="text-primary">App direct</span> — Mike &amp; Matthijs reageren meestal dezelfde dag.
+              <span className="text-primary">App ons direct</span> — Mike en Matthijs reageren meestal dezelfde dag.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <GlowButton href={site.whatsapp} variant="flame">
+              <GlowButton href={getWhatsAppHref("catering")} variant="flame">
                 WhatsApp
               </GlowButton>
+              <PhoneLink
+                showIcon
+                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/[0.06] px-7 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white hover:border-primary/40"
+              />
               <GlowButton href="#booking" variant="outline">
                 Offerte aanvragen
               </GlowButton>
@@ -152,9 +158,9 @@ export default function CateringPage() {
                 ))}
               </div>
               <p className="text-muted-foreground mt-5 text-sm leading-relaxed">
-                Ook voor openingen, verjaardagen, late-night en private events —{" "}
+                Ook voor openingen, verjaardagen, late night en privé-events —{" "}
                 <a href="#booking" className="text-primary underline-offset-4 hover:underline">
-                  pitch je idee
+                  vertel je wensen
                 </a>{" "}
                 in het formulier.
               </p>
@@ -167,7 +173,7 @@ export default function CateringPage() {
                 <li>Snacks</li>
                 <li>Streetfood specials</li>
                 <li>Snelle service</li>
-                <li>Complete foodtruck experience</li>
+                <li>Volledige foodtruckbeleving</li>
               </ul>
             </AnimatedContainer>
           </div>
@@ -182,9 +188,9 @@ export default function CateringPage() {
           <AnimatedContainer>
             <SectionTitle
               align="center"
-              eyebrow="Packages"
+              eyebrow="Pakketten"
               title="Kies je setup"
-              description="Mike & Matthijs schalen mee — van compact street tot volledige festival lane."
+              description="Mike en Matthijs schalen mee — van compacte street setup tot volledige festivalopstelling."
             />
           </AnimatedContainer>
 
@@ -225,7 +231,7 @@ export default function CateringPage() {
         <div className="mx-auto grid max-w-6xl gap-12 px-4 md:grid-cols-2 md:px-6 lg:px-8">
           <AnimatedContainer>
             <SectionTitle
-              eyebrow="Booking"
+              eyebrow="Boeking"
               title="Zet de datum vast"
               description="Vertel ons wat je bouwt — wij komen terug met een scherp voorstel en duidelijke volgende stappen."
             />
@@ -267,8 +273,8 @@ export default function CateringPage() {
       <CTASection
         title="Wil je meteen sparren?"
         description="WhatsApp voor snelle beschikbaarheid — cateringformulier voor een uitgewerkte offerte."
-        primaryHref={site.whatsapp}
-        primaryLabel="WhatsApp Mike & Matthijs"
+        primaryHref={getWhatsAppHref("catering")}
+        primaryLabel="WhatsApp Mike en Matthijs"
         secondaryHref="/catering#booking"
         secondaryLabel="Naar formulier"
         tertiaryHref="/contact"

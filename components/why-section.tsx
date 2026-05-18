@@ -11,8 +11,8 @@ const items = [
     icon: Flame,
   },
   {
-    title: "Festival-ready",
-    body: "Snelle service, complete foodtruck experience — waar honger en sfeer samenkomen.",
+    title: "Festivalproof",
+    body: "Snelle service, volledige foodtruckbeleving — waar honger en sfeer samenkomen.",
     icon: Truck,
   },
   {
@@ -31,7 +31,7 @@ export function WhySection() {
             align="center"
             eyebrow="Waarom GG"
             title="Voor echte gasten"
-            description="Opgericht door Mike en Matthijs: passie voor goed eten, festivals en echte streetfood cultuur — uit de Hoeksche Waard, inzetbaar door heel Nederland."
+            description="Opgericht door Mike en Matthijs: passie voor goed eten, festivals en echte streetfoodcultuur — vanuit de Hoeksche Waard, inzetbaar door heel Nederland."
           />
         </AnimatedContainer>
 

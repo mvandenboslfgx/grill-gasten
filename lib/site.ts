@@ -1,17 +1,20 @@
 export const site = {
   name: "Grill Gasten",
-  tagline: "Premium smashburgers, loaded snacks en festival food voor echte gasten.",
+  tagline: "Premium BBQ foodtruck — smashburgers, vuur en festivalenergie door heel Nederland.",
   description:
-    "Grill Gasten brengt premium streetfood, smashburgers en festival vibes naar events, catering en locaties door heel Nederland.",
-  /** Homepage + meta — SEO-tekst uit jullie briefing */
+    "Grill Gasten is dé premium BBQ foodtruck uit de Hoeksche Waard. Smashburgers, loaded fries en premium streetfood voor festivals, catering, bedrijfsfeesten en privé-events.",
   metaDescriptionHome:
-    "Grill Gasten uit de Hoeksche Waard brengt premium smashburgers, loaded fries en streetfood naar festivals, events, catering en locaties door heel Nederland.",
+    "Grill Gasten — premium BBQ foodtruck en burger catering in Rotterdam, Zuid-Holland en heel Nederland. Festivals, bedrijfsfeesten, bruiloften. Boek Mike en Matthijs.",
   founders: "Mike en Matthijs",
   region: "Hoeksche Waard",
+  serviceArea: "Rotterdam · Zuid-Holland · heel Nederland",
   url: "https://grillgasten.eu",
-  email: "hello@grillgasten.eu",
-  phone: "+31 6 00 00 00 00",
-  whatsapp: "https://wa.me/31600000000",
+  /** Boekingen & formulieren */
+  email: "info@grillgasten.eu",
+  phoneDisplay: "+31 6 49 56 56 98",
+  phoneTel: "tel:+31649565698",
+  phoneE164: "+31649565698",
+  whatsapp: "https://wa.me/31649565698",
   instagram: "https://www.instagram.com/grill_gasten/",
   tiktok: "https://www.tiktok.com/@grillgasten1",
   address: "Regio Hoeksche Waard — inzetbaar door heel Nederland",
@@ -20,8 +23,10 @@ export const site = {
 export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
-  { href: "/events", label: "Events" },
+  { href: "/foodtruck", label: "Foodtruck" },
   { href: "/catering", label: "Catering" },
-  { href: "/about", label: "Story" },
+  { href: "/festival", label: "Festival" },
+  { href: "/zakelijk", label: "Zakelijk" },
+  { href: "/about", label: "Over ons" },
   { href: "/contact", label: "Contact" },
 ] as const;

@@ -4,17 +4,21 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
+import { PhoneLink } from "@/components/phone-link";
+import { WhatsAppButton } from "@/components/whatsapp-button";
 import { navLinks, site } from "@/lib/site";
 import { GlowButton } from "@/components/button";
 import { cn } from "@/lib/utils";
 import { useScrolled } from "@/hooks/use-scrolled";
+import { whatsappIntentFromPath } from "@/lib/whatsapp";
 
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const scrolled = useScrolled(24);
   const reduceMotion = useReducedMotion();
+  const waIntent = whatsappIntentFromPath(pathname);
 
   React.useEffect(() => {
     setOpen(false);
@@ -55,11 +59,15 @@ export function Navbar() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <GlowButton href={site.whatsapp} variant="outline" className="border-primary/35 px-4 text-xs">
+        <div className="hidden items-center gap-2 lg:gap-3 md:flex">
+          <PhoneLink className="hidden items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground hover:text-white xl:inline-flex">
+            <Phone className="size-3.5 text-primary" aria-hidden />
+            {site.phoneDisplay}
+          </PhoneLink>
+          <WhatsAppButton intent={waIntent} variant="outline" className="border-primary/35 px-4 text-xs">
             WhatsApp
-          </GlowButton>
-          <GlowButton href="/catering" variant="flame">
+          </WhatsAppButton>
+          <GlowButton href="/catering#booking" variant="flame">
             Boek ons
           </GlowButton>
         </div>
@@ -95,10 +103,14 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <GlowButton href={site.whatsapp} variant="outline" className="border-primary/35">
+              <PhoneLink
+                showIcon
+                className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.14em] text-white"
+              />
+              <WhatsAppButton intent={waIntent} variant="outline" className="border-primary/35">
                 WhatsApp
-              </GlowButton>
-              <GlowButton href="/catering" variant="flame">
+              </WhatsAppButton>
+              <GlowButton href="/catering#booking" variant="flame">
                 Boek {site.name}
               </GlowButton>
             </div>

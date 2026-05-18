@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Bebas_Neue, Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { JsonLd } from "@/components/json-ld";
 import { SiteShell } from "@/components/site-shell";
+import { SEO_KEYWORDS } from "@/lib/seo/keywords";
 import { site } from "@/lib/site";
 
 const inter = Inter({
@@ -32,17 +34,7 @@ export const metadata: Metadata = {
     template: `%s — ${site.name}`,
   },
   description: site.metaDescriptionHome,
-  keywords: [
-    "foodtruck Hoeksche Waard",
-    "smashburgers Hoeksche Waard",
-    "catering foodtruck Nederland",
-    "festival foodtruck",
-    "premium streetfood",
-    "loaded fries foodtruck",
-    "smash burger catering",
-    "streetfood events Nederland",
-    "Grill Gasten",
-  ],
+  keywords: [...SEO_KEYWORDS],
   openGraph: {
     type: "website",
     locale: "nl_NL",
@@ -80,6 +72,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${bebas.variable} ${geistMono.variable} min-h-screen bg-background text-foreground antialiased`}
       >
+        <JsonLd />
         <SiteShell>{children}</SiteShell>
       </body>
     </html>

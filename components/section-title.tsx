@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
 type SectionTitleProps = {
+  id?: string;
   eyebrow?: string;
   title: string;
   description?: string;
@@ -9,6 +10,7 @@ type SectionTitleProps = {
 };
 
 export function SectionTitle({
+  id,
   eyebrow,
   title,
   description,
@@ -28,7 +30,10 @@ export function SectionTitle({
           {eyebrow}
         </p>
       ) : null}
-      <h2 className="font-heading text-4xl leading-[0.92] tracking-[0.04em] text-white uppercase sm:text-5xl md:text-6xl lg:text-[3.5rem]">
+      <h2
+        id={id}
+        className="font-heading text-4xl leading-[0.92] tracking-[0.04em] text-white uppercase sm:text-5xl md:text-6xl lg:text-[3.5rem]"
+      >
         {title}
       </h2>
       {description ? (

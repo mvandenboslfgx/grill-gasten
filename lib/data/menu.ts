@@ -1,4 +1,4 @@
-import { foodImage } from "@/lib/data/food-imagery";
+import { FOOD } from "@/lib/data/food-imagery";
 
 export type MenuCategory = "Smash Burgers" | "Loaded Fries" | "Snacks" | "Drinks";
 
@@ -17,7 +17,7 @@ export const menuItems: MenuItem[] = [
   {
     id: "classic-smash",
     name: "Classic Smash",
-    description: "Dubbele smash, American cheese, augurk, ui, GG saus — de basis die alles deelt.",
+    description: "Dubbele smash, American cheese, augurk, ui, GG-saus — het signatuurgerecht waar alles op voortbouwt.",
     price: "€11,50",
     category: "Smash Burgers",
     popular: true,
@@ -25,7 +25,7 @@ export const menuItems: MenuItem[] = [
   {
     id: "double-trouble",
     name: "Double Trouble",
-    description: "Twee patties, dubbele cheese, bacon, BBQ glaze — voor als één laag niet genoeg is.",
+    description: "Twee patties, dubbele kaas, bacon, BBQ-glaze — voor als één laag niet genoeg is.",
     price: "€14,00",
     category: "Smash Burgers",
     popular: true,
@@ -33,14 +33,14 @@ export const menuItems: MenuItem[] = [
   {
     id: "bbq-beast",
     name: "BBQ Beast",
-    description: "Smash, pulled-style topping, crispy onions, smoky BBQ — straight from de pit.",
+    description: "Smash, pulled-style topping, knapperige ui, smoky BBQ — recht van de grill.",
     price: "€13,50",
     category: "Smash Burgers",
   },
   {
     id: "hot-flame",
     name: "Hot Flame",
-    description: "Jalapeño, pepper jack, hot honey — heat waar je om vroeg.",
+    description: "Jalapeño, pepper jack, hot honey — pit waar je om vroeg.",
     price: "€13,00",
     category: "Smash Burgers",
     spicy: 3,
@@ -49,14 +49,14 @@ export const menuItems: MenuItem[] = [
   {
     id: "cheesy-madness",
     name: "Cheesy Madness",
-    description: "Extra cheese pull, caramelized onions, secret drizzle — geen excuses.",
+    description: "Extra cheese pull, gekarameliseerde ui, geheime drizzle — geen excuses.",
     price: "€12,50",
     category: "Smash Burgers",
   },
   {
     id: "pulled-chicken-loaded",
     name: "Pulled Chicken Loaded Fries",
-    description: "Golden fries, pulled chicken, sauce, spring onion — volgeladen.",
+    description: "Gouden friet, pulled chicken, gesmolten kaas en saus — een tray die je event onthoudt.",
     price: "€10,50",
     category: "Loaded Fries",
     popular: true,
@@ -64,7 +64,7 @@ export const menuItems: MenuItem[] = [
   {
     id: "bbq-bacon-fries",
     name: "BBQ Bacon Fries",
-    description: "Smoky BBQ, bacon bits, cheese melt — festival comfort.",
+    description: "Smoky BBQ, bacon bits, gesmolten kaas — festivalcomfort.",
     price: "€10,00",
     category: "Loaded Fries",
   },
@@ -79,14 +79,14 @@ export const menuItems: MenuItem[] = [
   {
     id: "dirty-cheese-fries",
     name: "Dirty Cheese Fries",
-    description: "Dubbele cheese, crispy topping, GG finish — messy op het juiste niveau.",
+    description: "Dubbele kaas, knapperige topping, GG-afwerking — lekker rommelig op het juiste niveau.",
     price: "€10,00",
     category: "Loaded Fries",
   },
   {
     id: "crispy-chicken-bites",
     name: "Crispy Chicken Bites",
-    description: "Knapperig van buiten, juicy van binnen — dip naar keuze.",
+    description: "Knapperig van buiten, sappig van binnen — dip naar keuze.",
     price: "€8,50",
     category: "Snacks",
     popular: true,
@@ -94,14 +94,14 @@ export const menuItems: MenuItem[] = [
   {
     id: "loaded-frikandel",
     name: "Loaded Frikandel Special",
-    description: "Street classic, loaded toppings — NL energy.",
+    description: "Streetfood-classic met volle toppings — Nederlandse energie.",
     price: "€7,50",
     category: "Snacks",
   },
   {
     id: "chili-cheese",
     name: "Chili Cheese Snacks",
-    description: "Melty cheese, chili kick, snackable format.",
+    description: "Gesmolten kaas, chili-kick — perfect als snack.",
     price: "€7,00",
     category: "Snacks",
     spicy: 2,
@@ -109,21 +109,21 @@ export const menuItems: MenuItem[] = [
   {
     id: "onion-rings",
     name: "Crunchy Onion Rings",
-    description: "Golden crunch — perfect naast je smash.",
+    description: "Goudbruin en knapperig — perfect naast je smash.",
     price: "€6,00",
     category: "Snacks",
   },
   {
     id: "lemonade",
     name: "Fresh Lemonade",
-    description: "Citrus, mint, crushed ice — reset tussen bites.",
+    description: "Citrus, munt en crushed ice — verfrissend tussen bites.",
     price: "€4,00",
     category: "Drinks",
   },
   {
     id: "cola",
     name: "Ice Cold Cola",
-    description: "Classic pairing — ijskoud.",
+    description: "Klassieke combinatie — ijskoud.",
     price: "€3,00",
     category: "Drinks",
   },
@@ -133,21 +133,29 @@ export const featuredHighlights = [
   {
     title: "Smash Burgers",
     description: "Smaak, kwaliteit, heet van de grill — waar je voor terugkomt.",
-    image: foodImage(1639562, 900),
+    image: FOOD.heroSmash.src,
+    width: FOOD.heroSmash.width,
+    height: FOOD.heroSmash.height,
   },
   {
     title: "Loaded Fries",
-    description: "Lagen toppings, cheese, attitude — delen mag, hoeven niet.",
-    image: foodImage(3616760, 900),
+    description: "Lagen toppings, kaas en attitude — delen mag, hoeven niet.",
+    image: FOOD.loadedTray.src,
+    width: FOOD.loadedTray.width,
+    height: FOOD.loadedTray.height,
   },
   {
     title: "Snacks",
-    description: "Bites, crunch, late-night hits — perfect naast de main.",
-    image: foodImage(2342121, 900),
+    description: "Bites, crunch en late-night favorieten — perfect naast het hoofdgerecht.",
+    image: FOOD.loadedBacon.src,
+    width: FOOD.loadedBacon.width,
+    height: FOOD.loadedBacon.height,
   },
   {
-    title: "Specials",
-    description: "Seizoenslijntjes en loaded specials — volg ons voor de drop.",
-    image: foodImage(5771896, 900),
+    title: "Drinks",
+    description: "Huisgemaakte iced tea en verse lemonade — koel naast de grill.",
+    image: FOOD.drinkPeach.src,
+    width: FOOD.drinkPeach.width,
+    height: FOOD.drinkPeach.height,
   },
 ] as const;

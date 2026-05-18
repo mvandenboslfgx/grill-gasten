@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Flame, MapPin, MessageCircle, Music2, Share2 } from "lucide-react";
+import { Flame, Mail, MapPin, MessageCircle, Music2, Phone, Share2 } from "lucide-react";
 import { AnimatedContainer } from "@/components/animated-container";
 import { SectionTitle } from "@/components/section-title";
 import { ContactForm } from "@/features/forms/contact-form";
 import { GlowButton } from "@/components/button";
+import { PhoneLink } from "@/components/phone-link";
 import { site } from "@/lib/site";
+import { getWhatsAppHref } from "@/lib/whatsapp";
+
+const contactWhatsApp = getWhatsAppHref("contact");
 
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Grill Gasten — festivals, catering en streetfood door heel Nederland. Regio Hoeksche Waard. Bereikbaar via WhatsApp.",
+    "Contact Grill Gasten ? WhatsApp, bellen of mail. Premium BBQ foodtruck voor festivals, catering en events in heel Nederland.",
 };
 
 export default function ContactPage() {
@@ -28,14 +32,25 @@ export default function ContactPage() {
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <span>
-                <span className="text-white">Regio Hoeksche Waard</span> — inzetbaar door heel Nederland
+                <span className="text-white">Regio Hoeksche Waard</span> ? inzetbaar door heel Nederland
               </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Phone className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+              <span>
+                <PhoneLink className="text-white hover:text-primary" />
+              </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Mail className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+              <a className="text-white hover:text-primary" href={`mailto:${site.email}`}>
+                {site.email}
+              </a>
             </li>
             <li className="flex items-start gap-3">
               <MessageCircle className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <span>
-                <span className="text-white">Primair bereikbaar via WhatsApp</span> — snelste reactie voor boekingen en
-                vragen.
+                <span className="text-white">WhatsApp</span> ? snelste reactie voor boekingen
               </span>
             </li>
             <li className="flex items-start gap-3">
@@ -47,10 +62,9 @@ export default function ContactPage() {
           <div className="space-y-4 rounded-3xl border border-white/10 bg-[#111] p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white">Direct</p>
             <ul className="space-y-4 text-sm text-muted-foreground">
-              <li className="flex items-center gap-3">
-                <MessageCircle className="size-4 shrink-0 text-primary" aria-hidden />
-                <a className="hover:text-white" href={site.whatsapp} rel="noreferrer" target="_blank">
-                  WhatsApp — boekingen & vragen
+              <li>
+                <a className="hover:text-white" href={contactWhatsApp} rel="noopener noreferrer" target="_blank">
+                  WhatsApp ? boekingen en vragen
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -68,16 +82,22 @@ export default function ContactPage() {
             </ul>
           </div>
 
-          <GlowButton href={site.whatsapp} variant="flame">
-            Open WhatsApp
-          </GlowButton>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <GlowButton href={contactWhatsApp} variant="flame">
+              Open WhatsApp
+            </GlowButton>
+            <PhoneLink
+              showIcon
+              className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white"
+            />
+          </div>
         </AnimatedContainer>
 
         <AnimatedContainer delay={0.08}>
-          <div className="rounded-3xl border border-white/10 bg-[#111] p-6 md:p-8">
+                    <div className="rounded-3xl border border-white/10 bg-[#111] p-6 md:p-8">
             <h2 className="font-heading text-2xl tracking-wide text-white uppercase">Stuur een bericht</h2>
             <p className="text-muted-foreground mt-2 text-sm">
-              Liever schriftelijk? Vul het formulier in — we koppelen terug (demo: nog geen e-mailbackend).
+              Officieel formulier ? wordt verstuurd naar {site.email}. Je krijgt bevestiging op het scherm.
             </p>
             <div className="mt-6">
               <ContactForm />
@@ -88,3 +108,4 @@ export default function ContactPage() {
     </div>
   );
 }
+

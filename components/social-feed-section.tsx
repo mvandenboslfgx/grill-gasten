@@ -1,22 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedContainer } from "@/components/animated-container";
+import { FoodImage } from "@/components/food-image";
 import { SectionTitle } from "@/components/section-title";
-import { SOCIAL_FOOD_TILE_IDS, socialFoodTileUrl } from "@/lib/data/food-imagery";
-
-const foodAlts = [
-  "Sizzling smashburger met gesmolten kaas",
-  "Loaded fries met vlees en toppings",
-  "Knapperige kip of wings van de grill",
-  "Sauzen en melted cheese close-up",
-  "Premium smashburger — macro",
-  "Gegrild vlees en streetfood van de grill",
-  "Warme streetfood spread",
-  "Verfrissend drankje bij de grill",
-  "Knapperige snack met dip",
-] as const;
+import { SOCIAL_FOOD_TILES } from "@/lib/data/food-imagery";
 
 export function SocialFeedSection() {
   const reduceMotion = useReducedMotion();
@@ -27,16 +15,16 @@ export function SocialFeedSection() {
         <AnimatedContainer>
           <SectionTitle
             align="center"
-            eyebrow="Eten & drinken"
-            title="Close-ups die honger maken"
-            description="Alleen food & drinks in beeld — burgers, loaded fries, snacks en drank. Jullie eigen reels kunnen hier later live ingeladen worden."
+            eyebrow="Gallery"
+            title="Premium BBQ in beeld"
+            description="Echte visuals — smash, loaded trays en festival energy. Geen stock, wel GG."
           />
         </AnimatedContainer>
 
         <div className="columns-2 gap-3 sm:columns-3 lg:gap-4">
-          {SOCIAL_FOOD_TILE_IDS.map((id, index) => (
+          {SOCIAL_FOOD_TILES.map((tile, index) => (
             <motion.div
-              key={`${id}-${index}`}
+              key={`${tile.src}-${index}`}
               initial={reduceMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
@@ -44,13 +32,15 @@ export function SocialFeedSection() {
               className="mb-3 break-inside-avoid overflow-hidden rounded-2xl border border-white/10 bg-[#111] lg:mb-4"
             >
               <div className="relative">
-                <Image
-                  src={socialFoodTileUrl(id)}
-                  alt={foodAlts[index] ?? "Grill Gasten streetfood"}
-                  width={800}
-                  height={1000}
+                <FoodImage
+                  src={tile.src}
+                  alt={tile.alt}
+                  width={tile.width}
+                  height={tile.height}
+                  tier="featured"
                   loading="lazy"
-                  className="h-auto w-full object-cover"
+                  sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+                  className="h-auto w-full object-cover object-center"
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
               </div>
