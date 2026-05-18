@@ -86,34 +86,55 @@ export function PreorderFlow() {
       return;
     }
 
-    const payload = {
-      type: "preorder" as const,
+    const orderBody = {
       name: String(fd.get("name") ?? ""),
       phone: String(fd.get("phone") ?? ""),
       email: String(fd.get("email") ?? ""),
       date: String(fd.get("date") ?? ""),
       time: String(fd.get("time") ?? ""),
       location: String(fd.get("location") ?? "Foodtruck"),
-      message: cartToMessage(lines) + `\n\nTotaal indicatie: ${formatEur(cartTotal(lines))}`,
+      lines,
       website: String(fd.get("website") ?? ""),
     };
 
+    const fallbackPayload = {
+      type: "preorder" as const,
+      ...orderBody,
+      message: cartToMessage(lines) + `\n\nTotaal indicatie: ${formatEur(cartTotal(lines))}`,
+    };
+
     try {
-      const res = await fetch("/api/inquiry", {
+      let res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(orderBody),
       });
+
+      if (res.status === 503) {
+        res = await fetch("/api/inquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(fallbackPayload),
+        });
+      }
+
       const data = (await res.json()) as {
         ok?: boolean;
         error?: string;
         orderId?: string;
         qrDataUrl?: string;
+        checkoutUrl?: string;
+        paymentRequired?: boolean;
       };
 
       if (!res.ok || !data.ok) {
         setStatus("error");
         setErrorMsg(data.error ?? "Verzenden mislukt.");
+        return;
+      }
+
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
         return;
       }
 

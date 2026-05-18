@@ -60,7 +60,7 @@ export default function RewardsPage() {
         <AnimatedContainer className="rounded-3xl border border-[#d4af37]/30 bg-[#111] p-6 md:p-8">
           <h2 className="font-heading text-2xl uppercase text-white">Early access</h2>
           <p className="text-muted-foreground mt-2 max-w-xl text-sm">
-            Account, QR-scan en wallet komen in fase 2 (Supabase + app). Meld je nu aan — eerste leden krijgen bonuspunten.
+            Meld je aan voor 25 welkomstpunten. Volledige wallet & QR-scan volgen zodra je account live is.
           </p>
           <div className="mt-6 max-w-md">
             <RewardsWaitlistForm />

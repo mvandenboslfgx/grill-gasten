@@ -13,6 +13,8 @@
     "optimize:food": "node scripts/optimize-food-images.mjs"
   },
   "dependencies": {
+    "@mollie/api-client": "^4.5.0",
+    "@supabase/supabase-js": "^2.106.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",

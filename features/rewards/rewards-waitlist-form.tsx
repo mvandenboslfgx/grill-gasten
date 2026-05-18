@@ -16,18 +16,31 @@ export function RewardsWaitlistForm() {
     const fd = new FormData(form);
 
     try {
-      const res = await fetch("/api/inquiry", {
+      let res = await fetch("/api/rewards/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: "rewards",
           name: String(fd.get("name") ?? ""),
           email: String(fd.get("email") ?? ""),
           phone: String(fd.get("phone") ?? ""),
-          message: "Aanmelding Grill Rewards waitlist",
           website: String(fd.get("website") ?? ""),
         }),
       });
+
+      if (res.status >= 500) {
+        res = await fetch("/api/inquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "rewards",
+            name: String(fd.get("name") ?? ""),
+            email: String(fd.get("email") ?? ""),
+            phone: String(fd.get("phone") ?? ""),
+            message: "Aanmelding Grill Rewards waitlist",
+            website: String(fd.get("website") ?? ""),
+          }),
+        });
+      }
       const data = (await res.json()) as { ok?: boolean };
       if (!res.ok || !data.ok) {
         setStatus("error");
