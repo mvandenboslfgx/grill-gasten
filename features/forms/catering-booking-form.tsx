@@ -32,10 +32,11 @@ export function CateringBookingForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const form = e.currentTarget;
     setStatus("loading");
     setErrorMsg(null);
 
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData(form);
     const payload = {
       type: "booking" as const,
       name: String(fd.get("name") ?? ""),
@@ -64,7 +65,7 @@ export function CateringBookingForm() {
       }
 
       setStatus("success");
-      e.currentTarget.reset();
+      form.reset();
     } catch {
       setStatus("error");
       setErrorMsg("Geen verbinding. Probeer WhatsApp of bel direct.");
