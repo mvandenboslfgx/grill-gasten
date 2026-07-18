@@ -5,12 +5,19 @@ import type {
   PricedOrderLine,
 } from "@/lib/catalog/types";
 
-export const MAX_QTY_PER_LINE = 20;
 export const MAX_LINES_PER_ORDER = 30;
-export const MAX_ORDER_CENTS = 50_000; // €500
+export const MAX_ORDER_SUBTOTAL_CENTS = 50_000;
+
+function sanitizePlainText(raw: string, max: number): string {
+  return raw
+    .replace(/<[^>]*>/g, "")
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .trim()
+    .slice(0, max);
+}
 
 export type PriceResult =
-  | { ok: true; lines: PricedOrderLine[]; totalCents: number }
+  | { ok: true; lines: PricedOrderLine[]; subtotalCents: number }
   | { ok: false; error: string };
 
 /**
@@ -25,7 +32,7 @@ export function priceOrderLines(inputs: ClientOrderLineInput[]): PriceResult {
   }
 
   const priced: PricedOrderLine[] = [];
-  let totalCents = 0;
+  let subtotalCents = 0;
 
   for (const input of inputs) {
     const product = getProductById(input.productId);
@@ -43,8 +50,11 @@ export function priceOrderLines(inputs: ClientOrderLineInput[]): PriceResult {
     if (!Number.isInteger(qty) || qty < 1) {
       return { ok: false, error: "Aantal moet minimaal 1 zijn." };
     }
-    if (qty > MAX_QTY_PER_LINE) {
-      return { ok: false, error: `Maximaal ${MAX_QTY_PER_LINE} per product.` };
+    if (qty > product.maxQuantityPerOrder) {
+      return {
+        ok: false,
+        error: `Maximaal ${product.maxQuantityPerOrder}× ${product.name}.`,
+      };
     }
 
     const optionIds = Array.isArray(input.optionIds) ? input.optionIds : [];
@@ -75,14 +85,26 @@ export function priceOrderLines(inputs: ClientOrderLineInput[]): PriceResult {
       );
     }
 
+    let sauceChoice: string | undefined;
+    if (product.requiresSauceChoice) {
+      const raw = typeof input.sauceChoice === "string" ? input.sauceChoice : "";
+      sauceChoice = sanitizePlainText(raw, 30);
+      if (!sauceChoice) {
+        return {
+          ok: false,
+          error: "Geef je sauskeuze aan (max. 30 tekens).",
+        };
+      }
+    }
+
     const note =
       typeof input.note === "string" && input.note.trim()
-        ? input.note.trim().slice(0, 200)
+        ? sanitizePlainText(input.note, 200)
         : undefined;
 
     const unitPriceCents = product.priceCents + optionsCents;
     const lineTotalCents = unitPriceCents * qty;
-    totalCents += lineTotalCents;
+    subtotalCents += lineTotalCents;
 
     priced.push({
       productId: product.id,
@@ -90,18 +112,29 @@ export function priceOrderLines(inputs: ClientOrderLineInput[]): PriceResult {
       qty,
       optionIds: [...seen],
       optionLabels,
+      sauceChoice,
       unitPriceCents,
       lineTotalCents,
       note,
     });
   }
 
-  if (totalCents > MAX_ORDER_CENTS) {
-    return { ok: false, error: "Het orderbedrag is te hoog. Neem contact op via WhatsApp." };
+  if (subtotalCents > MAX_ORDER_SUBTOTAL_CENTS) {
+    return {
+      ok: false,
+      error: "Het orderbedrag is te hoog. Neem contact op via WhatsApp.",
+    };
   }
-  if (totalCents <= 0) {
+  if (subtotalCents <= 0) {
     return { ok: false, error: "Ongeldig orderbedrag." };
   }
 
-  return { ok: true, lines: priced, totalCents };
+  return { ok: true, lines: priced, subtotalCents };
+}
+
+/** Backwards-compatible alias used by older tests/UI. */
+export function priceOrderLinesLegacy(inputs: ClientOrderLineInput[]) {
+  const r = priceOrderLines(inputs);
+  if (!r.ok) return r;
+  return { ok: true as const, lines: r.lines, totalCents: r.subtotalCents };
 }

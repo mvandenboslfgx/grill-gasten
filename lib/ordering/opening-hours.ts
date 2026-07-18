@@ -1,36 +1,38 @@
 /**
- * Openingstijden en bestelconfiguratie.
- * Pas openDays / slots aan wanneer online bestellen actief is.
- *
- * orderingEnabled = false → frontend toont “tijdelijk gesloten” + WhatsApp.
+ * Openingstijden — gesloten standaard tot eigenaar dagen bevestigt.
  */
 
 export const orderingConfig = {
   /** Zet op true wanneer Supabase + Mollie live zijn en dagen zijn ingesteld. */
   orderingEnabled: false,
 
-  /** ISO weekday: 0 = zondag … 6 = zaterdag */
-  openWeekdays: [5, 6] as number[], // vrijdag + zaterdag (voorbeeld; aanpassen)
+  /** ISO weekday: 0 = zondag … 6 = zaterdag — leeg = geen dagen open */
+  openWeekdays: [] as number[],
 
-  /** HH:mm slots */
+  pickupSlotStart: "17:00",
+  pickupSlotEnd: "21:00",
+  pickupSlotMinutes: 15,
+  pickupSlotCapacity: 12,
+
+  deliveryWindowStart: "17:00",
+  deliveryWindowEnd: "21:00",
+  deliveryWindowMinutes: 30,
+  deliveryWindowCapacity: 8,
+
+  minLeadMinutesPickup: 60,
+  minLeadMinutesDelivery: 90,
+
+  daysAhead: 14,
+  closedDates: [] as string[],
+  extraOpenDates: [] as string[],
+  timezone: "Europe/Amsterdam",
+
+  /** Legacy aliases */
   slotStart: "17:00",
   slotEnd: "21:00",
   slotMinutes: 15,
   slotCapacity: 12,
-
-  /** Minimaal aantal minuten vooruit bestellen */
   minLeadMinutes: 60,
-
-  /** Hoeveel dagen vooruit zichtbaar */
-  daysAhead: 14,
-
-  /** YYYY-MM-DD gesloten */
-  closedDates: [] as string[],
-
-  /** YYYY-MM-DD extra open (overschrijft weekday) */
-  extraOpenDates: [] as string[],
-
-  timezone: "Europe/Amsterdam",
-} as const;
+};
 
 export type OrderingConfig = typeof orderingConfig;

@@ -3,6 +3,7 @@ import { HeroSection } from "@/components/hero-section";
 import { PopularDishesSection } from "@/components/popular-dishes-section";
 import { BurgerSizesSection } from "@/components/burger-sizes-section";
 import { ExtraOptionsSection } from "@/components/extra-options-section";
+import { PickupDeliverySection } from "@/components/pickup-delivery-section";
 import { HowToOrderSection } from "@/components/how-to-order-section";
 import { HomeAboutSnippet } from "@/components/home-about-snippet";
 import { HomeCateringCta } from "@/components/home-catering-cta";
@@ -24,6 +25,7 @@ export default function HomePage() {
       <PopularDishesSection />
       <BurgerSizesSection />
       <ExtraOptionsSection />
+      <PickupDeliverySection />
       <HowToOrderSection />
       <HomeAboutSnippet />
       <SocialProofSection />

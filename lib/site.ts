@@ -1,13 +1,14 @@
 export const site = {
   name: "Grill Gasten",
-  tagline: "Verse smashburgers, loaded fries en spicy chicken. Snel besteld, heet bereid.",
+  tagline:
+    "Verse smashburgers, loaded fries en spicy chicken. Afhalen of bezorgd in de Hoeksche Waard.",
   description:
-    "Grill Gasten — smashburgers, loaded fries en spicy chicken uit de Hoeksche Waard. Bestel online of vraag naar catering voor je feest.",
+    "Grill Gasten — smashburgers, loaded fries en spicy chicken uit de Hoeksche Waard. Afhalen of bezorgen, of vraag naar catering voor je feest.",
   metaDescriptionHome:
-    "Smashburgers bestellen bij Grill Gasten in de Hoeksche Waard. Double smash, loaded fries en spicy chicken — bestel online en haal af.",
+    "Smashburgers bestellen bij Grill Gasten in de Hoeksche Waard. Afhalen of bezorgen. Double smash, loaded fries en spicy chicken.",
   founders: "Mike en Matthijs",
   region: "Hoeksche Waard",
-  serviceArea: "Rotterdam · Zuid-Holland · heel Nederland",
+  serviceArea: "Hoeksche Waard — afhalen of bezorgen",
   url: "https://grillgasten.eu",
   logo: "/brand/grill-gasten-logo.png",
   slogan: "Smaak. Passie. Samen genieten.",

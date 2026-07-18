@@ -28,8 +28,8 @@ export default function VoorwaardenPage() {
         <section className="space-y-3">
           <h2 className="font-heading text-xl uppercase text-white">1. Toepasselijkheid</h2>
           <p>
-            Deze voorwaarden gelden op bestellingen via onze website en op aanverwante diensten (o.a.
-            afhalen). Afwijkingen gelden alleen schriftelijk.
+            Deze voorwaarden gelden op bestellingen via onze website en op aanverwante diensten (afhalen
+            en bezorgen). Afwijkingen gelden alleen schriftelijk.
           </p>
         </section>
 
@@ -61,7 +61,21 @@ export default function VoorwaardenPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">5. Wijzigen en annuleren</h2>
+          <h2 className="font-heading text-xl uppercase text-white">5. Bezorgen</h2>
+          <p>
+            We bezorgen in de Hoeksche Waard tot maximaal 25 km enkele reis vanaf Klaaswaal.
+            Bezorgkosten en een minimum bestelbedrag (exclusief bezorgkosten) hangen af van de zone.
+            Je kiest een bezorgtijdvak van 30 minuten. Tiengemeten is alleen mogelijk in overleg.
+          </p>
+          <p>
+            Zorg dat het adres klopt en dat iemand de bestelling kan aannemen. Bij een onjuist adres,
+            niet thuis zonder instructie, of vertraging buiten onze schuld, zijn wij niet verplicht tot
+            gratis herbezorging of terugbetaling.
+          </p>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-heading text-xl uppercase text-white">6. Wijzigen en annuleren</h2>
           <p>
             Wijzigen of annuleren na betaling is alleen mogelijk in overleg en zolang bereiding nog niet
             is gestart. Neem direct contact op via WhatsApp of telefoon.
@@ -69,7 +83,7 @@ export default function VoorwaardenPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">6. Terugbetaling</h2>
+          <h2 className="font-heading text-xl uppercase text-white">7. Terugbetaling</h2>
           <p>
             Bij een aantoonbare fout van onze kant (verkeerde bestelling, niet geleverd terwijl betaald)
             herstellen we dit of betalen we terug via dezelfde betaalmethode waar mogelijk.
@@ -77,7 +91,7 @@ export default function VoorwaardenPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">7. Beschikbaarheid</h2>
+          <h2 className="font-heading text-xl uppercase text-white">8. Beschikbaarheid</h2>
           <p>
             Producten kunnen uitverkocht of tijdelijk niet beschikbaar zijn. Openingstijden en
             bestelvensters kunnen wijzigen.
@@ -85,7 +99,7 @@ export default function VoorwaardenPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">8. Allergenen</h2>
+          <h2 className="font-heading text-xl uppercase text-white">9. Allergenen</h2>
           <p>
             Heb je een allergie? Neem vóór het bestellen contact op. In onze keuken kan kruisbesmetting
             niet volledig worden uitgesloten.
@@ -93,23 +107,23 @@ export default function VoorwaardenPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">9. Klachten</h2>
+          <h2 className="font-heading text-xl uppercase text-white">10. Klachten</h2>
           <p>
             Meld klachten zo snel mogelijk via {site.email} of WhatsApp, bij voorkeur met bestelnummer.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">10. Aansprakelijkheid</h2>
+          <h2 className="font-heading text-xl uppercase text-white">11. Aansprakelijkheid</h2>
           <p>
             Onze aansprakelijkheid is beperkt tot het bedrag van de betreffende bestelling, voor zover
             dwingend recht niet anders bepaalt. Wij zijn niet aansprakelijk voor schade door te laat
-            afhalen of onjuiste gegevens die je zelf hebt doorgegeven.
+            afhalen, bezorgen bij een onjuist adres, of onjuiste gegevens die je zelf hebt doorgegeven.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">11. Catering</h2>
+          <h2 className="font-heading text-xl uppercase text-white">12. Catering</h2>
           <p>
             Offertes voor feesten of evenementen zijn vrijblijvend tot schriftelijke bevestiging. Prijzen
             op aanvraag.
@@ -117,7 +131,7 @@ export default function VoorwaardenPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-heading text-xl uppercase text-white">12. Recht</h2>
+          <h2 className="font-heading text-xl uppercase text-white">13. Recht</h2>
           <p>Op deze voorwaarden is Nederlands recht van toepassing.</p>
         </section>
 

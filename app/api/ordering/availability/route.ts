@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import {
   getAvailableDates,
-  getAvailableSlotsForDate,
+  getAvailableDeliveryWindows,
+  getAvailablePickupSlots,
   isOrderingOpen,
 } from "@/lib/ordering/availability";
 import { orderingConfig } from "@/lib/ordering/opening-hours";
@@ -12,6 +13,7 @@ export const runtime = "nodejs";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const date = url.searchParams.get("date");
+  const method = url.searchParams.get("method") === "delivery" ? "delivery" : "pickup";
 
   const infraReady = isSupabaseConfigured() && isMollieConfigured();
   const open = infraReady && orderingConfig.orderingEnabled && isOrderingOpen();
@@ -28,18 +30,28 @@ export async function GET(request: Request) {
             ? null
             : "no_slots",
       dates: open ? getAvailableDates() : [],
-      slotCapacity: orderingConfig.slotCapacity,
+      pickupCapacity: orderingConfig.pickupSlotCapacity,
+      deliveryCapacity: orderingConfig.deliveryWindowCapacity,
     });
   }
 
   if (!open) {
-    return NextResponse.json({ ok: true, orderingEnabled: false, slots: [] });
+    return NextResponse.json({ ok: true, orderingEnabled: false, slots: [], windows: [] });
+  }
+
+  if (method === "delivery") {
+    return NextResponse.json({
+      ok: true,
+      orderingEnabled: true,
+      date,
+      windows: getAvailableDeliveryWindows(date),
+    });
   }
 
   return NextResponse.json({
     ok: true,
     orderingEnabled: true,
     date,
-    slots: getAvailableSlotsForDate(date),
+    slots: getAvailablePickupSlots(date),
   });
 }

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   const { data, error } = await db
     .from("orders")
     .select(
-      "id, order_number, status, payment_status, customer_name, pickup_time, lines, total_cents, created_at",
+      "id, order_number, status, payment_status, fulfillment_method, customer_name, customer_phone, pickup_time, delivery_window, delivery_city, delivery_zone, delivery_street, delivery_postcode, delivery_house_number, delivery_addition, delivery_instructions, delivery_distance_meters, notes, lines, total_cents, subtotal_cents, delivery_fee_cents, created_at",
     )
     .eq("pickup_date", date)
     .not("status", "eq", "cancelled")
@@ -41,13 +41,26 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: false, error: "id en status verplicht" }, { status: 400 });
   }
 
-  const allowed: OrderStatus[] = ["pending", "confirmed", "preparing", "ready", "picked_up", "cancelled"];
+  const allowed: OrderStatus[] = [
+    "pending",
+    "confirmed",
+    "preparing",
+    "ready",
+    "out_for_delivery",
+    "delivered",
+    "picked_up",
+    "cancelled",
+  ];
   if (!allowed.includes(body.status)) {
     return NextResponse.json({ ok: false, error: "Ongeldige status" }, { status: 400 });
   }
 
   const db = getSupabaseAdmin();
-  const { error } = await db.from("orders").update({ status: body.status }).eq("id", body.id);
+  const patch: Record<string, string> = { status: body.status };
+  if (body.status === "out_for_delivery") patch.batch_status = "out_for_delivery";
+  if (body.status === "delivered") patch.batch_status = "delivered";
+
+  const { error } = await db.from("orders").update(patch).eq("id", body.id);
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });

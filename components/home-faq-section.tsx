@@ -13,31 +13,55 @@ import { ALLERGEN_NOTICE } from "@/lib/catalog/products";
 const faqs = [
   {
     q: "Hoe plaats ik een bestelling?",
-    a: "Ga naar Bestellen, kies je gerechten en extras, kies een beschikbaar afhaalmoment en betaal veilig online. Daarna haal je je bestelling af op het gekozen tijdstip.",
+    a: "Ga naar Bestellen, kies je gerechten, kies afhalen of bezorgen, selecteer een beschikbaar moment en betaal veilig online.",
+  },
+  {
+    q: "Kan ik laten bezorgen?",
+    a: "Ja, we bezorgen in de hele Hoeksche Waard tot maximaal 25 km vanaf Klaaswaal. Bezorgkosten en minimum bestelling hangen af van je zone.",
+  },
+  {
+    q: "In welke plaatsen bezorgen jullie?",
+    a: "In de Hoeksche Waard, zolang je adres binnen 25 km enkele reis vanaf Klaaswaal ligt. Tiengemeten alleen in overleg via WhatsApp.",
+  },
+  {
+    q: "Wat zijn de bezorgkosten?",
+    a: "Vanaf €2,99 tot €12,49, afhankelijk van de afstand. De exacte zone zie je na het controleren van je postcode en huisnummer.",
+  },
+  {
+    q: "Waarom geldt een minimum bestelbedrag?",
+    a: "Verder weg rijden kost meer tijd en brandstof. Het minimum geldt voor je gerechten — bezorgkosten tellen daar niet bij.",
+  },
+  {
+    q: "Kan ik mijn bestelling afhalen?",
+    a: "Ja. Kies afhalen, selecteer een beschikbaar moment en betaal online. Geen bezorgkosten.",
   },
   {
     q: "Kan ik ei of bacon toevoegen?",
-    a: "Ja. Gebakken ei (+ €1,00) en bacon (+ €0,75) zijn optionele extras bij burgers. Ze zijn niet standaard inbegrepen.",
+    a: "Ja, bij smashburgers: gebakken ei (+ €1,00) en bacon (+ €0,75). Beide zijn optioneel en niet standaard inbegrepen.",
   },
   {
     q: "Kan ik augurk kiezen?",
-    a: "Ja. Je kunt gratis augurk kiezen als vervanging voor komkommer en tomaat in de standaard burgeropbouw.",
+    a: "Ja. Gratis augurk in plaats van komkommer en tomaat bij smashburgers.",
   },
   {
     q: "Welke sauzen zijn beschikbaar?",
-    a: "Sauzen wisselen mee met wat we die dag hebben. Vraag ernaar bij bestellen of via WhatsApp — losse saus kost €0,50.",
+    a: "Vraag naar de beschikbare sauzen of geef je keuze aan tijdens het bestellen. €0,50 per saus.",
   },
   {
-    q: "Hoe werkt afhalen?",
-    a: "Na betaling krijg je een bestelnummer en afhaalmoment. Kom op tijd — te laat afhalen kan betekenen dat de bestelling kouder is of niet meer klaarstaat.",
+    q: "Hoe werkt het bezorgtijdvak?",
+    a: "Je kiest een venster van 30 minuten (bijv. 18.00–18.30). We streven ernaar binnen dat venster te bezorgen.",
+  },
+  {
+    q: "Wat gebeurt er wanneer online bestellen gesloten is?",
+    a: "Dan kun je geen bestelling plaatsen via de site. Gebruik WhatsApp of bel ons — we helpen je graag.",
   },
   {
     q: "Kan ik allergeneninformatie krijgen?",
     a: ALLERGEN_NOTICE,
   },
   {
-    q: "Kan Grill Gasten ook worden geboekt voor een feest?",
-    a: "Ja. Voor feestjes, verjaardagen of bedrijfsmomenten kun je via Catering of WhatsApp een vrijblijvende aanvraag doen. Prijs op aanvraag.",
+    q: "Kan Grill Gasten worden geboekt voor een feest?",
+    a: "Ja. Via Catering of WhatsApp kun je vrijblijvend vragen naar de mogelijkheden. Prijs op aanvraag.",
   },
 ] as const;
 

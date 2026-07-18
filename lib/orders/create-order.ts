@@ -1,7 +1,12 @@
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import type { PricedOrderLine } from "@/lib/catalog/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import type { DbOrder, OrderStatus, PaymentStatus } from "@/lib/orders/types";
+import type {
+  DbOrder,
+  FulfillmentMethod,
+  OrderStatus,
+  PaymentStatus,
+} from "@/lib/orders/types";
 
 export type CreateOrderDbInput = {
   name: string;
@@ -9,19 +14,28 @@ export type CreateOrderDbInput = {
   email: string;
   date: string;
   time: string;
+  method: FulfillmentMethod;
   lines: PricedOrderLine[];
+  subtotalCents: number;
+  deliveryFeeCents: number;
   totalCents: number;
   notes?: string;
+  deliveryWindow?: string;
+  deliveryStreet?: string;
+  deliveryPostcode?: string;
+  deliveryHouseNumber?: string;
+  deliveryAddition?: string;
+  deliveryCity?: string;
+  deliveryZone?: number;
+  deliveryDistanceMeters?: number;
+  deliveryDurationSeconds?: number;
+  deliveryInstructions?: string;
 };
 
 export type CreateOrderDbResult =
   | { ok: true; order: DbOrder }
   | { ok: false; code: "slot_full" | "conflict" | "error"; message: string };
 
-/**
- * Atomische orderaanmaak via RPC create_order_with_slot.
- * Fallback: count+insert alleen als RPC nog niet gemigreerd is.
- */
 export async function createOrderAtomic(
   input: CreateOrderDbInput,
 ): Promise<CreateOrderDbResult> {
@@ -34,6 +48,7 @@ export async function createOrderAtomic(
     qty: l.qty,
     optionIds: l.optionIds,
     optionLabels: l.optionLabels,
+    sauceChoice: l.sauceChoice,
     unitPriceCents: l.unitPriceCents,
     lineTotalCents: l.lineTotalCents,
     note: l.note,
@@ -49,29 +64,40 @@ export async function createOrderAtomic(
     p_lines: linesJson,
     p_total_cents: input.totalCents,
     p_notes: input.notes ?? null,
+    p_fulfillment_method: input.method,
+    p_delivery_window: input.deliveryWindow ?? null,
+    p_subtotal_cents: input.subtotalCents,
+    p_delivery_fee_cents: input.deliveryFeeCents,
+    p_delivery_street: input.deliveryStreet ?? null,
+    p_delivery_postcode: input.deliveryPostcode ?? null,
+    p_delivery_house_number: input.deliveryHouseNumber ?? null,
+    p_delivery_addition: input.deliveryAddition ?? null,
+    p_delivery_city: input.deliveryCity ?? null,
+    p_delivery_zone: input.deliveryZone ?? null,
+    p_delivery_distance_meters: input.deliveryDistanceMeters ?? null,
+    p_delivery_duration_seconds: input.deliveryDurationSeconds ?? null,
+    p_delivery_instructions: input.deliveryInstructions ?? null,
   });
 
   if (!error && data) {
     const row = Array.isArray(data) ? data[0] : data;
     if (row?.error_code === "slot_full") {
-      return { ok: false, code: "slot_full", message: "Dit tijdslot is vol." };
+      return { ok: false, code: "slot_full", message: "Dit tijdvak is vol. Kies een ander moment." };
     }
     if (row?.id) {
       return { ok: true, order: row as DbOrder };
     }
   }
 
-  // Fallback wanneer RPC nog niet bestaat
   if (error?.message?.includes("create_order_with_slot") || error?.code === "PGRST202") {
     return createOrderFallback(input, orderNumber);
   }
 
   if (error?.code === "23505") {
-    // Unique collision on order_number — retry once
     return createOrderAtomic(input);
   }
 
-  console.error("[createOrderAtomic]", error?.message ?? error);
+  console.error("[createOrderAtomic]", error?.message ?? "error");
   return { ok: false, code: "error", message: "Bestelling kon niet worden opgeslagen." };
 }
 
@@ -91,16 +117,9 @@ async function createOrderFallback(
     return { ok: false, code: "error", message: "Capaciteit controleren mislukt." };
   }
 
-  const { data: cap } = await db
-    .from("timeslot_caps")
-    .select("max_orders")
-    .eq("event_date", input.date)
-    .eq("slot_time", input.time)
-    .maybeSingle();
-
-  const max = cap?.max_orders ?? 12;
+  const max = input.method === "delivery" ? 8 : 12;
   if ((count ?? 0) >= max) {
-    return { ok: false, code: "slot_full", message: "Dit tijdslot is vol." };
+    return { ok: false, code: "slot_full", message: "Dit tijdvak is vol." };
   }
 
   const { data, error } = await db
@@ -109,15 +128,33 @@ async function createOrderFallback(
       order_number: orderNumber,
       status: "pending",
       payment_status: "unpaid",
+      fulfillment_method: input.method,
       customer_name: input.name,
       customer_phone: input.phone,
       customer_email: input.email,
       pickup_date: input.date,
       pickup_time: input.time,
-      location: null,
+      delivery_window: input.deliveryWindow ?? null,
+      location: input.method === "delivery"
+        ? [input.deliveryStreet, `${input.deliveryPostcode} ${input.deliveryCity}`]
+            .filter(Boolean)
+            .join(", ")
+        : null,
       lines: input.lines,
       total_cents: input.totalCents,
+      subtotal_cents: input.subtotalCents,
+      delivery_fee_cents: input.deliveryFeeCents,
       notes: input.notes ?? null,
+      delivery_street: input.deliveryStreet ?? null,
+      delivery_postcode: input.deliveryPostcode ?? null,
+      delivery_house_number: input.deliveryHouseNumber ?? null,
+      delivery_addition: input.deliveryAddition ?? null,
+      delivery_city: input.deliveryCity ?? null,
+      delivery_zone: input.deliveryZone ?? null,
+      delivery_distance_meters: input.deliveryDistanceMeters ?? null,
+      delivery_duration_seconds: input.deliveryDurationSeconds ?? null,
+      delivery_instructions: input.deliveryInstructions ?? null,
+      batch_status: input.method === "delivery" ? "unscheduled" : null,
     })
     .select()
     .single();
@@ -155,9 +192,6 @@ export async function getOrderByNumber(orderNumber: string): Promise<DbOrder | n
   return (data as DbOrder) ?? null;
 }
 
-/**
- * Punten toekennen — idempotent via unique ledger reason per order.
- */
 export async function awardPointsForPaidOrder(
   email: string,
   orderId: string,
@@ -176,7 +210,7 @@ export async function awardPointsForPaidOrder(
     .eq("reason", reason)
     .maybeSingle();
 
-  if (existing) return; // al toegekend
+  if (existing) return;
 
   const { data: member } = await db
     .from("rewards_members")

@@ -50,7 +50,7 @@ export function HeroSection() {
           Smashburgers waar je voor terugkomt.
         </h1>
         <p className="text-muted-foreground mt-5 max-w-xl text-base leading-relaxed sm:text-lg">
-          Verse smashburgers, loaded fries en spicy chicken. Snel besteld, heet bereid en vol smaak.
+          Verse smashburgers, loaded fries en spicy chicken. Afhalen of bezorgd in de Hoeksche Waard.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <GlowButton href="/bestellen" variant="flame" className="min-h-12">

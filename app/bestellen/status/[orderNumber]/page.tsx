@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatPriceCents } from "@/lib/catalog/products";
+import { formatPriceCents } from "@/lib/catalog/format-money";
 import { getOrderByNumber } from "@/lib/orders/create-order";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { getWhatsAppHref } from "@/lib/whatsapp";
@@ -30,20 +30,24 @@ function paymentLabel(status: string): string {
     case "refunded":
       return "Terugbetaald";
     default:
-      return "Status wordt gecontroleerd";
+      return "Betaling controleren";
   }
 }
 
 function orderLabel(status: string): string {
   switch (status) {
     case "ready":
-      return "Bestelling gereed";
+      return "Klaar om af te halen";
     case "picked_up":
-      return "Bestelling afgehaald";
+      return "Afgehaald";
+    case "out_for_delivery":
+      return "Onderweg";
+    case "delivered":
+      return "Bezorgd";
     case "preparing":
-      return "Op de grill";
+      return "Wordt bereid";
     case "confirmed":
-      return "Bevestigd";
+      return "Bestelling bevestigd";
     case "cancelled":
       return "Geannuleerd";
     default:
@@ -77,6 +81,9 @@ export default async function OrderStatusPage({ params }: Props) {
   if (!order) notFound();
 
   const lines = Array.isArray(order.lines) ? order.lines : [];
+  const isDelivery = order.fulfillment_method === "delivery";
+  const subtotal = order.subtotal_cents ?? order.total_cents - (order.delivery_fee_cents ?? 0);
+  const fee = order.delivery_fee_cents ?? 0;
 
   return (
     <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
@@ -86,18 +93,48 @@ export default async function OrderStatusPage({ params }: Props) {
           {paymentLabel(order.payment_status)}
         </h1>
         <p className="font-mono text-sm text-[#d4af37]">{order.order_number}</p>
+
         <dl className="space-y-2 rounded-2xl border border-white/10 bg-[#111] p-5 text-sm">
           <div className="flex justify-between gap-4">
             <dt className="text-muted-foreground">Orderstatus</dt>
             <dd className="text-white">{orderLabel(order.status)}</dd>
           </div>
           <div className="flex justify-between gap-4">
-            <dt className="text-muted-foreground">Afhalen</dt>
-            <dd className="text-white">
-              {order.pickup_date} om {order.pickup_time}
-            </dd>
+            <dt className="text-muted-foreground">Methode</dt>
+            <dd className="text-white">{isDelivery ? "Bezorgen" : "Afhalen"}</dd>
           </div>
           <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">{isDelivery ? "Bezorgvenster" : "Afhalen"}</dt>
+            <dd className="text-right text-white">
+              {order.pickup_date}
+              {isDelivery
+                ? ` · ${order.delivery_window ?? order.pickup_time}`
+                : ` om ${order.pickup_time}`}
+            </dd>
+          </div>
+          {isDelivery ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Adres</dt>
+              <dd className="text-right text-white">
+                {order.delivery_street} {order.delivery_house_number}
+                {order.delivery_addition}
+                <br />
+                {order.delivery_postcode} {order.delivery_city}
+                {order.delivery_zone != null ? ` (zone ${order.delivery_zone})` : ""}
+              </dd>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-4">
+            <dt className="text-muted-foreground">Subtotaal</dt>
+            <dd className="text-white">{formatPriceCents(subtotal)}</dd>
+          </div>
+          {fee > 0 ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted-foreground">Bezorgkosten</dt>
+              <dd className="text-white">{formatPriceCents(fee)}</dd>
+            </div>
+          ) : null}
+          <div className="flex justify-between gap-4 border-t border-white/10 pt-2">
             <dt className="text-muted-foreground">Totaal</dt>
             <dd className="font-semibold text-white">{formatPriceCents(order.total_cents)}</dd>
           </div>
@@ -111,6 +148,9 @@ export default async function OrderStatusPage({ params }: Props) {
                 {Array.isArray(line.optionLabels) && line.optionLabels.length
                   ? ` (${(line.optionLabels as string[]).join(", ")})`
                   : ""}
+                {typeof line.sauceChoice === "string" && line.sauceChoice
+                  ? ` — saus: ${line.sauceChoice}`
+                  : ""}
               </span>
               <span className="text-white">
                 {typeof line.lineTotalCents === "number"
@@ -123,7 +163,9 @@ export default async function OrderStatusPage({ params }: Props) {
 
         <p className="text-muted-foreground text-sm leading-relaxed">
           {order.payment_status === "paid"
-            ? "Bedankt! Kom op het gekozen moment afhalen. Vragen? WhatsApp ons."
+            ? isDelivery
+              ? "Bedankt! We bezorgen in je gekozen tijdvak. Vragen? WhatsApp ons."
+              : "Bedankt! Kom op het gekozen moment afhalen. Vragen? WhatsApp ons."
             : order.payment_status === "pending" || order.payment_status === "unpaid"
               ? "We controleren je betaling. Vernieuw deze pagina over een moment."
               : "De betaling is niet gelukt. Probeer opnieuw te bestellen of neem contact op."}

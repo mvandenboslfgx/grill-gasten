@@ -12,6 +12,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "delivery:report": "npx tsx scripts/delivery-cost-report.ts",
     "optimize:food": "node scripts/optimize-food-images.mjs"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "eslint-config-next": "15.5.18",
     "sharp": "^0.34.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }

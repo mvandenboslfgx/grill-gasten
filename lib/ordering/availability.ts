@@ -1,10 +1,7 @@
 import { orderingConfig } from "@/lib/ordering/opening-hours";
+import { generateDeliveryWindows, type DeliveryWindow } from "@/lib/ordering/delivery-windows";
+import { generatePickupSlots, parseHm } from "@/lib/ordering/pickup-slots";
 
-function pad(n: number): string {
-  return String(n).padStart(2, "0");
-}
-
-/** Lokale datum YYYY-MM-DD in Europe/Amsterdam. */
 export function todayIsoDate(): string {
   const fmt = new Intl.DateTimeFormat("en-CA", {
     timeZone: orderingConfig.timezone,
@@ -15,33 +12,9 @@ export function todayIsoDate(): string {
   return fmt.format(new Date());
 }
 
-export function parseHm(hm: string): number {
-  const [h, m] = hm.split(":").map(Number);
-  return (h ?? 0) * 60 + (m ?? 0);
-}
-
-export function formatHm(totalMinutes: number): string {
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-  return `${pad(h)}:${pad(m)}`;
-}
-
-export function generateSlots(): string[] {
-  const start = parseHm(orderingConfig.slotStart);
-  const end = parseHm(orderingConfig.slotEnd);
-  const step = orderingConfig.slotMinutes;
-  const slots: string[] = [];
-  for (let t = start; t <= end; t += step) {
-    slots.push(formatHm(t));
-  }
-  return slots;
-}
-
 function weekdayOf(isoDate: string): number {
-  // Parse as local noon UTC to avoid DST edge cases for weekday
   const [y, mo, d] = isoDate.split("-").map(Number);
   const utc = new Date(Date.UTC(y!, mo! - 1, d!, 12, 0, 0));
-  // Get weekday in Amsterdam
   const wd = new Intl.DateTimeFormat("en-US", {
     timeZone: orderingConfig.timezone,
     weekday: "short",
@@ -60,7 +33,8 @@ function weekdayOf(isoDate: string): number {
 
 export function isDateOpen(isoDate: string): boolean {
   if (orderingConfig.closedDates.includes(isoDate)) return false;
-  if (orderingConfig.extraOpenDates.includes(isoDate as never)) return true;
+  if ((orderingConfig.extraOpenDates as string[]).includes(isoDate)) return true;
+  if (orderingConfig.openWeekdays.length === 0) return false;
   return orderingConfig.openWeekdays.includes(weekdayOf(isoDate));
 }
 
@@ -70,7 +44,6 @@ export function addDaysIso(isoDate: string, days: number): string {
   return dt.toISOString().slice(0, 10);
 }
 
-/** Beschikbare afhaaldatums (zonder slot-capaciteit check). */
 export function getAvailableDates(): string[] {
   if (!orderingConfig.orderingEnabled) return [];
   const today = todayIsoDate();
@@ -82,19 +55,7 @@ export function getAvailableDates(): string[] {
   return out;
 }
 
-/**
- * Tijdsloten voor een datum die nog niet verlopen zijn (lead time).
- */
-export function getAvailableSlotsForDate(isoDate: string, now = new Date()): string[] {
-  if (!orderingConfig.orderingEnabled) return [];
-  if (!isDateOpen(isoDate)) return [];
-
-  const all = generateSlots();
-  const today = todayIsoDate();
-  if (isoDate < today) return [];
-  if (isoDate > today) return all;
-
-  // Vandaag: filter verlopen slots + lead time
+function nowMinutes(now: Date): number {
   const nowParts = new Intl.DateTimeFormat("en-GB", {
     timeZone: orderingConfig.timezone,
     hour: "2-digit",
@@ -103,9 +64,30 @@ export function getAvailableSlotsForDate(isoDate: string, now = new Date()): str
   }).formatToParts(now);
   const hour = Number(nowParts.find((p) => p.type === "hour")?.value ?? 0);
   const minute = Number(nowParts.find((p) => p.type === "minute")?.value ?? 0);
-  const nowMinutes = hour * 60 + minute + orderingConfig.minLeadMinutes;
+  return hour * 60 + minute;
+}
 
-  return all.filter((slot) => parseHm(slot) >= nowMinutes);
+export function getAvailablePickupSlots(isoDate: string, now = new Date()): string[] {
+  if (!orderingConfig.orderingEnabled || !isDateOpen(isoDate)) return [];
+  const all = generatePickupSlots();
+  const today = todayIsoDate();
+  if (isoDate < today) return [];
+  if (isoDate > today) return all;
+  const threshold = nowMinutes(now) + orderingConfig.minLeadMinutesPickup;
+  return all.filter((slot) => parseHm(slot) >= threshold);
+}
+
+export function getAvailableDeliveryWindows(
+  isoDate: string,
+  now = new Date(),
+): DeliveryWindow[] {
+  if (!orderingConfig.orderingEnabled || !isDateOpen(isoDate)) return [];
+  const all = generateDeliveryWindows();
+  const today = todayIsoDate();
+  if (isoDate < today) return [];
+  if (isoDate > today) return all;
+  const threshold = nowMinutes(now) + orderingConfig.minLeadMinutesDelivery;
+  return all.filter((w) => parseHm(w.start) >= threshold);
 }
 
 export function validatePickupMoment(
@@ -114,7 +96,7 @@ export function validatePickupMoment(
   now = new Date(),
 ): { ok: true } | { ok: false; error: string } {
   if (!orderingConfig.orderingEnabled) {
-    return { ok: false, error: "Online bestellen is tijdelijk gesloten." };
+    return { ok: false, error: "Online bestellen is momenteel gesloten." };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return { ok: false, error: "Ongeldige datum." };
@@ -122,20 +104,48 @@ export function validatePickupMoment(
   if (!/^\d{2}:\d{2}$/.test(time)) {
     return { ok: false, error: "Ongeldig tijdslot." };
   }
-  const today = todayIsoDate();
-  if (date < today) {
+  if (date < todayIsoDate()) {
     return { ok: false, error: "Afhaaldatum mag niet in het verleden liggen." };
   }
   if (!isDateOpen(date)) {
-    return { ok: false, error: "Op deze dag zijn we gesloten voor afhalen." };
+    return { ok: false, error: "Op deze dag zijn we gesloten." };
   }
-  const slots = getAvailableSlotsForDate(date, now);
+  const slots = getAvailablePickupSlots(date, now);
   if (!slots.includes(time)) {
-    return { ok: false, error: "Dit tijdslot is niet (meer) beschikbaar." };
+    return { ok: false, error: "Dit afhaalmoment is niet (meer) beschikbaar." };
+  }
+  return { ok: true };
+}
+
+export function validateDeliveryMoment(
+  date: string,
+  windowId: string,
+  now = new Date(),
+): { ok: true } | { ok: false; error: string } {
+  if (!orderingConfig.orderingEnabled) {
+    return { ok: false, error: "Online bestellen is momenteel gesloten." };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { ok: false, error: "Ongeldige datum." };
+  }
+  if (date < todayIsoDate()) {
+    return { ok: false, error: "Bezorgdatum mag niet in het verleden liggen." };
+  }
+  if (!isDateOpen(date)) {
+    return { ok: false, error: "Op deze dag zijn we gesloten." };
+  }
+  const windows = getAvailableDeliveryWindows(date, now);
+  if (!windows.some((w) => w.id === windowId)) {
+    return { ok: false, error: "Dit bezorgtijdvak is niet (meer) beschikbaar." };
   }
   return { ok: true };
 }
 
 export function isOrderingOpen(): boolean {
   return orderingConfig.orderingEnabled && getAvailableDates().length > 0;
+}
+
+/** @deprecated use getAvailablePickupSlots */
+export function getAvailableSlotsForDate(isoDate: string, now = new Date()): string[] {
+  return getAvailablePickupSlots(isoDate, now);
 }

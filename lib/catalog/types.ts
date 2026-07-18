@@ -1,10 +1,11 @@
-/** Product- en besteltypes — shared frontend/backend. */
+/** Catalog types — shared frontend/backend. */
 
 export type ProductCategory =
   | "smashburgers"
   | "chicken"
   | "loaded-fries"
-  | "fries-sauces"
+  | "fries"
+  | "sauces"
   | "extras";
 
 export type ProductAvailability = "available" | "sold_out" | "hidden";
@@ -16,22 +17,26 @@ export type ProductBadge =
   | "liefhebber"
   | null;
 
+export type AllergenStatus = "listed" | "on_request";
+
 export type OptionKind = "addon" | "swap";
 
 export type CatalogOption = {
   id: string;
   name: string;
   description: string;
-  /** Prijs in centen; 0 = gratis (bijv. swap) */
   priceCents: number;
   kind: OptionKind;
-  /** Max 1× per orderregel */
   unique: boolean;
 };
 
 export type CatalogProduct = {
   id: string;
+  slug: string;
   name: string;
+  shortDescription: string;
+  longDescription: string;
+  /** @deprecated alias for shortDescription in older UI */
   description: string;
   priceCents: number;
   category: ProductCategory;
@@ -39,21 +44,21 @@ export type CatalogProduct = {
   availability: ProductAvailability;
   badge: ProductBadge;
   spicyLevel: 0 | 1 | 2 | 3;
-  /** Option-ID's die bij dit product mogen */
   allowedOptionIds: readonly string[];
-  /**
-   * Allergenen. Leeg = nog niet vastgelegd → toon "op aanvraag".
-   */
+  allergenStatus: AllergenStatus;
   allergens: readonly string[];
   sortOrder: number;
-  /** Op homepage "populair" tonen */
   featured: boolean;
+  maxQuantityPerOrder: number;
+  /** Product is a sauce line that accepts a free-text choice (max 30 chars) */
+  requiresSauceChoice?: boolean;
 };
 
 export type ClientOrderLineInput = {
   productId: string;
   qty: number;
   optionIds: string[];
+  sauceChoice?: string;
   note?: string;
 };
 
@@ -63,7 +68,10 @@ export type PricedOrderLine = {
   qty: number;
   optionIds: string[];
   optionLabels: string[];
+  sauceChoice?: string;
   unitPriceCents: number;
   lineTotalCents: number;
   note?: string;
 };
+
+export type FulfillmentMethod = "pickup" | "delivery";

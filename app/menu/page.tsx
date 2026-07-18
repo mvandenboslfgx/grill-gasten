@@ -28,7 +28,7 @@ function badgeLabel(badge: string | null): string | null {
 }
 
 export default function MenuPage() {
-  const extras = catalogOptions.filter((o) => o.id !== "sauce-choice");
+  const extras = catalogOptions;
 
   return (
     <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">

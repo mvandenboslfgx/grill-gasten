@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/over-ons", destination: "/about", permanent: true },
-      { source: "/events", destination: "/catering", permanent: true },
+      { source: "/events", destination: "/", permanent: true },
       { source: "/festival", destination: "/catering", permanent: true },
       { source: "/foodtruck", destination: "/catering", permanent: true },
       { source: "/zakelijk", destination: "/catering", permanent: true },

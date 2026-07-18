@@ -1,6 +1,6 @@
 import type { CatalogOption } from "@/lib/catalog/types";
 
-/** Selecteerbare burgeropties en swaps. */
+/** Selecteerbare burgeropties (alleen smashburgers). */
 export const catalogOptions = [
   {
     id: "egg",
@@ -21,18 +21,10 @@ export const catalogOptions = [
   {
     id: "pickle-swap",
     name: "Augurk i.p.v. komkommer en tomaat",
-    description: "Gratis vervanging van de standaard groenten.",
+    description: "Gratis vervanging van komkommer en tomaat.",
     priceCents: 0,
     kind: "swap",
     unique: true,
-  },
-  {
-    id: "sauce-choice",
-    name: "Saus naar keuze",
-    description: "Vraag naar beschikbare sauzen bij bestellen.",
-    priceCents: 50,
-    kind: "addon",
-    unique: false,
   },
 ] as const satisfies readonly CatalogOption[];
 

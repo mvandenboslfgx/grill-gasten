@@ -3,7 +3,7 @@ import { catalogOptions } from "@/lib/catalog/options";
 import { formatPriceCents } from "@/lib/catalog/products";
 
 export function ExtraOptionsSection() {
-  const extras = catalogOptions.filter((o) => o.id !== "sauce-choice");
+  const extras = catalogOptions;
 
   return (
     <section className="border-t border-white/10 bg-[#080808] py-14 md:py-20" aria-labelledby="extras-heading">

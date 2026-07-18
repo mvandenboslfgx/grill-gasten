@@ -34,7 +34,8 @@ export default function PrivacyPage() {
           <ul className="list-disc space-y-2 pl-5">
             <li>Contactgegevens: naam, telefoonnummer, e-mailadres</li>
             <li>Bestelgegevens: producten, aantallen, extras, opmerkingen, totaalbedrag</li>
-            <li>Afhaaldatum en -tijd</li>
+            <li>Afhaaldatum en -tijd, of bezorgdatum en bezorgtijdvak</li>
+            <li>Bezorgadres, zone, afstand en eventuele bezorginstructies</li>
             <li>Betaalstatus en betalingsreferenties via onze betaaldienstverlener</li>
             <li>Catering- of contactberichten die je zelf stuurt</li>
             <li>
