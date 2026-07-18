@@ -58,6 +58,7 @@
 
 :root {
   color-scheme: dark;
+  --site-header-height: 4.25rem;
   --background: #0a0a0a;
   --foreground: #ffffff;
   --card: #111111;
@@ -135,8 +136,30 @@
   }
   html {
     @apply font-sans scroll-smooth;
-    scroll-padding-top: 5.5rem;
+    scroll-padding-top: calc(var(--site-header-height) + env(safe-area-inset-top, 0px) + 0.75rem);
   }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --site-header-height: 4.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --site-header-height: 4.75rem;
+  }
+}
+
+/* Publieke pagina’s: content start onder fixed navbar */
+.site-page {
+  @apply border-t border-white/10 bg-[#080808] pb-16 md:pb-24;
+  padding-top: calc(var(--site-header-height) + env(safe-area-inset-top, 0px) + 1.5rem);
+}
+
+.site-page-hero-pad {
+  padding-top: calc(var(--site-header-height) + env(safe-area-inset-top, 0px) + 2.5rem);
 }
 
 @keyframes smoke-drift {

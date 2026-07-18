@@ -45,7 +45,7 @@ export default async function PublishedMdxPage({ params }: PageProps) {
   const date = typeof doc.frontmatter.date === "string" ? doc.frontmatter.date : null;
 
   return (
-    <div className="border-t border-white/10 bg-[#080808] pb-20 pt-24 sm:pt-28 md:pt-32">
+    <div className="site-page">
       <div className="mx-auto max-w-3xl px-4 md:px-6 lg:px-8">
         <p className="text-primary text-xs font-semibold uppercase tracking-[0.35em]">
           {section.replace(/-/g, " ")}

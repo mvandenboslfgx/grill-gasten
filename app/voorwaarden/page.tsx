@@ -11,7 +11,7 @@ const UPDATED = "18 juli 2026";
 
 export default function VoorwaardenPage() {
   return (
-    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
+    <div className="site-page">
       <article className="prose-invert mx-auto max-w-3xl space-y-8 px-4 text-sm leading-relaxed text-muted-foreground md:px-6">
         <header className="space-y-3">
           <h1 className="font-heading text-3xl uppercase tracking-wide text-white">

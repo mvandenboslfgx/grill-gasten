@@ -35,7 +35,7 @@ export function BurgerSizesSection() {
                   }`}
                 >
                   {highlight ? (
-                    <p className="text-primary mb-2 text-[10px] font-bold uppercase tracking-[0.2em]">
+                    <p className="text-primary mb-2 text-[10px] font-bold uppercase tracking-[0.1em]">
                       Aanbevolen
                     </p>
                   ) : null}

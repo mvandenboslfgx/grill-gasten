@@ -42,11 +42,11 @@ export function HeroSection() {
       </motion.div>
 
       <motion.div
-        className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-28 pt-32 md:px-6 md:pb-32 lg:px-8"
+        className="site-page-hero-pad relative z-10 mx-auto w-full max-w-6xl px-4 pb-28 md:px-6 md:pb-32 lg:px-8"
         style={reduceMotion ? undefined : { y: contentY }}
       >
-        <p className="text-primary text-xs font-semibold uppercase tracking-[0.32em]">{site.name}</p>
-        <h1 className="font-heading mt-4 max-w-3xl text-4xl uppercase leading-[0.95] tracking-wide text-white sm:text-5xl md:text-6xl lg:text-7xl">
+        <p className="text-primary text-xs font-semibold uppercase tracking-[0.12em]">{site.name}</p>
+        <h1 className="font-heading mt-4 max-w-3xl text-4xl uppercase leading-[0.95] tracking-[0.04em] text-white sm:text-5xl md:text-6xl lg:text-7xl">
           Smashburgers waar je voor terugkomt.
         </h1>
         <p className="text-muted-foreground mt-5 max-w-xl text-base leading-relaxed sm:text-lg">

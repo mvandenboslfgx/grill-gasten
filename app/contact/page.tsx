@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
+    <div className="site-page">
       <div className="mx-auto grid max-w-6xl gap-14 px-4 md:grid-cols-2 md:px-6 lg:px-8">
         <AnimatedContainer className="space-y-8">
           <SectionTitle

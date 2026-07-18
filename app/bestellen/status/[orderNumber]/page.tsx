@@ -86,7 +86,7 @@ export default async function OrderStatusPage({ params }: Props) {
   const fee = order.delivery_fee_cents ?? 0;
 
   return (
-    <div className="border-t border-white/10 bg-[#080808] pb-16 pt-24 sm:pt-28 md:pb-24 md:pt-32">
+    <div className="site-page">
       <div className="mx-auto max-w-lg space-y-6 px-4 md:px-6">
         <p className="text-primary text-xs font-semibold uppercase tracking-[0.28em]">Bestelling</p>
         <h1 className="font-heading text-3xl uppercase tracking-wide text-white">

@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:concurrency": "npx tsx scripts/concurrency-slot-test.ts",
+    "test:ui-smoke": "node scripts/ui-smoke-overflow.mjs",
     "delivery:report": "npx tsx scripts/delivery-cost-report.ts",
     "optimize:food": "node scripts/optimize-food-images.mjs"
   },

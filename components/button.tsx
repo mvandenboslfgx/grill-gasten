@@ -25,9 +25,10 @@ export function GlowButton({
   onClick,
 }: GlowButtonProps) {
   const reduceMotion = useReducedMotion();
+  const fullWidth = Boolean(className?.includes("w-full"));
 
   const base =
-    "relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary";
+    "relative inline-flex min-h-12 max-w-full items-center justify-center gap-2 overflow-hidden rounded-full px-6 py-3 text-sm font-semibold uppercase tracking-[0.08em] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:tracking-[0.1em]";
 
   const styles =
     variant === "flame"
@@ -44,7 +45,7 @@ export function GlowButton({
             "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.55), transparent 45%), radial-gradient(circle at 80% 0%, rgba(255,90,31,0.55), transparent 55%)",
         }}
       />
-      <span className="relative">{children}</span>
+      <span className="relative whitespace-nowrap">{children}</span>
     </>
   );
 
@@ -54,11 +55,17 @@ export function GlowButton({
       <motion.div
         whileHover={reduceMotion ? undefined : { scale: 1.02 }}
         whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-        className="inline-flex"
+        className={cn("inline-flex max-w-full", fullWidth && "w-full")}
       >
         <Link
           href={href}
-          className={cn(base, styles, !reduceMotion && "animate-glow-pulse", className)}
+          className={cn(
+            base,
+            styles,
+            !reduceMotion && "animate-glow-pulse",
+            fullWidth && "w-full",
+            className,
+          )}
           {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
         >
           {content}
@@ -74,7 +81,13 @@ export function GlowButton({
       onClick={onClick}
       whileHover={reduceMotion ? undefined : { scale: 1.02 }}
       whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-      className={cn(base, styles, !reduceMotion && "animate-glow-pulse", className)}
+      className={cn(
+        base,
+        styles,
+        !reduceMotion && "animate-glow-pulse",
+        fullWidth && "w-full",
+        className,
+      )}
     >
       {content}
     </motion.button>

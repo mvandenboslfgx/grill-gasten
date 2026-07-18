@@ -93,7 +93,7 @@ export function ContactForm() {
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <WhatsAppLink
             intent="contact"
-            className="relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary-foreground sm:w-auto"
+            className="relative inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-primary-foreground sm:w-auto sm:tracking-[0.1em]"
           >
             <MessageCircle className="size-4" aria-hidden />
             WhatsApp
