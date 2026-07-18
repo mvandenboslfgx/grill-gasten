@@ -65,6 +65,7 @@ export function OrderFlow() {
   const [status, setStatus] = React.useState<"idle" | "loading" | "error">("idle");
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
   const [orderingEnabled, setOrderingEnabled] = React.useState<boolean | null>(null);
+  const [deliveryRoutingConfigured, setDeliveryRoutingConfigured] = React.useState(false);
   const [dates, setDates] = React.useState<string[]>([]);
   const [slots, setSlots] = React.useState<string[]>([]);
   const [windows, setWindows] = React.useState<DeliveryWindowOption[]>([]);
@@ -107,10 +108,17 @@ export function OrderFlow() {
   React.useEffect(() => {
     fetch("/api/ordering/availability")
       .then((r) => r.json())
-      .then((d: { orderingEnabled?: boolean; dates?: string[] }) => {
-        setOrderingEnabled(Boolean(d.orderingEnabled));
-        setDates(d.dates ?? []);
-      })
+      .then(
+        (d: {
+          orderingEnabled?: boolean;
+          dates?: string[];
+          deliveryRoutingConfigured?: boolean;
+        }) => {
+          setOrderingEnabled(Boolean(d.orderingEnabled));
+          setDeliveryRoutingConfigured(Boolean(d.deliveryRoutingConfigured));
+          setDates(d.dates ?? []);
+        },
+      )
       .catch(() => setOrderingEnabled(false));
   }, []);
 
@@ -425,12 +433,33 @@ export function OrderFlow() {
                       : "text-muted-foreground hover:text-white"
                   }`}
                   onClick={() => setMethodAndReset("delivery")}
+                  disabled={!deliveryRoutingConfigured}
+                  title={
+                    deliveryRoutingConfigured
+                      ? undefined
+                      : "Online bezorgen tijdelijk niet beschikbaar"
+                  }
                 >
                   Bezorgen
                 </button>
               </div>
 
-              {method === "delivery" ? (
+              {!deliveryRoutingConfigured ? (
+                <div
+                  className="space-y-3 rounded-3xl border border-white/10 bg-[#111] p-5"
+                  role="status"
+                >
+                  <p className="text-sm text-white">
+                    Online bezorgen is tijdelijk niet beschikbaar. Afhalen is
+                    wel mogelijk.
+                  </p>
+                  <GlowButton href={getWhatsAppHref("home")} variant="outline">
+                    WhatsApp voor bezorging
+                  </GlowButton>
+                </div>
+              ) : null}
+
+              {method === "delivery" && deliveryRoutingConfigured ? (
                 <form
                   onSubmit={onCheckAddress}
                   className="space-y-4 rounded-3xl border border-white/10 bg-[#111] p-5"

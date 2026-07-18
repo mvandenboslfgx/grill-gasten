@@ -45,6 +45,11 @@ export type DeliveryQuoteResult = {
 
 export type DeliveryBlocked = {
   blocked: true;
-  reason: "tiengemeten" | "out_of_range" | "invalid_address" | "unavailable";
+  reason:
+    | "tiengemeten"
+    | "out_of_range"
+    | "invalid_address"
+    | "unavailable"
+    | "routing_unavailable";
   message: string;
 };

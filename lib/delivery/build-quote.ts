@@ -5,16 +5,31 @@ import {
   normalizePostcode,
 } from "@/lib/delivery/address-validation";
 import { metersToKmDisplay } from "@/lib/delivery/calculate-zone";
+import {
+  isDeliveryRoutingConfigured,
+  isQuoteSecretConfigured,
+} from "@/lib/delivery/config";
 import { getDistanceProvider } from "@/lib/delivery/distance-provider";
 import { createSignedQuote } from "@/lib/delivery/quote";
 import type { DeliveryBlocked, DeliveryQuoteResult } from "@/lib/delivery/types";
 import { MAX_DELIVERY_METERS, zoneForDistanceMeters } from "@/lib/delivery/zones";
+
+const ROUTING_UNAVAILABLE_MSG =
+  "Online bezorgen is tijdelijk niet beschikbaar. Afhalen is wel mogelijk.";
 
 export async function buildDeliveryQuote(input: {
   postcode: string;
   houseNumber: string;
   addition?: string;
 }): Promise<DeliveryQuoteResult | DeliveryBlocked> {
+  if (!isDeliveryRoutingConfigured() || !isQuoteSecretConfigured()) {
+    return {
+      blocked: true,
+      reason: "routing_unavailable",
+      message: ROUTING_UNAVAILABLE_MSG,
+    };
+  }
+
   const postcode = normalizePostcode(input.postcode);
   if (!postcode) {
     return {
@@ -33,7 +48,7 @@ export async function buildDeliveryQuote(input: {
   }
   const addition = normalizeAddition(input.addition);
 
-  if (isTiengemeten(postcode, "")) {
+  if (isTiengemeten({ postcode })) {
     return {
       blocked: true,
       reason: "tiengemeten",
@@ -54,11 +69,18 @@ export async function buildDeliveryQuote(input: {
       blocked: true,
       reason: "unavailable",
       message:
-        "We konden dit adres niet betrouwbaar controleren. Neem contact op via WhatsApp.",
+        "We konden dit adres niet betrouwbaar controleren. Neem contact op via WhatsApp of kies afhalen.",
     };
   }
 
-  if (isTiengemeten(postcode, route.city)) {
+  if (
+    isTiengemeten({
+      postcode,
+      street: route.street,
+      city: route.city,
+      normalizedAddress: route.normalizedAddress,
+    })
+  ) {
     return {
       blocked: true,
       reason: "tiengemeten",
@@ -85,14 +107,6 @@ export async function buildDeliveryQuote(input: {
     };
   }
 
-  if (route.conservative) {
-    console.info("[delivery] conservative distance", {
-      provider: route.provider,
-      meters: route.distanceMeters,
-      zone: zone.id,
-    });
-  }
-
   let quoteId: string;
   try {
     quoteId = createSignedQuote({
@@ -111,7 +125,7 @@ export async function buildDeliveryQuote(input: {
     return {
       blocked: true,
       reason: "unavailable",
-      message: "Bezorgquotes zijn tijdelijk niet beschikbaar. Probeer WhatsApp.",
+      message: ROUTING_UNAVAILABLE_MSG,
     };
   }
 

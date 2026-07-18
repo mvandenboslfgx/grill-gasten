@@ -6,6 +6,7 @@ import {
   isOrderingOpen,
 } from "@/lib/ordering/availability";
 import { orderingConfig } from "@/lib/ordering/opening-hours";
+import { isDeliveryRoutingConfigured, isQuoteSecretConfigured } from "@/lib/delivery/config";
 import { isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const runtime = "nodejs";
@@ -17,11 +18,14 @@ export async function GET(request: Request) {
 
   const infraReady = isSupabaseConfigured() && isMollieConfigured();
   const open = infraReady && orderingConfig.orderingEnabled && isOrderingOpen();
+  const deliveryRoutingConfigured =
+    isDeliveryRoutingConfigured() && isQuoteSecretConfigured();
 
   if (!date) {
     return NextResponse.json({
       ok: true,
       orderingEnabled: open,
+      deliveryRoutingConfigured,
       reason: !infraReady
         ? "infra"
         : !orderingConfig.orderingEnabled

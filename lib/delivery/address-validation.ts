@@ -25,8 +25,26 @@ export function normalizeAddition(raw: string | undefined): string {
     .slice(0, 12);
 }
 
-export function isTiengemeten(postcode: string, city: string): boolean {
-  const pc4 = postcode.slice(0, 4);
-  if (pc4 === "3244") return true;
-  return /tiengemeten/i.test(city);
+/** Exacte postcode van het eiland Tiengemeten (niet heel 3284). */
+export const TIENGEMETEN_EXACT_POSTCODE = "3284BE";
+
+/**
+ * Blokkeer alleen Tiengemeten — niet heel postcodegebied 3284 (Zuid-Beijerland)
+ * en niet willekeurige 3244-codes.
+ */
+export function isTiengemeten(input: {
+  postcode: string;
+  street?: string;
+  city?: string;
+  normalizedAddress?: string;
+}): boolean {
+  const postcode = normalizePostcode(input.postcode) ?? input.postcode.replace(/\s+/g, "").toUpperCase();
+
+  if (postcode === TIENGEMETEN_EXACT_POSTCODE) return true;
+
+  const haystacks = [input.street, input.city, input.normalizedAddress]
+    .filter((v): v is string => Boolean(v?.trim()))
+    .map((v) => v.toLowerCase());
+
+  return haystacks.some((h) => h.includes("tiengemeten"));
 }

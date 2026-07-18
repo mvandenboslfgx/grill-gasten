@@ -12,6 +12,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:concurrency": "npx tsx scripts/concurrency-slot-test.ts",
     "delivery:report": "npx tsx scripts/delivery-cost-report.ts",
     "optimize:food": "node scripts/optimize-food-images.mjs"
   },

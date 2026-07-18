@@ -1,30 +1,12 @@
 import { NextResponse } from "next/server";
 import { getMollieClient } from "@/lib/mollie/client";
+import { mapMollieWebhookUpdate } from "@/lib/mollie/webhook-status";
 import { awardPointsForPaidOrder, updateOrderPayment } from "@/lib/orders/create-order";
-import type { PaymentStatus } from "@/lib/orders/types";
+import type { OrderStatus, PaymentStatus } from "@/lib/orders/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 
 export const runtime = "nodejs";
-
-function mapMollieStatus(status: string): PaymentStatus {
-  switch (status) {
-    case "paid":
-      return "paid";
-    case "failed":
-      return "failed";
-    case "canceled":
-      return "canceled";
-    case "expired":
-      return "expired";
-    case "pending":
-    case "open":
-    case "authorized":
-      return "pending";
-    default:
-      return "pending";
-  }
-}
 
 export async function POST(request: Request) {
   if (!isMollieConfigured() || !isSupabaseConfigured()) {
@@ -59,47 +41,38 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
 
-    const nextPayment = mapMollieStatus(payment.status);
+    const currentPayment = order.payment_status as PaymentStatus;
+    const mapped = mapMollieWebhookUpdate(payment.status, currentPayment);
 
-    if (payment.status === "paid") {
-      if (order.payment_status !== "paid") {
-        await updateOrderPayment(orderId, {
-          payment_status: "paid",
-          status: "confirmed",
-          mollie_payment_id: paymentId,
-        });
-        await awardPointsForPaidOrder(
-          email || (order.customer_email as string),
-          orderId,
-          order.total_cents as number,
-        );
-      }
-    } else if (payment.status === "failed" || payment.status === "canceled" || payment.status === "expired") {
-      if (order.payment_status !== "paid") {
-        await updateOrderPayment(orderId, {
-          payment_status: nextPayment,
-          mollie_payment_id: paymentId,
-        });
-      }
-    } else {
-      // open / pending / authorized — en eventuele andere statuses
-      const statusStr = String(payment.status);
-      if (statusStr === "refunded") {
-        await updateOrderPayment(orderId, {
-          payment_status: "refunded",
-          mollie_payment_id: paymentId,
-        });
-      } else if (order.payment_status !== "paid") {
-        await updateOrderPayment(orderId, {
-          payment_status: "pending",
-          mollie_payment_id: paymentId,
-        });
-      }
+    if (mapped.skip) {
+      return NextResponse.json({ ok: true });
+    }
+
+    const patch: {
+      payment_status: PaymentStatus;
+      mollie_payment_id: string;
+      status?: OrderStatus;
+    } = {
+      payment_status: mapped.paymentStatus,
+      mollie_payment_id: paymentId,
+    };
+    if (mapped.orderStatus) {
+      patch.status = mapped.orderStatus;
+    }
+
+    await updateOrderPayment(orderId, patch);
+
+    if (mapped.awardPoints) {
+      await awardPointsForPaidOrder(
+        email || (order.customer_email as string),
+        orderId,
+        order.total_cents as number,
+      );
     }
 
     return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error("[api/mollie/webhook]", e);
+    console.error("[api/mollie/webhook]", e instanceof Error ? e.message : "error");
     return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

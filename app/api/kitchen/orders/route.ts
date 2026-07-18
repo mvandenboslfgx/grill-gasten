@@ -3,13 +3,28 @@ import { verifyKitchenRequest } from "@/lib/auth/kitchen";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { OrderStatus } from "@/lib/orders/types";
+import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
-export async function GET(request: Request) {
+async function kitchenGate(request: Request) {
+  const ip = clientIp(request);
+  const rl = await rateLimitAsync(`kitchen:${ip}`, 60, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { ok: false, error: "Te veel verzoeken." },
+      { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } },
+    );
+  }
   if (!isSupabaseConfigured() || !verifyKitchenRequest(request)) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
+  return null;
+}
+
+export async function GET(request: Request) {
+  const denied = await kitchenGate(request);
+  if (denied) return denied;
 
   const url = new URL(request.url);
   const date = url.searchParams.get("date") ?? new Date().toISOString().slice(0, 10);
@@ -32,9 +47,8 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  if (!isSupabaseConfigured() || !verifyKitchenRequest(request)) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = await kitchenGate(request);
+  if (denied) return denied;
 
   const body = (await request.json()) as { id?: string; status?: OrderStatus };
   if (!body.id || !body.status) {

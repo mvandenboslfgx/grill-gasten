@@ -89,8 +89,14 @@ export async function createOrderAtomic(
     }
   }
 
+  // Geen count-then-insert fallback — overboeking voorkomen; RPC met advisory lock is verplicht.
   if (error?.message?.includes("create_order_with_slot") || error?.code === "PGRST202") {
-    return createOrderFallback(input, orderNumber);
+    console.error("[createOrderAtomic] RPC missing", { code: "RPC_MISSING" });
+    return {
+      ok: false,
+      code: "error",
+      message: "Online bestellen is tijdelijk niet beschikbaar. Neem contact op via WhatsApp.",
+    };
   }
 
   if (error?.code === "23505") {
@@ -99,72 +105,6 @@ export async function createOrderAtomic(
 
   console.error("[createOrderAtomic]", error?.message ?? "error");
   return { ok: false, code: "error", message: "Bestelling kon niet worden opgeslagen." };
-}
-
-async function createOrderFallback(
-  input: CreateOrderDbInput,
-  orderNumber: string,
-): Promise<CreateOrderDbResult> {
-  const db = getSupabaseAdmin();
-  const { count, error: countErr } = await db
-    .from("orders")
-    .select("id", { count: "exact", head: true })
-    .eq("pickup_date", input.date)
-    .eq("pickup_time", input.time)
-    .not("status", "eq", "cancelled");
-
-  if (countErr) {
-    return { ok: false, code: "error", message: "Capaciteit controleren mislukt." };
-  }
-
-  const max = input.method === "delivery" ? 8 : 12;
-  if ((count ?? 0) >= max) {
-    return { ok: false, code: "slot_full", message: "Dit tijdvak is vol." };
-  }
-
-  const { data, error } = await db
-    .from("orders")
-    .insert({
-      order_number: orderNumber,
-      status: "pending",
-      payment_status: "unpaid",
-      fulfillment_method: input.method,
-      customer_name: input.name,
-      customer_phone: input.phone,
-      customer_email: input.email,
-      pickup_date: input.date,
-      pickup_time: input.time,
-      delivery_window: input.deliveryWindow ?? null,
-      location: input.method === "delivery"
-        ? [input.deliveryStreet, `${input.deliveryPostcode} ${input.deliveryCity}`]
-            .filter(Boolean)
-            .join(", ")
-        : null,
-      lines: input.lines,
-      total_cents: input.totalCents,
-      subtotal_cents: input.subtotalCents,
-      delivery_fee_cents: input.deliveryFeeCents,
-      notes: input.notes ?? null,
-      delivery_street: input.deliveryStreet ?? null,
-      delivery_postcode: input.deliveryPostcode ?? null,
-      delivery_house_number: input.deliveryHouseNumber ?? null,
-      delivery_addition: input.deliveryAddition ?? null,
-      delivery_city: input.deliveryCity ?? null,
-      delivery_zone: input.deliveryZone ?? null,
-      delivery_distance_meters: input.deliveryDistanceMeters ?? null,
-      delivery_duration_seconds: input.deliveryDurationSeconds ?? null,
-      delivery_instructions: input.deliveryInstructions ?? null,
-      batch_status: input.method === "delivery" ? "unscheduled" : null,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    if (error.code === "23505") return createOrderAtomic(input);
-    return { ok: false, code: "error", message: "Bestelling opslaan mislukt." };
-  }
-
-  return { ok: true, order: data as DbOrder };
 }
 
 export async function updateOrderPayment(

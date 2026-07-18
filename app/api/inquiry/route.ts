@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import { deliverInquiry } from "@/lib/email/send-inquiry";
 import { validateInquiry, type InquiryPayload } from "@/lib/inquiry";
 import { inquiryErrorForUser } from "@/lib/inquiry-errors";
-import { clientIp, rateLimit } from "@/lib/security/rate-limit";
+import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const ip = clientIp(request);
-  const rl = rateLimit(`inquiry:${ip}`, 12, 60_000);
+  const rl = await rateLimitAsync(`inquiry:${ip}`, 12, 60_000);
   if (!rl.ok) {
     return NextResponse.json(
       { ok: false, error: "Te veel verzoeken. Probeer zo opnieuw." },

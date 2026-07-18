@@ -8,6 +8,7 @@ import {
 } from "@/lib/delivery/address-validation";
 import { addressesMatchQuote, verifySignedQuote } from "@/lib/delivery/quote";
 import { zoneForDistanceMeters } from "@/lib/delivery/zones";
+import { isDeliveryRoutingConfigured, isQuoteSecretConfigured } from "@/lib/delivery/config";
 import { deliverInquiry } from "@/lib/email/send-inquiry";
 import { createMollieCheckout } from "@/lib/mollie/create-payment";
 import {
@@ -20,7 +21,7 @@ import {
 } from "@/lib/ordering/availability";
 import { getDeliveryWindowById } from "@/lib/ordering/delivery-windows";
 import { createOrderSchema } from "@/lib/ordering/validate";
-import { clientIp, rateLimit } from "@/lib/security/rate-limit";
+import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 import { isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 import { site } from "@/lib/site";
 
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   }
 
   const ip = clientIp(request);
-  const rl = rateLimit(`orders:${ip}`, 8, 60_000);
+  const rl = await rateLimitAsync(`orders:${ip}`, 8, 60_000);
   if (!rl.ok) {
     return NextResponse.json(
       { ok: false, error: "Te veel verzoeken. Probeer zo opnieuw." },
@@ -100,6 +101,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: pickup.error }, { status: 400 });
     }
   } else {
+    if (!isDeliveryRoutingConfigured() || !isQuoteSecretConfigured()) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error:
+            "Online bezorgen is tijdelijk niet beschikbaar. Afhalen is wel mogelijk.",
+          code: "DELIVERY_ROUTING_UNAVAILABLE",
+        },
+        { status: 503 },
+      );
+    }
+
     const windowOk = validateDeliveryMoment(data.date, data.time);
     if (!windowOk.ok) {
       return NextResponse.json({ ok: false, error: windowOk.error }, { status: 400 });
@@ -246,6 +259,27 @@ export async function POST(request: Request) {
   const { order } = created;
   let checkoutUrl: string | null = null;
 
+  async function cancelOrphanOrder(code: string) {
+    try {
+      await updateOrderPayment(order.id, {
+        payment_status: "failed",
+        status: "cancelled",
+      });
+    } catch (cancelErr) {
+      console.error("[api/orders] cancel orphan", {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        code: "CANCEL_ORPHAN_FAILED",
+      });
+      void cancelErr;
+    }
+    console.error("[api/orders] mollie create failed", {
+      orderId: order.id,
+      orderNumber: order.order_number,
+      code,
+    });
+  }
+
   try {
     const payment = await createMollieCheckout({
       orderId: order.id,
@@ -254,7 +288,8 @@ export async function POST(request: Request) {
       description: `Grill Gasten ${order.order_number}`,
       customerEmail: data.email,
     });
-    if (!payment) {
+    if (!payment?.paymentId || !payment.checkoutUrl) {
+      await cancelOrphanOrder("MOLLIE_CREATE_NULL");
       return NextResponse.json(
         { ok: false, error: "Betaling starten mislukt. Probeer opnieuw of WhatsApp ons." },
         { status: 502 },
@@ -266,8 +301,8 @@ export async function POST(request: Request) {
       mollie_payment_id: payment.paymentId,
       checkout_url: payment.checkoutUrl,
     });
-  } catch (e) {
-    console.error("[api/orders] mollie", e instanceof Error ? e.message : "error");
+  } catch {
+    await cancelOrphanOrder("MOLLIE_CREATE_EXCEPTION");
     return NextResponse.json(
       { ok: false, error: "Betaling starten mislukt. Probeer opnieuw of WhatsApp ons." },
       { status: 502 },

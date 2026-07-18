@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildDeliveryQuote } from "@/lib/delivery/build-quote";
-import { clientIp, rateLimit } from "@/lib/security/rate-limit";
+import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -13,7 +13,7 @@ const bodySchema = z.object({
 
 export async function POST(request: Request) {
   const ip = clientIp(request);
-  const rl = rateLimit(`delivery-quote:${ip}`, 20, 60_000);
+  const rl = await rateLimitAsync(`delivery-quote:${ip}`, 20, 60_000);
   if (!rl.ok) {
     return NextResponse.json(
       { ok: false, error: "Te veel verzoeken. Probeer zo opnieuw." },
