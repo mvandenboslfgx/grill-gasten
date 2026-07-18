@@ -9,7 +9,6 @@ import {
 import { addressesMatchQuote, verifySignedQuote } from "@/lib/delivery/quote";
 import { zoneForDistanceMeters } from "@/lib/delivery/zones";
 import { isDeliveryRoutingConfigured, isQuoteSecretConfigured } from "@/lib/delivery/config";
-import { deliverInquiry } from "@/lib/email/send-inquiry";
 import { createMollieCheckout } from "@/lib/mollie/create-payment";
 import {
   createOrderAtomic,
@@ -239,6 +238,7 @@ export async function POST(request: Request) {
     deliveryFeeCents,
     totalCents,
     notes: emailBody,
+    customerNote,
     deliveryWindow: deliveryMeta.window,
     deliveryStreet: deliveryMeta.street,
     deliveryPostcode: deliveryMeta.postcode,
@@ -309,22 +309,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const finalEmail = emailBody.replace(
-    "Bestelnummer: (wordt toegekend)",
-    `Bestelnummer: ${order.order_number}`,
-  );
-
-  await deliverInquiry({
-    type: "preorder",
-    name: data.name,
-    phone: data.phone,
-    email: data.email,
-    date: data.date,
-    time: data.time,
-    message: finalEmail,
-    orderId: order.order_number,
-  }).catch((e) => console.error("[api/orders] email", e instanceof Error ? e.message : "error"));
-
+  // Geen bevestigingsmail vóór Mollie paid — zie webhook
   return NextResponse.json({
     ok: true,
     orderNumber: order.order_number,

@@ -20,6 +20,7 @@ export type CreateOrderDbInput = {
   deliveryFeeCents: number;
   totalCents: number;
   notes?: string;
+  customerNote?: string;
   deliveryWindow?: string;
   deliveryStreet?: string;
   deliveryPostcode?: string;
@@ -85,7 +86,15 @@ export async function createOrderAtomic(
       return { ok: false, code: "slot_full", message: "Dit tijdvak is vol. Kies een ander moment." };
     }
     if (row?.id) {
-      return { ok: true, order: row as DbOrder };
+      const order = row as DbOrder;
+      if (input.customerNote) {
+        await db
+          .from("orders")
+          .update({ customer_note: input.customerNote })
+          .eq("id", order.id);
+        order.customer_note = input.customerNote;
+      }
+      return { ok: true, order };
     }
   }
 

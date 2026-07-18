@@ -5,7 +5,8 @@
 1. `supabase/migrations/20250518120000_orders_rewards.sql`
 2. `supabase/migrations/20260718210000_atomic_order_slot.sql`
 3. `supabase/migrations/20260718220000_delivery_orders.sql`
-4. `supabase/migrations/20260718230000_delivery_safety_fix.sql` ← **advisory lock, constraints, rate_limit RPC**
+4. `supabase/migrations/20260718230000_delivery_safety_fix.sql`
+5. `supabase/migrations/20260718240000_customer_note.sql` ← **customer_note kolom**
 
 Geen drops van orders/klanten.
 

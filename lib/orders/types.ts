@@ -48,6 +48,7 @@ export type DbOrder = {
   mollie_payment_id: string | null;
   checkout_url: string | null;
   notes: string | null;
+  customer_note: string | null;
   batch_status: string | null;
   created_at: string;
   updated_at?: string;

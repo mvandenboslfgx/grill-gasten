@@ -53,8 +53,8 @@ export default function KitchenPage() {
   return (
     <div className="min-h-screen bg-[#030303] px-4 py-8 md:px-8">
       <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="font-heading text-3xl uppercase tracking-wide text-white">
-          Keuken <span className="text-primary">🔥</span>
+        <h1 className="font-heading text-3xl uppercase tracking-[0.04em] text-white">
+          Keukenscherm
         </h1>
         <button
           type="button"

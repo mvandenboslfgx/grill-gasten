@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { getMollieClient } from "@/lib/mollie/client";
 import { mapMollieWebhookUpdate } from "@/lib/mollie/webhook-status";
+import { ownerInbox, sendTransactionalEmail } from "@/lib/email/send-order-mail";
+import {
+  buildCustomerPaidEmail,
+  buildOwnerPaidEmail,
+} from "@/lib/orders/order-emails";
 import { awardPointsForPaidOrder, updateOrderPayment } from "@/lib/orders/create-order";
-import type { OrderStatus, PaymentStatus } from "@/lib/orders/types";
+import type { DbOrder, OrderStatus, PaymentStatus } from "@/lib/orders/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 
@@ -24,7 +29,6 @@ export async function POST(request: Request) {
     const payment = await mollie.payments.get(paymentId);
     const meta = payment.metadata as Record<string, string> | null;
     const orderId = meta?.orderId;
-    const email = meta?.customerEmail;
 
     if (!orderId) {
       return NextResponse.json({ ok: true });
@@ -33,7 +37,7 @@ export async function POST(request: Request) {
     const db = getSupabaseAdmin();
     const { data: order } = await db
       .from("orders")
-      .select("id, customer_email, total_cents, payment_status")
+      .select("*")
       .eq("id", orderId)
       .maybeSingle();
 
@@ -42,6 +46,7 @@ export async function POST(request: Request) {
     }
 
     const currentPayment = order.payment_status as PaymentStatus;
+    const wasPaid = currentPayment === "paid";
     const mapped = mapMollieWebhookUpdate(payment.status, currentPayment);
 
     if (mapped.skip) {
@@ -62,12 +67,34 @@ export async function POST(request: Request) {
 
     await updateOrderPayment(orderId, patch);
 
-    if (mapped.awardPoints) {
+    if (mapped.awardPoints && !wasPaid) {
       await awardPointsForPaidOrder(
-        email || (order.customer_email as string),
+        order.customer_email as string,
         orderId,
         order.total_cents as number,
       );
+
+      const full = { ...order, ...patch } as DbOrder;
+      const ownerMail = buildOwnerPaidEmail(full);
+      const customerMail = buildCustomerPaidEmail(full);
+
+      await Promise.all([
+        sendTransactionalEmail({
+          to: ownerInbox(),
+          subject: ownerMail.subject,
+          text: ownerMail.text,
+          html: ownerMail.html,
+          replyTo: full.customer_email,
+        }),
+        sendTransactionalEmail({
+          to: full.customer_email,
+          subject: customerMail.subject,
+          text: customerMail.text,
+          html: customerMail.html,
+        }),
+      ]).catch(() => {
+        console.error("[api/mollie/webhook] mail", { code: "MAIL_FAILED", orderNumber: full.order_number });
+      });
     }
 
     return NextResponse.json({ ok: true });
