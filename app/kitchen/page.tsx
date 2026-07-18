@@ -13,6 +13,10 @@ export default function KitchenPage() {
       setKey(k);
       setSaved(true);
     }
+    // Verwijder ?key= uit de URL indien aanwezig
+    if (typeof window !== "undefined" && window.location.search.includes("key=")) {
+      window.history.replaceState({}, "", "/kitchen");
+    }
   }, []);
 
   function save(e: React.FormEvent) {

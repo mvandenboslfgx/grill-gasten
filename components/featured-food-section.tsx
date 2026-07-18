@@ -1,65 +1,29 @@
-"use client";
-
-import { motion, useReducedMotion } from "framer-motion";
-import { FoodImage } from "@/components/food-image";
-import { featuredHighlights } from "@/lib/data/menu";
+/**
+ * @deprecated Homepage gebruikt PopularDishesSection.
+ */
+import Image from "next/image";
+import Link from "next/link";
 import { AnimatedContainer } from "@/components/animated-container";
-import { SectionTitle } from "@/components/section-title";
-import { cn } from "@/lib/utils";
+import { getFeaturedProducts, formatPriceCents } from "@/lib/catalog/products";
 
 export function FeaturedFoodSection() {
-  const reduceMotion = useReducedMotion();
-
+  const items = getFeaturedProducts();
   return (
-    <section className="border-t border-white/10 bg-[#080808] py-20 md:py-28">
-      <div className="mx-auto max-w-6xl space-y-12 px-4 md:px-6 lg:px-8">
-        <AnimatedContainer>
-          <SectionTitle
-            eyebrow="Signatuur"
-            title="Eten waar je trek van krijgt"
-            description="Smash, loaded trays, gesmolten kaas en knapperige bites — warm, sappig en met contrast."
-          />
-        </AnimatedContainer>
-
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {featuredHighlights.map((item, index) => (
-            <AnimatedContainer key={item.title} delay={index * 0.06}>
-              <motion.article
-                whileHover={
-                  reduceMotion
-                    ? undefined
-                    : { y: -6, rotate: index % 2 === 0 ? -0.6 : 0.6 }
-                }
-                transition={{ type: "spring", stiffness: 260, damping: 22 }}
-                className={cn(
-                  "premium-media-card group relative overflow-hidden rounded-3xl border border-white/10 bg-[#111]",
-                  "shadow-[0_18px_60px_-30px_rgba(0,0,0,0.9)]",
-                )}
-              >
-                <div className="relative aspect-[4/5]">
-                  <FoodImage
-                    src={item.image}
-                    alt={`Grill Gasten — ${item.title.toLowerCase()}`}
-                    tier="featured"
-                    fill
-                    loading={index === 0 ? "eager" : "lazy"}
-                    sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
-                    className="object-cover object-center transition duration-700 group-hover:scale-[1.03]"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                </div>
-                <div className="space-y-2 p-6">
-                  <h3 className="font-heading text-2xl tracking-wide text-white uppercase">
-                    {item.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.article>
-            </AnimatedContainer>
-          ))}
-        </div>
+    <section className="py-16">
+      <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:grid-cols-2 lg:grid-cols-4">
+        {items.map((item, index) => (
+          <AnimatedContainer key={item.id} delay={index * 0.05}>
+            <Link href="/bestellen" className="block overflow-hidden rounded-2xl border border-white/10 bg-[#111]">
+              <div className="relative aspect-[4/3]">
+                <Image src={item.imageSrc} alt={item.name} fill className="object-cover" sizes="25vw" />
+              </div>
+              <div className="p-4">
+                <p className="font-heading text-lg uppercase text-white">{item.name}</p>
+                <p className="text-[#d4af37] text-sm">{formatPriceCents(item.priceCents)}</p>
+              </div>
+            </Link>
+          </AnimatedContainer>
+        ))}
       </div>
     </section>
   );

@@ -15,7 +15,7 @@ export async function createMollieCheckout(params: {
   const payment = await mollie.payments.create({
     amount: { currency: "EUR", value: amount },
     description: params.description,
-    redirectUrl: `${baseUrl}/bestellen?paid=1&order=${encodeURIComponent(params.orderNumber)}`,
+    redirectUrl: `${baseUrl}/bestellen/status/${encodeURIComponent(params.orderNumber)}`,
     webhookUrl: `${baseUrl}/api/mollie/webhook`,
     metadata: {
       orderId: params.orderId,

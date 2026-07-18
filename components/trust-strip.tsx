@@ -1,23 +1,21 @@
-import { trustInzetbaar } from "@/lib/data/testimonials";
+import { trustInzetbaar } from "@/lib/data/trust";
 
 export function TrustStrip() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#111] px-4 py-5 md:px-6">
-      <p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-primary md:text-left">
-        Inzetbaar voor
-      </p>
-      <ul className="mt-4 flex flex-wrap justify-center gap-2 md:justify-start" aria-label="Type events">
+    <div className="rounded-2xl border border-white/10 bg-[#111] p-5">
+      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white">Grill Gasten</p>
+      <ul className="mt-3 flex flex-wrap gap-2">
         {trustInzetbaar.map((label) => (
           <li
             key={label}
-            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground"
+            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-muted-foreground"
           >
             {label}
           </li>
         ))}
       </ul>
-      <p className="text-muted-foreground mt-4 text-center text-xs leading-relaxed md:text-left">
-        Van intiem bedrijfsfeest tot festivalterrein — vertel ons je datum en wij denken mee over setup en menu.
+      <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
+        Bestel online of vraag naar catering voor je feestje — we denken graag mee.
       </p>
     </div>
   );

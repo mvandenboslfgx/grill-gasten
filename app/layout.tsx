@@ -30,7 +30,7 @@ const ogImage = `${site.url}/opengraph-image`;
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — Loaded. Gegrild. Legendarisch.`,
+    default: `${site.name} — Smashburgers bestellen`,
     template: `%s — ${site.name}`,
   },
   description: site.metaDescriptionHome,
@@ -40,20 +40,20 @@ export const metadata: Metadata = {
     locale: "nl_NL",
     url: site.url,
     siteName: site.name,
-    title: `${site.name} — premium smashburgers & streetfood`,
+    title: `${site.name} — smashburgers & loaded fries`,
     description: site.metaDescriptionHome,
     images: [
       {
         url: ogImage,
         width: 1200,
         height: 630,
-        alt: `${site.name} smashburger hero`,
+        alt: `${site.name} smashburger`,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name} — Loaded. Gegrild. Legendarisch.`,
+    title: `${site.name} — Smashburgers bestellen`,
     description: site.metaDescriptionHome,
     images: [ogImage],
   },

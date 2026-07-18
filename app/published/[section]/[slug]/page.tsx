@@ -63,8 +63,8 @@ export default async function PublishedMdxPage({ params }: PageProps) {
         <div className="mt-10 border-t border-white/10 pt-10">{doc.content}</div>
 
         <p className="text-muted-foreground mt-12 text-sm">
-          <Link className="text-primary hover:underline" href="/events">
-            ← Terug naar events
+          <Link className="text-primary hover:underline" href="/catering">
+            ← Catering
           </Link>
           {" · "}
           <Link className="text-primary hover:underline" href="/">

@@ -1,16 +1,10 @@
-/** Local + national SEO targets */
+/** SEO-zoekwoorden — geen stuffing, alleen relevante termen. */
 export const SEO_KEYWORDS = [
-  "foodtruck rotterdam",
-  "bbq catering rotterdam",
-  "burger catering",
-  "bbq foodtruck",
-  "catering zuid holland",
-  "foodtruck huren",
-  "foodtruck bedrijfsfeest",
-  "bbq catering bruiloft",
-  "smashburger foodtruck",
-  "premium streetfood nederland",
-  "festival foodtruck",
+  "smashburger bestellen",
+  "smashburgers Hoeksche Waard",
+  "burgers afhalen",
+  "loaded fries",
+  "spicy chicken burger",
   "Grill Gasten",
-  "foodtruck hoeksche waard",
+  "burger catering Hoeksche Waard",
 ] as const;

@@ -5,15 +5,11 @@ const routes = [
   "",
   "/menu",
   "/bestellen",
-  "/rewards",
   "/catering",
-  "/contact",
   "/about",
-  "/events",
-  "/foodtruck",
-  "/zakelijk",
-  "/festival",
+  "/contact",
   "/privacy",
+  "/voorwaarden",
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -22,6 +18,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${site.url}${path}`,
     lastModified,
     changeFrequency: path === "" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : path === "/catering" ? 0.9 : 0.7,
+    priority: path === "" ? 1 : path === "/bestellen" || path === "/menu" ? 0.9 : 0.7,
   }));
 }

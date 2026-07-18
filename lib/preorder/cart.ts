@@ -1,4 +1,4 @@
-import { menuItems } from "@/lib/data/menu";
+import { getProductById } from "@/lib/catalog/products";
 
 export type CartLine = {
   id: string;
@@ -9,13 +9,8 @@ export type CartLine = {
 
 const STORAGE_KEY = "gg-preorder-cart";
 
-export function parsePriceEur(price: string): number {
-  const n = parseFloat(price.replace(/[^\d,]/g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : 0;
-}
-
 export function getMenuItemById(id: string) {
-  return menuItems.find((m) => m.id === id);
+  return getProductById(id);
 }
 
 export function loadCart(): CartLine[] {

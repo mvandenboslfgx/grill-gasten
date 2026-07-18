@@ -13,8 +13,7 @@ const contactWhatsApp = getWhatsAppHref("contact");
 
 export const metadata: Metadata = {
   title: "Contact",
-  description:
-    "Contact Grill Gasten — WhatsApp, bellen of mail. Premium BBQ foodtruck voor festivals, catering en events in heel Nederland.",
+  description: `Contact ${site.name} — WhatsApp, bellen of mail. Smashburgers bestellen of catering aanvragen.`,
 };
 
 export default function ContactPage() {
@@ -24,22 +23,20 @@ export default function ContactPage() {
         <AnimatedContainer className="space-y-8">
           <SectionTitle
             eyebrow="Contact"
-            title="Vragen, boekingen of samenwerken?"
-            description="Grill Gasten is beschikbaar voor festivals, catering, events en streetfood locaties door heel Nederland."
+            title="Vragen of bestellen?"
+            description="Voor bestellingen, allergenen of catering — we helpen je graag."
           />
 
           <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex items-start gap-3">
               <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <span>
-                <span className="text-white">Regio Hoeksche Waard</span> — inzetbaar door heel Nederland
+                <span className="text-white">Regio {site.region}</span> — {site.address}
               </span>
             </li>
             <li className="flex items-start gap-3">
               <Phone className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-              <span>
-                <PhoneLink className="text-white hover:text-primary" />
-              </span>
+              <PhoneLink className="text-white hover:text-primary" />
             </li>
             <li className="flex items-start gap-3">
               <Mail className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
@@ -50,12 +47,12 @@ export default function ContactPage() {
             <li className="flex items-start gap-3">
               <MessageCircle className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <span>
-                <span className="text-white">WhatsApp</span> — snelste reactie voor boekingen
+                <span className="text-white">WhatsApp</span> — snelste route
               </span>
             </li>
             <li className="flex items-start gap-3">
               <Flame className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-              <span>Festivals, catering, events en streetfood locaties</span>
+              <span>Bestellen, catering en vragen</span>
             </li>
           </ul>
 
@@ -64,7 +61,7 @@ export default function ContactPage() {
             <ul className="space-y-4 text-sm text-muted-foreground">
               <li>
                 <a className="hover:text-white" href={contactWhatsApp} rel="noopener noreferrer" target="_blank">
-                  WhatsApp — boekingen en vragen
+                  WhatsApp — bestellingen en vragen
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -83,21 +80,24 @@ export default function ContactPage() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <GlowButton href={contactWhatsApp} variant="flame">
+            <GlowButton href="/bestellen" variant="flame">
+              Bestel nu
+            </GlowButton>
+            <GlowButton href={contactWhatsApp} variant="outline">
               Open WhatsApp
             </GlowButton>
-            <PhoneLink
-              showIcon
-              className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-3 text-sm font-semibold uppercase tracking-[0.14em] text-white"
-            />
           </div>
         </AnimatedContainer>
 
         <AnimatedContainer delay={0.08}>
-                    <div className="rounded-3xl border border-white/10 bg-[#111] p-6 md:p-8">
+          <div className="rounded-3xl border border-white/10 bg-[#111] p-6 md:p-8">
             <h2 className="font-heading text-2xl tracking-wide text-white uppercase">Stuur een bericht</h2>
             <p className="text-muted-foreground mt-2 text-sm">
-              Officieel formulier — wordt verstuurd naar {site.email}. Je krijgt bevestiging op het scherm.
+              Formulier naar {site.email}. Zie ook onze{" "}
+              <Link href="/privacy" className="text-white hover:underline">
+                privacyverklaring
+              </Link>
+              .
             </p>
             <div className="mt-6">
               <ContactForm />
@@ -108,4 +108,3 @@ export default function ContactPage() {
     </div>
   );
 }
-

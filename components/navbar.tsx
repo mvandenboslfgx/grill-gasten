@@ -71,8 +71,8 @@ export function Navbar() {
           <WhatsAppButton intent={waIntent} variant="outline" className="border-primary/35 px-3 text-[10px] sm:px-4 sm:text-xs">
             WhatsApp
           </WhatsAppButton>
-          <GlowButton href="/catering#booking" variant="flame" className="px-4 text-[10px] sm:px-7 sm:text-sm">
-            Boek ons
+          <GlowButton href="/bestellen" variant="flame" className="px-4 text-[10px] sm:px-7 sm:text-sm">
+            Bestel nu
           </GlowButton>
         </div>
 
@@ -128,8 +128,8 @@ export function Navbar() {
                 >
                   WhatsApp
                 </WhatsAppButton>
-                <GlowButton href="/catering#booking" variant="flame" className="min-h-12 w-full">
-                  Boek direct
+                <GlowButton href="/bestellen" variant="flame" className="min-h-12 w-full">
+                  Bestel nu
                 </GlowButton>
               </div>
             </div>

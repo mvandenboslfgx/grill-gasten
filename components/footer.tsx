@@ -100,9 +100,9 @@ export function Footer() {
             <Link className="hover:text-white" href="/privacy">
               Privacy
             </Link>
-            <p className="text-gradient-silver font-medium uppercase tracking-[0.25em]">
-              Loaded. Gegrild. Legendarisch.
-            </p>
+            <Link className="hover:text-white" href="/voorwaarden">
+              Voorwaarden
+            </Link>
           </div>
         </div>
       </div>

@@ -1,25 +1,19 @@
-export type OrderStatus = "pending" | "confirmed" | "preparing" | "ready" | "picked_up" | "cancelled";
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "preparing"
+  | "ready"
+  | "picked_up"
+  | "cancelled";
 
-export type PaymentStatus = "unpaid" | "paid" | "failed" | "refunded";
-
-export type OrderLine = {
-  id: string;
-  name: string;
-  priceEur: number;
-  qty: number;
-};
-
-export type CreateOrderInput = {
-  name: string;
-  phone: string;
-  email: string;
-  date: string;
-  time: string;
-  location?: string;
-  lines: OrderLine[];
-  totalCents: number;
-  notes?: string;
-};
+export type PaymentStatus =
+  | "unpaid"
+  | "paid"
+  | "failed"
+  | "canceled"
+  | "expired"
+  | "refunded"
+  | "pending";
 
 export type DbOrder = {
   id: string;
@@ -32,9 +26,11 @@ export type DbOrder = {
   pickup_date: string;
   pickup_time: string;
   location: string | null;
-  lines: OrderLine[];
+  lines: unknown;
   total_cents: number;
   mollie_payment_id: string | null;
   checkout_url: string | null;
+  notes: string | null;
   created_at: string;
+  updated_at?: string;
 };

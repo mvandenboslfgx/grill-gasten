@@ -1,18 +1,17 @@
 export const site = {
   name: "Grill Gasten",
-  tagline:
-    "Smashburgers, loaded fries en premium grillgerechten op festivals, bedrijfsfeesten en privé-events.",
+  tagline: "Verse smashburgers, loaded fries en spicy chicken. Snel besteld, heet bereid.",
   description:
-    "Grill Gasten is dé premium BBQ foodtruck uit de Hoeksche Waard. Smashburgers, loaded fries en premium streetfood voor festivals, catering, bedrijfsfeesten en privé-events.",
+    "Grill Gasten — smashburgers, loaded fries en spicy chicken uit de Hoeksche Waard. Bestel online of vraag naar catering voor je feest.",
   metaDescriptionHome:
-    "Grill Gasten — premium BBQ foodtruck en burger catering in Rotterdam, Zuid-Holland en heel Nederland. Festivals, bedrijfsfeesten, bruiloften. Boek Mike en Matthijs.",
+    "Smashburgers bestellen bij Grill Gasten in de Hoeksche Waard. Double smash, loaded fries en spicy chicken — bestel online en haal af.",
   founders: "Mike en Matthijs",
   region: "Hoeksche Waard",
   serviceArea: "Rotterdam · Zuid-Holland · heel Nederland",
   url: "https://grillgasten.eu",
   logo: "/brand/grill-gasten-logo.png",
   slogan: "Smaak. Passie. Samen genieten.",
-  /** Boekingen & formulieren */
+  /** Boekingen & formulieren — niet wijzigen zonder akkoord eigenaar */
   email: "info@grillgasten.eu",
   phoneDisplay: "+31 6 49 56 56 98",
   phoneTel: "tel:+31649565698",
@@ -27,11 +26,7 @@ export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
   { href: "/bestellen", label: "Bestellen" },
-  { href: "/foodtruck", label: "Foodtruck" },
   { href: "/catering", label: "Catering" },
-  { href: "/festival", label: "Festival" },
-  { href: "/zakelijk", label: "Zakelijk" },
-  { href: "/rewards", label: "Rewards" },
   { href: "/about", label: "Over ons" },
   { href: "/contact", label: "Contact" },
 ] as const;
