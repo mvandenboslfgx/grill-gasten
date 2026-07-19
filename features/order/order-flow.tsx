@@ -18,6 +18,8 @@ import {
 import { priceOrderLines } from "@/lib/catalog/pricing";
 import type { DeliveryQuoteResult } from "@/lib/delivery/types";
 import { CLOSED_ORDERING_COPY } from "@/features/order/closed-ordering-content";
+import { DrinkUpsell } from "@/features/order/drink-upsell";
+import { getActiveDrinkProducts } from "@/lib/catalog/drinks";
 import { getWhatsAppHref } from "@/lib/whatsapp";
 
 type FulfillmentMethod = "pickup" | "delivery";
@@ -91,7 +93,10 @@ export function OrderFlow() {
     "idle" | "loading" | "error"
   >("idle");
   const [quoteError, setQuoteError] = React.useState<string | null>(null);
+  const [upsellDismissed, setUpsellDismissed] = React.useState(false);
+  const [showBurgerUpsell, setShowBurgerUpsell] = React.useState(false);
   const idempotencyKeyRef = React.useRef(newIdempotencyKey());
+  const activeDrinks = React.useMemo(() => getActiveDrinkProducts(), []);
 
   const priced = React.useMemo(
     () =>
@@ -238,6 +243,12 @@ export function OrderFlow() {
     });
     if (productId === "sauce") {
       setSauceDraft("");
+    }
+
+    const isBurger =
+      product.category === "smashburgers" || product.category === "chicken";
+    if (isBurger && activeDrinks.length > 0 && !upsellDismissed) {
+      setShowBurgerUpsell(true);
     }
   }
 
@@ -684,6 +695,20 @@ export function OrderFlow() {
                   );
                 })}
               </ul>
+              {showBurgerUpsell && activeDrinks.length > 0 ? (
+                <DrinkUpsell
+                  drinks={activeDrinks}
+                  variant="after-burger"
+                  onAdd={(id) => {
+                    addToCart(id);
+                    setShowBurgerUpsell(false);
+                  }}
+                  onDismiss={() => {
+                    setShowBurgerUpsell(false);
+                    setUpsellDismissed(true);
+                  }}
+                />
+              ) : null}
             </>
           ) : (
             <form
@@ -992,7 +1017,7 @@ export function OrderFlow() {
           )}
         </div>
 
-        <aside className="hidden h-fit rounded-3xl border border-white/10 bg-[#111] p-5 lg:sticky lg:top-28 lg:block">
+        <aside className="hidden h-fit space-y-4 rounded-3xl border border-white/10 bg-[#111] p-5 lg:sticky lg:top-28 lg:block">
           <CartPanel
             cart={cart}
             subtotalCents={subtotalCents}
@@ -1004,6 +1029,18 @@ export function OrderFlow() {
             onCheckout={() => setStep("checkout")}
             step={step}
           />
+          {step === "menu" &&
+          cart.length > 0 &&
+          activeDrinks.length > 0 &&
+          !upsellDismissed &&
+          !cart.some((l) => getProductById(l.productId)?.category === "drinks") ? (
+            <DrinkUpsell
+              drinks={activeDrinks}
+              variant="cart"
+              onAdd={(id) => addToCart(id)}
+              onDismiss={() => setUpsellDismissed(true)}
+            />
+          ) : null}
         </aside>
       </div>
 

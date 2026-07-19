@@ -6,6 +6,7 @@ export type ProductCategory =
   | "loaded-fries"
   | "fries"
   | "sauces"
+  | "drinks"
   | "extras";
 
 export type ProductAvailability = "available" | "sold_out" | "hidden";

@@ -5,7 +5,6 @@ import { Check, Copy, ExternalLink, MessageCircle, Phone } from "lucide-react";
 import { formatPriceCents } from "@/lib/catalog/format-money";
 import {
   displayOrNone,
-  fulfillmentLabel,
   orderStatusLabel,
   paymentStatusLabel,
 } from "@/lib/orders/labels";
@@ -179,12 +178,12 @@ export function OrderDetail({
           {order.order_number}
         </p>
         <div className="flex flex-wrap gap-2">
-          <FulfillmentBadge method={order.fulfillment_method} />
+          <FulfillmentBadge method={order.fulfillment_method} size="hero" />
           <PaymentStatusBadge status={order.payment_status} />
           <OrderStatusBadge status={order.status} method={order.fulfillment_method} />
         </div>
         <p className="text-muted-foreground text-xs print:text-neutral-600">
-          {fulfillmentLabel(order.fulfillment_method)} · {order.pickup_date} ·{" "}
+          {order.pickup_date} ·{" "}
           {isDelivery ? order.delivery_window || order.pickup_time : order.pickup_time}
         </p>
         {internal && order.created_at ? (
@@ -232,10 +231,16 @@ export function OrderDetail({
       {isDelivery ? (
         <Block title="Bezorging" alert={alertInstructions}>
           <p>{displayOrNone(address)}</p>
-          <p className="text-muted-foreground mt-1 text-xs">
-            Zone {order.delivery_zone ?? "—"}
-            {km ? ` · ${km}` : ""}
-            {duration ? ` · ~${duration}` : ""}
+          <p className="text-muted-foreground mt-1 text-xs print:hidden">
+            {internal ? (
+              <>
+                Zone {order.delivery_zone ?? "—"}
+                {km ? ` · ${km}` : ""}
+                {duration ? ` · ~${duration}` : ""}
+              </>
+            ) : (
+              "Bezorgadres"
+            )}
           </p>
           <p className="mt-2 text-sm">
             <span className="text-muted-foreground">Bezorginstructies: </span>

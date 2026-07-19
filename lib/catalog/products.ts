@@ -1,7 +1,8 @@
-import { FOOD } from "@/lib/data/food-imagery";
 import type { CatalogProduct } from "@/lib/catalog/types";
 import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/catalog/categories";
+import { getConfirmedDrinkProducts } from "@/lib/catalog/drinks";
 import { formatPriceCents } from "@/lib/catalog/format-money";
+import { FOOD } from "@/lib/data/food-imagery";
 
 const BURGER_OPTIONS = ["egg", "bacon", "pickle-swap"] as const;
 
@@ -187,11 +188,15 @@ export const catalogProducts: readonly CatalogProduct[] = [
 export { CATEGORY_LABELS, CATEGORY_ORDER, formatPriceCents };
 
 export function getProductById(id: string): CatalogProduct | undefined {
-  return catalogProducts.find((p) => p.id === id);
+  return (
+    catalogProducts.find((p) => p.id === id) ??
+    getConfirmedDrinkProducts().find((p) => p.id === id)
+  );
 }
 
 export function getVisibleProducts(): CatalogProduct[] {
-  return catalogProducts
+  const drinks = getConfirmedDrinkProducts().filter((p) => p.availability !== "hidden");
+  return [...catalogProducts, ...drinks]
     .filter((p) => p.availability !== "hidden")
     .slice()
     .sort((a, b) => a.sortOrder - b.sortOrder);

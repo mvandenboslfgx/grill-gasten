@@ -6,6 +6,7 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   "loaded-fries": "Loaded fries",
   fries: "Friet",
   sauces: "Sauzen",
+  drinks: "Dranken",
   extras: "Extra opties",
 };
 
@@ -15,5 +16,6 @@ export const CATEGORY_ORDER: ProductCategory[] = [
   "loaded-fries",
   "fries",
   "sauces",
+  "drinks",
   "extras",
 ];
