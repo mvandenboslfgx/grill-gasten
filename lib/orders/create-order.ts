@@ -1,4 +1,5 @@
 import { generateAccessToken, verifyAccessToken } from "@/lib/orders/access-token";
+import { encryptAccessToken } from "@/lib/orders/access-token-crypto";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import type { PricedOrderLine } from "@/lib/catalog/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -32,6 +33,8 @@ export type CreateOrderDbInput = {
   deliveryDistanceMeters?: number;
   deliveryDurationSeconds?: number;
   deliveryInstructions?: string;
+  idempotencyKey?: string;
+  idempotencyPayloadHash?: string;
 };
 
 export type CreateOrderDbResult =
@@ -44,6 +47,7 @@ export async function createOrderAtomic(
   const db = getSupabaseAdmin();
   const orderNumber = generateOrderNumber();
   const { token: accessToken, hash: accessTokenHash } = generateAccessToken();
+  const accessTokenCiphertext = encryptAccessToken(accessToken);
 
   const linesJson = input.lines.map((l) => ({
     productId: l.productId,
@@ -80,6 +84,11 @@ export async function createOrderAtomic(
     p_delivery_distance_meters: input.deliveryDistanceMeters ?? null,
     p_delivery_duration_seconds: input.deliveryDurationSeconds ?? null,
     p_delivery_instructions: input.deliveryInstructions ?? null,
+    p_customer_note: input.customerNote ?? null,
+    p_access_token_hash: accessTokenHash,
+    p_access_token_ciphertext: accessTokenCiphertext,
+    p_idempotency_key: input.idempotencyKey ?? null,
+    p_idempotency_payload_hash: input.idempotencyPayloadHash ?? null,
   });
 
   if (!error && data) {
@@ -89,15 +98,8 @@ export async function createOrderAtomic(
     }
     if (row?.id) {
       const order = row as DbOrder;
-      const patch: Record<string, string> = {
-        access_token_hash: accessTokenHash,
-      };
-      if (input.customerNote) {
-        patch.customer_note = input.customerNote;
-        order.customer_note = input.customerNote;
-      }
-      await db.from("orders").update(patch).eq("id", order.id);
       order.access_token_hash = accessTokenHash;
+      if (input.customerNote) order.customer_note = input.customerNote;
       return { ok: true, order, accessToken };
     }
   }
@@ -113,11 +115,28 @@ export async function createOrderAtomic(
   }
 
   if (error?.code === "23505") {
-    return createOrderAtomic(input);
+    // Unique conflict on order_number — retry once with new number
+    if (!input.idempotencyKey) {
+      return createOrderAtomic(input);
+    }
+    return { ok: false, code: "conflict", message: "Bestelling kon niet worden opgeslagen." };
   }
 
   console.error("[createOrderAtomic]", { code: error?.code ?? "error" });
   return { ok: false, code: "error", message: "Bestelling kon niet worden opgeslagen." };
+}
+
+export async function findOrderByIdempotencyKey(
+  key: string,
+): Promise<DbOrder | null> {
+  const db = getSupabaseAdmin();
+  const { data, error } = await db
+    .from("orders")
+    .select("*")
+    .eq("idempotency_key", key)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as DbOrder) ?? null;
 }
 
 export async function updateOrderPayment(

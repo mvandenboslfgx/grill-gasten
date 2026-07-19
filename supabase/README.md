@@ -30,8 +30,11 @@ Of bestand-voor-bestand:
 4. `supabase/migrations/20260718230000_delivery_safety_fix.sql`
 5. `supabase/migrations/20260718240000_customer_note.sql` ← **customer_note kolom**
 6. `supabase/migrations/20260718250000_order_access_token_security.sql` ← **access_token_hash + REVOKE anon/authenticated**
+7. `supabase/migrations/20260719210000_ordering_readiness.sql` ← **payment_status expand, order_events, idempotency, token ciphertext**
 
 Geen drops van orders/klanten.
+
+Zie ook `docs/ORDERING-LAUNCH-CHECKLIST.md` vóór activatie.
 
 ## Env (Vercel)
 

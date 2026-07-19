@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
+import { mollieAmountMatchesOrder } from "@/lib/mollie/amount";
 import { getMollieClient } from "@/lib/mollie/client";
 import { mapMollieWebhookUpdate } from "@/lib/mollie/webhook-status";
 import { ownerInbox, sendTransactionalEmail } from "@/lib/email/send-order-mail";
+import { orderLog } from "@/lib/observability/order-log";
+import { decryptAccessToken } from "@/lib/orders/access-token-crypto";
 import {
   buildCustomerPaidEmail,
   buildOwnerPaidEmail,
 } from "@/lib/orders/order-emails";
+import { claimOrderEvent } from "@/lib/orders/order-events";
 import { awardPointsForPaidOrder, updateOrderPayment } from "@/lib/orders/create-order";
 import type { DbOrder, OrderStatus, PaymentStatus } from "@/lib/orders/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -32,6 +36,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false }, { status: 400 });
     }
 
+    orderLog("WEBHOOK_RECEIVED", { paymentIdPrefix: paymentId.slice(0, 8) });
+
     const mollie = getMollieClient();
     const payment = await mollie.payments.get(paymentId);
     const meta = payment.metadata as Record<string, string> | null;
@@ -52,11 +58,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true });
     }
 
+    const amountOk = mollieAmountMatchesOrder({
+      mollieValue: payment.amount?.value,
+      mollieCurrency: payment.amount?.currency,
+      orderTotalCents: order.total_cents as number,
+    });
+
+    if (!amountOk && payment.status === "paid") {
+      orderLog("WEBHOOK_AMOUNT_MISMATCH", {
+        orderNumber: order.order_number as string,
+        expectedCents: order.total_cents as number,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     const currentPayment = order.payment_status as PaymentStatus;
     const wasPaid = currentPayment === "paid";
     const mapped = mapMollieWebhookUpdate(payment.status, currentPayment);
 
     if (mapped.skip) {
+      orderLog("WEBHOOK_SKIPPED", { orderNumber: order.order_number as string });
       return NextResponse.json({ ok: true });
     }
 
@@ -75,6 +96,20 @@ export async function POST(request: Request) {
     await updateOrderPayment(orderId, patch);
 
     if (mapped.awardPoints && !wasPaid) {
+      const claimed = await claimOrderEvent(orderId, "webhook_paid_processed");
+      if (!claimed) {
+        orderLog("WEBHOOK_SKIPPED", {
+          orderNumber: order.order_number as string,
+          reason: "already_processed",
+        });
+        return NextResponse.json({ ok: true });
+      }
+
+      orderLog("WEBHOOK_PAID_VERIFIED", {
+        orderNumber: order.order_number as string,
+      });
+      orderLog("ORDER_CONFIRMED", { orderNumber: order.order_number as string });
+
       await awardPointsForPaidOrder(
         order.customer_email as string,
         orderId,
@@ -82,47 +117,68 @@ export async function POST(request: Request) {
       );
 
       const full = { ...order, ...patch } as DbOrder;
-      const accessToken = typeof meta?.accessToken === "string" ? meta.accessToken : "";
-      const ownerMail = buildOwnerPaidEmail(full);
-      const customerMail = accessToken
-        ? buildCustomerPaidEmail(full, accessToken)
-        : null;
+      const accessToken = decryptAccessToken(
+        typeof order.access_token_ciphertext === "string"
+          ? order.access_token_ciphertext
+          : null,
+      );
 
-      const mailJobs = [
-        sendTransactionalEmail({
+      const ownerClaimed = await claimOrderEvent(orderId, "email_owner_paid");
+      if (ownerClaimed) {
+        const ownerMail = buildOwnerPaidEmail(full);
+        await sendTransactionalEmail({
           to: ownerInbox(),
           subject: ownerMail.subject,
           text: ownerMail.text,
           html: ownerMail.html,
           replyTo: full.customer_email,
-        }),
-      ];
-      if (customerMail) {
-        mailJobs.push(
-          sendTransactionalEmail({
+        }).then(() => {
+          orderLog("EMAIL_SENT", { orderNumber: full.order_number, kind: "owner" });
+        }).catch(() => {
+          orderLog("EMAIL_FAILED", { orderNumber: full.order_number, kind: "owner" });
+        });
+      } else {
+        orderLog("EMAIL_SKIPPED_IDEMPOTENT", {
+          orderNumber: full.order_number,
+          kind: "owner",
+        });
+      }
+
+      const customerClaimed = await claimOrderEvent(orderId, "email_customer_paid");
+      if (customerClaimed) {
+        if (accessToken) {
+          const customerMail = buildCustomerPaidEmail(full, accessToken);
+          await sendTransactionalEmail({
             to: full.customer_email,
             subject: customerMail.subject,
             text: customerMail.text,
             html: customerMail.html,
-          }),
-        );
+          }).then(() => {
+            orderLog("EMAIL_SENT", { orderNumber: full.order_number, kind: "customer" });
+          }).catch(() => {
+            orderLog("EMAIL_FAILED", { orderNumber: full.order_number, kind: "customer" });
+          });
+        } else {
+          orderLog("EMAIL_FAILED", {
+            orderNumber: full.order_number,
+            kind: "customer",
+            code: "CUSTOMER_STATUS_TOKEN_MISSING",
+          });
+        }
       } else {
-        console.error("[api/mollie/webhook] mail", {
-          code: "CUSTOMER_STATUS_TOKEN_MISSING",
+        orderLog("EMAIL_SKIPPED_IDEMPOTENT", {
           orderNumber: full.order_number,
+          kind: "customer",
         });
       }
-      await Promise.all(mailJobs).catch(() => {
-        console.error("[api/mollie/webhook] mail", {
-          code: "MAIL_FAILED",
-          orderNumber: full.order_number,
-        });
-      });
     }
 
     return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error("[api/mollie/webhook]", e instanceof Error ? e.message : "error");
+    orderLog("UNEXPECTED_ERROR", {
+      scope: "mollie_webhook",
+      message: e instanceof Error ? e.message.slice(0, 80) : "error",
+    });
     return NextResponse.json({ ok: false }, { status: 500 });
   }
 }

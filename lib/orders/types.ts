@@ -51,6 +51,10 @@ export type DbOrder = {
   customer_note: string | null;
   /** SHA-256 hex of customer status token — never expose to clients. */
   access_token_hash?: string | null;
+  /** AES-GCM ciphertext of status token — server-only for post-pay e-mail. */
+  access_token_ciphertext?: string | null;
+  idempotency_key?: string | null;
+  idempotency_payload_hash?: string | null;
   batch_status: string | null;
   created_at: string;
   updated_at?: string;
