@@ -60,13 +60,13 @@ export function foodImage(id: number, width: number) {
 /** Hero smashburger */
 export const IMG_HERO_BURGER = FOOD.heroSmash.src;
 
-/** Story / founders-sectie — smash in handen, festival energy */
+/** Story / founders-sectie — smash in handen */
 export const IMG_BURGER_PLATE = FOOD.smashHands.src;
 
-/** Catering hero — foodtruck (stock tot eigen foto) */
+/** Catering visual — stock tot eigen foto */
 export const IMG_FOOD_TRUCK = foodImage(4393021, 2000);
 
-/** Festival / experience achtergrond */
+/** Experience / sfeerachtergrond */
 export const IMG_FESTIVAL_FOOD = FOOD.loadedTray.src;
 
 /** Homepage social grid + featured categorieën */
@@ -84,7 +84,7 @@ export type SocialFoodTile = FoodAssetMeta & { alt: string };
 export const SOCIAL_FOOD_TILES: readonly SocialFoodTile[] = [
   { ...FOOD.heroSmash, alt: "Dubbele smashburger met gesmolten kaas en ui" },
   { ...FOOD.loadedTray, alt: "Loaded fries met vlees, kaas en saus" },
-  { ...FOOD.smashHands, alt: "Smashburger vastgehouden — streetfood energie" },
+  { ...FOOD.smashHands, alt: "Smashburger vastgehouden — Grill Gasten" },
   { ...FOOD.loadedBacon, alt: "Loaded fries met bacon en creamy sauce" },
   { ...FOOD.drinkPeach, alt: "Huisgemaakte peach iced tea met vers fruit" },
   { ...FOOD.drinkLemonade, alt: "Verse lemonade met citroen en munt" },

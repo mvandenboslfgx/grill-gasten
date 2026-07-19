@@ -1,9 +1,8 @@
 import {
   Building2,
   Heart,
-  Music2,
   PartyPopper,
-  Sparkles,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { site } from "@/lib/site";
@@ -15,64 +14,56 @@ export type BookEventCard = {
   icon: LucideIcon;
 };
 
+/** Catering-gelegenheden — alle links naar /catering (geen foodtruck-primary). */
 export const bookEventCards: BookEventCard[] = [
   {
-    title: "Festivals",
-    body: "Mainstage-energie, rijen die doorlopen — smash en loaded classics die blijven hangen.",
-    href: "/festival",
-    icon: Music2,
-  },
-  {
-    title: "Bedrijfsfeesten",
-    body: "Premium streetfood voor teams die iets memorabels verdienen — strak, snel, geen gedoe.",
-    href: "/zakelijk",
+    title: "Bedrijfsmomenten",
+    body: "Smashburgers en loaded fries voor teams, borrels en openingen — strak en zonder gedoe.",
+    href: "/catering",
     icon: Building2,
   },
   {
     title: "Bruiloften",
-    body: "Late-night loaded bites en smash na het feest — comfort food met luxe uitstraling.",
+    body: "Late-night bites na het feest — comfort food met een premium uitstraling.",
     href: "/catering#booking",
     icon: Heart,
   },
   {
     title: "Privéfeesten",
-    body: "Verjaardagen, tuinfeesten, openingen — wij brengen de grill naar jouw gasten.",
+    body: "Verjaardagen, tuinfeesten en buurtfeesten — we denken mee over menu en aantallen.",
     href: "/catering",
     icon: PartyPopper,
   },
   {
-    title: "Foodtruck op locatie",
-    body: "Volledige truck op locatie — branding, sfeer en premium BBQ waar jij wilt.",
-    href: "/foodtruck",
-    icon: Sparkles,
+    title: "Groepen & catering",
+    body: "Vraag vrijblijvend wat mogelijk is voor jouw gelegenheid. Prijs op aanvraag.",
+    href: "/catering#booking",
+    icon: Users,
   },
 ];
 
 export const homeStats = [
-  { label: "Focus", value: "Premium BBQ" },
-  { label: "Regio", value: "Zuid-Holland" },
-  { label: "Inzet", value: "Heel Nederland" },
+  { label: "Focus", value: "Smashburgers" },
+  { label: "Regio", value: site.region },
+  { label: "Service", value: "Afhalen & bezorgen" },
 ] as const;
 
+/** Legacy FAQ-set (niet op homepage; HomeFaqSection heeft eigen copy). */
 export const homeFaqs = [
   {
-    q: "Wat kost een foodtruck of BBQ-catering?",
-    a: "Dat hangt af van het aantal gasten, de locatie, de duur en het menu. Vraag een offerte aan via catering — Mike en Matthijs reageren snel via WhatsApp met een scherp voorstel.",
+    q: "Wat kost catering van Grill Gasten?",
+    a: "Dat hangt af van het aantal gasten, de locatie, de duur en het menu. Vraag een offerte via catering of WhatsApp — Mike en Matthijs reageren snel.",
   },
   {
-    q: "Waar zijn jullie inzetbaar?",
-    a: "Onze thuisbasis is de Hoeksche Waard. Standaard inzetbaar in Rotterdam, Zuid-Holland en door heel Nederland voor festivals en events.",
+    q: "Waar kunnen jullie cateren?",
+    a: `Onze thuisbasis is de ${site.region}. Voor catering op locatie overleggen we wat haalbaar is voor jouw datum en adres.`,
   },
   {
     q: "Wat is de minimale afname?",
-    a: "Dat verschilt per event. Neem contact op met datum en aantal gasten — wij schalen de opstelling mee.",
+    a: "Dat verschilt per gelegenheid. Neem contact op met datum en aantal gasten — dan kijken we mee.",
   },
   {
-    q: "Kunnen jullie op festivals en grote drukte draaien?",
-    a: "Ja. Festival-DNA, snelle service, premium kwaliteit en ervaring met drukke shifts en late night.",
-  },
-  {
-    q: "Hoe boek ik het snelst?",
-    a: `WhatsApp of bel ${site.phoneDisplay} voor beschikbaarheid. Via het cateringformulier ontvang je een uitgewerkte offerte.`,
+    q: "Hoe boek ik catering het snelst?",
+    a: `WhatsApp of bel ${site.phoneDisplay} voor een snelle check. Via het cateringformulier kun je een uitgewerkte aanvraag sturen.`,
   },
 ] as const;

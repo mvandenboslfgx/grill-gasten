@@ -36,7 +36,7 @@ export function localBusinessJsonLd() {
     telephone: site.phoneE164,
     email: site.email,
     areaServed: site.region,
-    servesCuisine: ["Burger", "American", "Street Food"],
+    servesCuisine: ["Burger", "American"],
     priceRange: "€€",
     sameAs: [site.instagram, site.tiktok],
     contactPoint: {

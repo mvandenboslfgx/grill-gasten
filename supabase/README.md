@@ -17,8 +17,10 @@ Database: zolang `public.orders` ontbreekt (PostgREST `PGRST205`) zijn kitchen/p
 
 ## Migraties (SQL Editor), in volgorde
 
-Snelste pad (leeg project / eerste bootstrap): plak één keer  
+Snelste pad (leeg project / eerste bootstrap / na mislukte poging): plak **uitsluitend**  
 `scripts/apply-grill-gasten-schema.sql` in de SQL Editor → **Run**.
+
+Niet plakken: Cursor-chat, Markdown-rapporten, of alleen het laatste `REVOKE`-blok.
 
 Of bestand-voor-bestand:
 

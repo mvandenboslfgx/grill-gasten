@@ -8,7 +8,7 @@ import { getWhatsAppHref } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
   title: "Catering",
-  description: `Burger catering en foodtruck boeken bij ${site.name} — feestjes, verjaardagen en bedrijfsmomenten. Prijs op aanvraag.`,
+  description: `Burgercatering bij ${site.name} — smashburgers en loaded fries voor feestjes, verjaardagen en bedrijfsmomenten. Prijs op aanvraag.`,
 };
 
 const OCCASIONS = [

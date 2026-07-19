@@ -2,16 +2,17 @@
 
 ## Positioning
 
-Premium festival-style foodtruck: smashburgers, loaded snacks, high energy. Not corporate; not cheap mockups.
+Premium smashburger-restaurant / afhaalconcept in de **Hoeksche Waard**: verse smashburgers, loaded fries, spicy chicken. Afhalen of bezorgen. Catering op aanvraag. Not corporate; not cheap mockups.
 
-**Origin story (canonical):** Grill Gasten is ontstaan vanuit passie voor goed eten, festivals en echte streetfood cultuur. Opgericht door **Mike en Matthijs** uit de **Hoeksche Waard** — meer dan alleen een foodtruck: premium smashburgers, loaded snacks en een complete festivalervaring. Van markten en festivals tot bedrijfsfeesten en late-night streetfood — inzetbaar door heel Nederland waar goed eten en sfeer samenkomen.
+**Origin story (canonical):** Grill Gasten is ontstaan vanuit passie voor goed eten en stevige burgers. Opgericht door **Mike en Matthijs** uit de **Hoeksche Waard** — premium smashburgers, loaded snacks en een persoonlijke aanpak. Online bestellen voor afhalen of bezorgen; voor feesten en bedrijfsmomenten catering op aanvraag.
 
-**Lines:** Geen standaard foodtruck. Geen standaard menu. Gewoon hard gaan.
+**Lines:** Geen standaard menu. Gewoon hard gaan. Vers van de grill.
 
 ## Voice (NL)
 
-- Direct, confident, warm — “gasten”, festival, geen excuses.
+- Direct, confident, warm — “gasten”, geen excuses.
 - Headlines: uppercase, short, impact (Bebas Neue).
+- Primair restaurant/afhaal; catering als secundaire dienst (geen foodtruck-primary).
 
 ## Colors
 
@@ -31,9 +32,9 @@ CSS variables live in `app/globals.css` (shadcn theme + brand overrides).
 
 ## Imagery direction
 
-- Real burger macro, real truck, real crowd light — avoid “obvious stock” when replacing Unsplash.
-- Logo, smoke overlays, short video loops, merch mockups → upgrade perceived value from “demo” to “€100K brand”.
+- Real burger macro, real place/atmosphere — avoid “obvious stock” when replacing Unsplash.
+- Logo, smoke overlays, short video loops → upgrade perceived value.
 
 ## Social distribution
 
-Primary growth: **TikTok + Instagram + festival presence**. Site supports conversion and credibility; socials drive traffic.
+Primary growth: **TikTok + Instagram**. Site supports conversion and credibility; socials drive traffic.

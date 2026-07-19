@@ -79,8 +79,8 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order_with_slot from public;
-grant execute on function public.create_order_with_slot to service_role;
+revoke all on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text) from public;
+grant execute on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text) to service_role;
 
 -- Unique ledger reason per order for idempotent points (soft)
 create unique index if not exists points_ledger_order_reason_uidx

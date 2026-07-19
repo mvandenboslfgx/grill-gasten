@@ -7,18 +7,18 @@ Kopieer naar Instagram / TikTok. Pas emoji-dichtheid aan op jullie tone.
 ### Optie 1
 
 🍔 Premium smashburgers  
-🔥 Loaded streetfood  
+🔥 Loaded fries & spicy chicken  
 📍 Hoeksche Waard  
-🎪 Festivals • Catering • Events
+🚗 Afhalen • Bezorgen • Catering op aanvraag
 
 ### Optie 2
 
-LOADED STREETFOOD FOR REAL GASTEN 🍔🔥  
+SMASHBURGERS VOOR ECHTE GASTEN 🍔🔥  
 📍 Hoeksche Waard  
-🎪 Foodtruck • Festivals • Catering
+🔥 Afhalen · Bezorgen · Catering
 
 ## TikTok
 
 🍔 Smashburgers & loaded snacks  
-🔥 Festival vibes only  
+🔥 Vers van de grill  
 📍 Hoeksche Waard

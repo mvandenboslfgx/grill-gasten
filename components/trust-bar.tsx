@@ -5,22 +5,22 @@ import { site } from "@/lib/site";
 const items = [
   {
     icon: Star,
-    title: "5-sterren ervaring",
-    body: "Festival- en eventklanten komen terug voor de smash.",
+    title: "Gasten komen terug",
+    body: "Smashburgers en loaded fries waar mensen voor terugkomen.",
   },
   {
     icon: Zap,
     title: "Snelle service",
-    body: "Rijen die doorlopen — ook bij drukte.",
+    body: "Kort op de bal — ook als het druk wordt.",
   },
   {
     icon: Flame,
-    title: "Premium kwaliteit",
-    body: "Vers van de grill, geen standaard foodtruck.",
+    title: "Vers van de grill",
+    body: "Verse smashburgers, geen halfwerk.",
   },
   {
     icon: MapPin,
-    title: "Heel Nederland",
+    title: site.region,
     body: site.serviceArea,
   },
 ] as const;

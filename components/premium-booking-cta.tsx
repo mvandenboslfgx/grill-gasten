@@ -9,10 +9,10 @@ import { site } from "@/lib/site";
 import { getWhatsAppHref } from "@/lib/whatsapp";
 
 const eventTypes = [
-  "Festivals",
-  "Bedrijfsfeesten",
+  "Bedrijfsmomenten",
   "Bruiloften",
   "Privéfeesten",
+  "Groepen",
 ] as const;
 
 export function PremiumBookingCta() {
@@ -28,11 +28,11 @@ export function PremiumBookingCta() {
         <AnimatedContainer>
           <p className="text-primary text-xs font-semibold uppercase tracking-[0.4em]">Boek nu</p>
           <h2 className="font-heading mt-4 text-[clamp(2rem,6vw,3.75rem)] leading-[0.95] tracking-wide text-white uppercase">
-            Klaar om jouw event
-            <span className="text-gradient-silver block">naar een hoger niveau?</span>
+            Klaar om jouw gelegenheid
+            <span className="text-gradient-silver block">met Grill Gasten te vieren?</span>
           </h2>
           <p className="text-muted-foreground mx-auto mt-4 max-w-lg text-sm leading-relaxed md:text-base">
-            Populaire data raken snel vol — check beschikbaarheid voordat je programma vaststaat.
+            Vraag vrijblijvend wat mogelijk is — populaire data gaan snel, dus check op tijd.
           </p>
         </AnimatedContainer>
 

@@ -1,6 +1,30 @@
-﻿-- Grill Gasten — full schema bootstrap (idempotent where possible)
--- Apply once in Supabase SQL Editor for project linked to NEXT_PUBLIC_SUPABASE_URL
--- Generated for production hardening; safe to re-run (IF NOT EXISTS / OR REPLACE)
+-- Grill Gasten — full schema bootstrap (idempotent where possible)
+-- Project: Grill Gasten Production ONLY
+--
+-- HOW TO RUN IN SUPABASE SQL EDITOR:
+-- 1. New empty query
+-- 2. Paste THIS ENTIRE FILE (Ctrl+A in Cursor → copy → paste)
+-- 3. When warned: click "Run without RLS"  ← required
+--    Do NOT click "Run and enable RLS" (breaks scripts by injecting mid-query)
+-- 4. Expect Success / no rows returned
+--
+-- Safe to re-run after a partial failure.
+
+-- Clear ambiguous create_order_with_slot overloads from a partial run
+do $$
+declare
+  r record;
+begin
+  for r in
+    select p.oid::regprocedure as sig
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname = 'create_order_with_slot'
+  loop
+    execute format('drop function if exists %s cascade', r.sig);
+  end loop;
+end $$;
 
 -- ========== supabase/migrations/20250518120000_orders_rewards.sql ==========
 -- Grill Gasten â€” orders, timeslots, Grill Rewards
@@ -102,7 +126,6 @@ alter table public.rewards_members enable row level security;
 alter table public.points_ledger enable row level security;
 alter table public.rewards_signups enable row level security;
 
-
 -- ========== supabase/migrations/20260718210000_atomic_order_slot.sql ==========
 -- Atomic timeslot capacity + order insert
 -- Safe / incremental â€” no drops of existing data
@@ -185,14 +208,13 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order_with_slot from public;
-grant execute on function public.create_order_with_slot to service_role;
+revoke all on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text) from public;
+grant execute on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text) to service_role;
 
 -- Unique ledger reason per order for idempotent points (soft)
 create unique index if not exists points_ledger_order_reason_uidx
   on public.points_ledger (order_id, reason)
   where order_id is not null;
-
 
 -- ========== supabase/migrations/20260718220000_delivery_orders.sql ==========
 -- Delivery fields + expanded kitchen statuses (incremental, no drops)
@@ -263,6 +285,9 @@ alter table public.orders
 
 create index if not exists orders_fulfillment_idx
   on public.orders (fulfillment_method, pickup_date, pickup_time);
+
+-- Replace pickup-only overload (different arg list) so REVOKE/GRANT stay unambiguous
+drop function if exists public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text);
 
 -- Atomic create with method-aware capacity
 create or replace function public.create_order_with_slot(
@@ -399,9 +424,8 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order_with_slot from public;
-grant execute on function public.create_order_with_slot to service_role;
-
+revoke all on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) from public;
+grant execute on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) to service_role;
 
 -- ========== supabase/migrations/20260718230000_delivery_safety_fix.sql ==========
 -- Delivery safety: advisory lock capacity, constraints, rate limit RPC
@@ -498,6 +522,9 @@ begin
       );
   end if;
 end $$;
+
+-- Keep a single overload (drop pickup-only if still present)
+drop function if exists public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text);
 
 -- ---------------------------------------------------------------------------
 -- Atomic create with transaction-level advisory lock (works when slot is empty)
@@ -638,8 +665,8 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order_with_slot from public;
-grant execute on function public.create_order_with_slot to service_role;
+revoke all on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) from public;
+grant execute on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Shared rate limit (production)
@@ -696,12 +723,12 @@ begin
 end;
 $$;
 
-revoke all on function public.check_rate_limit from public;
-grant execute on function public.check_rate_limit to service_role;
+revoke all on function public.check_rate_limit(text, integer, integer) from public;
+grant execute on function public.check_rate_limit(text, integer, integer) to service_role;
 
 revoke all on table public.rate_limit_buckets from public;
 grant all on table public.rate_limit_buckets to service_role;
-
+alter table public.rate_limit_buckets enable row level security;
 
 -- ========== supabase/migrations/20260718240000_customer_note.sql ==========
 -- Customer note as structured field (notes remains snapshot backup)
@@ -712,7 +739,6 @@ alter table public.orders
 create index if not exists orders_customer_note_idx
   on public.orders (pickup_date)
   where customer_note is not null;
-
 
 -- ========== supabase/migrations/20260718250000_order_access_token_security.sql ==========
 -- Order customer status capability token (store hash only) + defense-in-depth grants
@@ -727,25 +753,21 @@ create unique index if not exists orders_access_token_hash_uidx
   on public.orders (access_token_hash)
   where access_token_hash is not null;
 
--- Deny Data API roles on sensitive tables when present; server uses service_role only
-do $$
-declare
-  t text;
-begin
-  foreach t in array array[
-    'orders',
-    'rewards_members',
-    'rewards_signups',
-    'points_ledger',
-    'rate_limit_buckets'
-  ]
-  loop
-    if to_regclass('public.' || t) is not null then
-      execute format('revoke all on table public.%I from anon, authenticated', t);
-      execute format('grant all on table public.%I to service_role', t);
-    end if;
-  end loop;
-end $$;
+-- Deny Data API roles on sensitive tables; server uses service_role only.
+-- Plain SQL (no DO $$) so the Supabase dashboard "enable RLS" injector cannot
+-- splice ALTER TABLE into the middle of a dollar-quoted block.
+revoke all on table public.orders from anon, authenticated;
+grant all on table public.orders to service_role;
 
+revoke all on table public.rewards_members from anon, authenticated;
+grant all on table public.rewards_members to service_role;
 
+revoke all on table public.rewards_signups from anon, authenticated;
+grant all on table public.rewards_signups to service_role;
+
+revoke all on table public.points_ledger from anon, authenticated;
+grant all on table public.points_ledger to service_role;
+
+revoke all on table public.rate_limit_buckets from anon, authenticated;
+grant all on table public.rate_limit_buckets to service_role;
 

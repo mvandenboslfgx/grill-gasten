@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { site } from "@/lib/site";
 
-export const alt = `${site.name} — Loaded. Gegrild. Legendarisch.`;
+export const alt = `${site.name} — Smashburgers uit de Hoeksche Waard`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -24,13 +24,13 @@ export default function OpenGraphImage() {
         }}
       >
         <div style={{ fontSize: 22, letterSpacing: "0.35em", textTransform: "uppercase", color: "rgb(255, 90, 31)" }}>
-          Premium streetfood
+          Smashburgers · Hoeksche Waard
         </div>
         <div style={{ marginTop: 18, fontSize: 96, lineHeight: 0.95, letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 800 }}>
           {site.name}
         </div>
         <div style={{ marginTop: 28, fontSize: 34, color: "rgb(234, 234, 234)", maxWidth: 900, lineHeight: 1.25 }}>
-          Loaded. Gegrild. Legendarisch.
+          Afhalen, bezorgen of catering op aanvraag.
         </div>
       </div>
     ),

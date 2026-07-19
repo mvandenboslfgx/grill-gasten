@@ -67,6 +67,9 @@ alter table public.orders
 create index if not exists orders_fulfillment_idx
   on public.orders (fulfillment_method, pickup_date, pickup_time);
 
+-- Replace pickup-only overload (different arg list) so REVOKE/GRANT stay unambiguous
+drop function if exists public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text);
+
 -- Atomic create with method-aware capacity
 create or replace function public.create_order_with_slot(
   p_order_number text,
@@ -202,5 +205,5 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order_with_slot from public;
-grant execute on function public.create_order_with_slot to service_role;
+revoke all on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) from public;
+grant execute on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) to service_role;

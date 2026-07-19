@@ -1,8 +1,9 @@
 "use client";
 
-import { Flame, Sparkles, Truck } from "lucide-react";
+import { Flame, MapPin, Sparkles } from "lucide-react";
 import { AnimatedContainer } from "@/components/animated-container";
 import { SectionTitle } from "@/components/section-title";
+import { site } from "@/lib/site";
 
 const items = [
   {
@@ -11,13 +12,13 @@ const items = [
     icon: Flame,
   },
   {
-    title: "Festivalproof",
-    body: "Snelle service, volledige foodtruckbeleving — waar honger en sfeer samenkomen.",
-    icon: Truck,
+    title: "Afhalen of bezorgen",
+    body: `Bestel voor afhalen of bezorging in de ${site.region}. Kort op de bal, zonder gedoe.`,
+    icon: MapPin,
   },
   {
-    title: "Premium streetfood",
-    body: "Geen standaard foodtruck. Wel streetfood met attitude — van markt tot mainstage.",
+    title: "Catering op aanvraag",
+    body: "Feest of bedrijfsmoment? Vraag vrijblijvend wat we voor jouw gelegenheid kunnen doen.",
     icon: Sparkles,
   },
 ] as const;
@@ -31,7 +32,7 @@ export function WhySection() {
             align="center"
             eyebrow="Waarom GG"
             title="Voor echte gasten"
-            description="Opgericht door Mike en Matthijs: passie voor goed eten, festivals en echte streetfoodcultuur — vanuit de Hoeksche Waard, inzetbaar door heel Nederland."
+            description={`Opgericht door Mike en Matthijs: smashburgers, loaded fries en eerlijke smaak — vanuit de ${site.region}.`}
           />
         </AnimatedContainer>
 

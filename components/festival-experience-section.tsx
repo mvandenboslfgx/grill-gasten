@@ -36,9 +36,9 @@ export function FestivalExperienceSection() {
       <div className="relative z-10 mx-auto flex max-w-6xl flex-col gap-10 px-4 md:flex-row md:items-end md:justify-between md:px-6 lg:px-8">
         <AnimatedContainer className="max-w-xl space-y-6">
           <SectionTitle
-            eyebrow="Festival DNA"
+            eyebrow="Van de grill"
             title="Van de grill. Op je bord."
-            description="Close-ups van smash, loaded trays en saus die blijft plakken — alles draait om smaak en tempo op het terrein."
+            description="Close-ups van smash, loaded trays en saus die blijft plakken — smaak en tempo voorop."
           />
         </AnimatedContainer>
 
@@ -50,10 +50,10 @@ export function FestivalExperienceSection() {
           className="flex flex-col gap-4 md:items-end"
         >
           <p className="text-right text-sm text-muted-foreground md:max-w-xs">
-            Premium presentatie, grillmarks en loaded classics — puur eten en drank.
+            Premium presentatie, grillmarks en loaded classics.
           </p>
-          <GlowButton href="/events" variant="flame">
-            Zie events
+          <GlowButton href="/menu" variant="flame">
+            Bekijk menu
           </GlowButton>
         </motion.div>
       </div>

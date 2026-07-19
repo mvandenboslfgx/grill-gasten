@@ -13,7 +13,7 @@ export function BookEventsSection() {
             align="center"
             eyebrow="Waarom Grill Gasten"
             title="Boek ons voor jouw moment"
-            description="Van festivalterrein tot bedrijfsfeest — premium BBQ streetfood met een crew die elke shift scherp houdt."
+            description="Van privéfeest tot bedrijfsmoment — smashburgers en loaded fries, prijs op aanvraag."
           />
         </AnimatedContainer>
         <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

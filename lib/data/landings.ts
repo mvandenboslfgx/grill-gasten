@@ -16,51 +16,53 @@ export type LandingContent = {
   whatsappIntent: WhatsAppIntent;
 };
 
+/**
+ * Legacy landings — routes /foodtruck, /zakelijk, /festival redirecten naar /catering.
+ * Copy bijgewerkt zodat hergebruik of SEO-template geen foodtruck-primary claimt.
+ */
 export const foodtruckLanding: LandingContent = {
   slug: "foodtruck",
-  metaTitle: "Foodtruck huren",
+  metaTitle: "Catering op locatie",
   metaDescription:
-    "Premium BBQ foodtruck huren — Grill Gasten voor festivals, events en privé. Smashburgers, loaded fries, crew inbegrepen. Rotterdam, Zuid-Holland en heel Nederland.",
-  eyebrow: "Foodtruck op locatie",
-  title: "Premium BBQ foodtruck",
-  subtitle: "Volledige truck op jouw locatie — branding, vuur en streetfood die je event tillen.",
+    "Burgercatering van Grill Gasten — smashburgers en loaded fries voor feesten en bedrijfsmomenten. Prijs op aanvraag. Hoeksche Waard.",
+  eyebrow: "Catering",
+  title: "Grill Gasten op jouw locatie",
+  subtitle: "Smashburgers en loaded fries voor je feest of bedrijfsmoment — offerte op maat.",
   heroImage: IMG_FOOD_TRUCK,
-  heroAlt: "Grill Gasten foodtruck bij een event",
+  heroAlt: "Grill Gasten catering — burgers en loaded fries",
   highlights: [
-    "Eigen truck en crew",
     "Smash- en loaded-menu",
-    "Festivals en privé",
-    "Heel Nederland",
-    "Snelle offerte via WhatsApp",
+    "Feesten en bedrijfsmomenten",
+    "Prijs op aanvraag",
+    "Snelle reactie via WhatsApp",
   ],
   body: [
-    "Je huurt meer dan een keuken op wielen: je krijgt Mike en Matthijs met festivalervaring, strakke service en een menu dat rijen in beweging houdt.",
-    "Van tuinfeest tot mainstage — wij schalen opstelling, voorraad en tempo mee met het aantal gasten.",
+    "Je boekt geen standaard pakket: Mike en Matthijs denken mee over aantal gasten, timing en menu.",
+    "Van privéfeest tot bedrijfsmoment — we schalen mee met wat jij nodig hebt.",
   ],
-  ctaTitle: "Foodtruck beschikbaar?",
-  whatsappIntent: "foodtruck",
+  ctaTitle: "Catering beschikbaar?",
+  whatsappIntent: "catering",
 };
 
 export const zakelijkLanding: LandingContent = {
   slug: "zakelijk",
-  metaTitle: "Zakelijke catering en bedrijfsfeest",
+  metaTitle: "Zakelijke catering",
   metaDescription:
-    "BBQ-catering voor bedrijfsfeesten, teamevents en openingen. Premium streetfood foodtruck — Grill Gasten, Zuid-Holland en heel Nederland.",
+    "Burgercatering voor bedrijfsfeesten, teamevents en openingen. Grill Gasten — smashburgers en loaded fries, prijs op aanvraag.",
   eyebrow: "Zakelijk en teams",
-  title: "BBQ-catering voor bedrijven",
-  subtitle: "Premium streetfood zonder saaie bedrijfstaal — wel strak, snel en onvergetelijk.",
+  title: "Catering voor bedrijven",
+  subtitle: "Premium burgers voor teams — strak, snel en zonder saaie bedrijfstaal.",
   heroImage: FOOD.loadedTray.src,
-  heroAlt: "Loaded fries — premium catering streetfood",
+  heroAlt: "Loaded fries — catering van Grill Gasten",
   highlights: [
     "Teamevents en openingen",
-    "Facturatie en planning",
-    "Premium uitstraling",
+    "Planning en overleg",
     "Flexibel menu",
-    "Rotterdam en heel Nederland",
+    "Hoeksche Waard en omgeving",
   ],
   body: [
-    "Medewerkers onthouden geen broodjesmand — ze onthouden de grill, de cheese pull en de sfeer bij de truck.",
-    "Wij denken mee over timing, doorstroom en dieetwensen, zodat jouw event van de eerste tot de laatste burger professioneel aanvoelt.",
+    "Medewerkers onthouden de grill en de cheese pull — niet een broodjesmand.",
+    "We denken mee over timing, doorstroom en dieetwensen, zodat jouw moment soepel verloopt.",
   ],
   ctaTitle: "Offerte voor jouw bedrijfsevent?",
   whatsappIntent: "zakelijk",
@@ -68,25 +70,24 @@ export const zakelijkLanding: LandingContent = {
 
 export const festivalLanding: LandingContent = {
   slug: "festival",
-  metaTitle: "Festival foodtruck",
+  metaTitle: "Catering voor evenementen",
   metaDescription:
-    "Festival foodtruck met premium smashburgers en loaded fries. Grill Gasten — ervaring met drukke shifts, late night en grote drukte.",
-  eyebrow: "Festival-DNA",
-  title: "Festival foodtruck",
-  subtitle: "Mainstage-energie. Rijen die doorlopen. Smash die blijft hangen.",
+    "Burgercatering voor evenementen met smashburgers en loaded fries. Grill Gasten — vraag vrijblijvend wat mogelijk is.",
+  eyebrow: "Evenementen",
+  title: "Catering voor jouw event",
+  subtitle: "Smaak en tempo wanneer de drukte toeneemt — in overleg wat we kunnen leveren.",
   heroImage: FOOD.heroSmash.src,
-  heroAlt: "Premium smashburger — festival streetfood van Grill Gasten",
+  heroAlt: "Premium smashburger van Grill Gasten",
   highlights: [
-    "Drukke shifts en late night",
+    "Drukke momenten",
     "Snelle doorstroom",
     "Premium kwaliteit",
-    "Festivalervaring",
-    "Nederland en België",
+    "Offerte op aanvraag",
   ],
   body: [
-    "Wij zijn gebouwd voor lawaai, licht en hongerige menigtes — niet voor stille kantoorlunches.",
-    "Line-up, stroom en logistiek bespreken we vooraf, zodat jij op de dag zelf geniet van volle trays en tevreden gasten.",
+    "Voor evenementen stemmen we menu, aantallen en logistiek vooraf af.",
+    "Geen harde beloftes zonder overleg — stuur datum en verwachte gasten via WhatsApp of het formulier.",
   ],
-  ctaTitle: "Festival line-up bespreken?",
+  ctaTitle: "Evenement bespreken?",
   whatsappIntent: "festival",
 };

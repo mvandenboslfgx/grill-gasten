@@ -66,7 +66,7 @@ export function GlowButton({
             fullWidth && "w-full",
             className,
           )}
-          {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+          {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         >
           {content}
         </Link>

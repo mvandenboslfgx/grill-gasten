@@ -93,6 +93,9 @@ begin
   end if;
 end $$;
 
+-- Keep a single overload (drop pickup-only if still present)
+drop function if exists public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text);
+
 -- ---------------------------------------------------------------------------
 -- Atomic create with transaction-level advisory lock (works when slot is empty)
 -- Active capacity statuses: pending, confirmed, preparing, ready, out_for_delivery
@@ -232,8 +235,8 @@ begin
 end;
 $$;
 
-revoke all on function public.create_order_with_slot from public;
-grant execute on function public.create_order_with_slot to service_role;
+revoke all on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) from public;
+grant execute on function public.create_order_with_slot(text, text, text, text, date, text, jsonb, integer, text, text, text, integer, integer, text, text, text, text, text, integer, integer, integer, text) to service_role;
 
 -- ---------------------------------------------------------------------------
 -- Shared rate limit (production)
@@ -290,8 +293,9 @@ begin
 end;
 $$;
 
-revoke all on function public.check_rate_limit from public;
-grant execute on function public.check_rate_limit to service_role;
+revoke all on function public.check_rate_limit(text, integer, integer) from public;
+grant execute on function public.check_rate_limit(text, integer, integer) to service_role;
 
 revoke all on table public.rate_limit_buckets from public;
 grant all on table public.rate_limit_buckets to service_role;
+alter table public.rate_limit_buckets enable row level security;

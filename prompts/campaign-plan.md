@@ -1,7 +1,7 @@
 # Prompt: plan a mini campaign
 
 ```text
-Plan a 7-day micro-campaign for Grill Gasten (premium festival foodtruck, NL market).
+Plan a 7-day micro-campaign for Grill Gasten (premium smashburger restaurant / afhaal, Hoeksche Waard, NL).
 
 Given: [event OR season OR catering push]
 

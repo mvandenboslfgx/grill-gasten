@@ -10,22 +10,20 @@ create unique index if not exists orders_access_token_hash_uidx
   on public.orders (access_token_hash)
   where access_token_hash is not null;
 
--- Deny Data API roles on sensitive tables when present; server uses service_role only
-do $$
-declare
-  t text;
-begin
-  foreach t in array array[
-    'orders',
-    'rewards_members',
-    'rewards_signups',
-    'points_ledger',
-    'rate_limit_buckets'
-  ]
-  loop
-    if to_regclass('public.' || t) is not null then
-      execute format('revoke all on table public.%I from anon, authenticated', t);
-      execute format('grant all on table public.%I to service_role', t);
-    end if;
-  end loop;
-end $$;
+-- Deny Data API roles on sensitive tables; server uses service_role only.
+-- Plain SQL (no DO $$) so the Supabase dashboard "enable RLS" injector cannot
+-- splice ALTER TABLE into the middle of a dollar-quoted block.
+revoke all on table public.orders from anon, authenticated;
+grant all on table public.orders to service_role;
+
+revoke all on table public.rewards_members from anon, authenticated;
+grant all on table public.rewards_members to service_role;
+
+revoke all on table public.rewards_signups from anon, authenticated;
+grant all on table public.rewards_signups to service_role;
+
+revoke all on table public.points_ledger from anon, authenticated;
+grant all on table public.points_ledger to service_role;
+
+revoke all on table public.rate_limit_buckets from anon, authenticated;
+grant all on table public.rate_limit_buckets to service_role;

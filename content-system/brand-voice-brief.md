@@ -1,9 +1,10 @@
 # Brand voice — Grill Gasten (brief)
 
-- **NL first**, short sentences, festival energy, no corporate fluff.
-- **You / we:** “gasten”, “wij”, “jullie event” — warm, confident.
-- **Banned:** generic “beste kwaliteit”, “unieke ervaring zonder nuance”, passive voice walls.
-- **Visual words OK:** smash, load, flame, line-up, mainstage, late night.
-- **CTA style:** command or invitation — “Boek ons”, “Kom langs”, “Tik voor menu”.
+- **NL first**, short sentences, stoer burgerrestaurant — geen corporate fluff.
+- **You / we:** “gasten”, “wij” — warm, confident.
+- **Banned:** generic “beste kwaliteit”, “unieke ervaring zonder nuance”, “culinaire beleving”, passive voice walls.
+- **Visual words OK:** smash, load, flame, grill, late night.
+- **Primary:** afhalen / bezorgen / menu. **Secondary:** catering op aanvraag (geen foodtruck-primary).
+- **CTA style:** command or invitation — “Bestel nu”, “Bekijk menu”, “WhatsApp”.
 
 When generating captions, always end with one clear action (save / share / WhatsApp / link in bio).
