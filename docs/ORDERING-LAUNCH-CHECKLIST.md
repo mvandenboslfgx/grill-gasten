@@ -1,10 +1,28 @@
 # Ordering launch checklist — Grill Gasten
 
-Online bestellen blijft **uit** (`orderingEnabled: false`, `openWeekdays: []`,
-`pickupEnabled: false`, `deliveryEnabled: false`) tot alle items hieronder
-zijn afgevinkt **én** de eigenaar expliciet activeert.
+## Officiële launchscope
+
+```text
+Pickup + delivery from day one
+```
+
+Online bestellen blijft **uit** tot alle items hieronder zijn afgevinkt **én** de
+eigenaar expliciet activeert via een **aparte launch-PR**:
+
+```ts
+orderingEnabled: false
+pickupEnabled: false
+deliveryEnabled: false
+openWeekdays: []
+```
+
+(`deliveryConfig.enabled` blijft synchroon uit tot die launch-PR.)
 
 Dit is een technische/operationele checklist, geen juridisch advies.
+
+**Niet** eerst alleen afhalen lanceren. Bezorgen is launch-critical.
+
+---
 
 ## Bedrijfsgegevens
 
@@ -12,95 +30,110 @@ Dit is een technische/operationele checklist, geen juridisch advies.
 - [ ] Openingstijden / open weekdays bevestigd
 - [ ] Telefoonnummer bevestigd (`06 49 56 56 98`)
 - [ ] E-mailadres bevestigd (`info@grillgasten.eu`)
-- [ ] Voorbereidingstijd (lead minutes) bevestigd
-- [ ] Slotcapaciteit pickup / delivery bevestigd
+- [ ] Voorbereidingstijd pickup bevestigd
+- [ ] Voorbereidingstijd delivery bevestigd
+- [ ] Slotcapaciteit **pickup** bevestigd (aparte limiet)
+- [ ] Slotcapaciteit **delivery** bevestigd (aparte limiet)
 
-## Menu
+## Menu / food
 
-- [ ] Prijzen gecontroleerd tegen servercatalogus (`lib/catalog/products.ts`)
+- [ ] Prijzen gecontroleerd tegen servercatalogus
 - [ ] Extra’s / sauzen gecontroleerd
 - [ ] Allergeneninformatie gecontroleerd
 - [ ] Uitverkochtflow getest
 - [ ] Productfoto’s gereed
 
-## Pickup / delivery
+## Dranken (alcoholvrij)
 
-- [ ] Pickup actief besluit (`pickupEnabled`)
-- [ ] Deliverybesluit genomen (`deliveryEnabled`)
-- [ ] Bezorggebied / zones bevestigd
-- [ ] Bezorgkosten bevestigd
-- [ ] Minimumbedrag bevestigd
+- [ ] Drankassortiment bevestigd (merken)
+- [ ] Formaten bevestigd (bijv. 330 ml / 500 ml)
+- [ ] Inkoopprijzen gecontroleerd
+- [ ] Verkoopprijzen bevestigd → `ownerConfirmed` + `priceCents` in `lib/catalog/drinks.ts`
+- [ ] Marge gecontroleerd
+- [ ] Productfoto’s gereed
+- [ ] Koelkast / voorraad geregeld
+- [ ] Uitverkochtprocedure getest
+- [ ] Geen alcohol in deze launch
+
+## Delivery (launch-critical)
+
+- [ ] Volledig bezorggebied / postcodes bevestigd → `allowedPostalCodeAreas`
+- [ ] Geblokkeerde postcodes bevestigd
+- [ ] Bezorgkosten bevestigd (flat fee **of** distance zones + owner sign-off)
+- [ ] Minimum bestelbedrag bevestigd
+- [ ] Gratis-bezorgdrempel bevestigd **of** bewust uit (`null`)
+- [ ] Maximumafstand bevestigd (bij distance zones)
+- [ ] Delivery voorbereidingstijd / slots bevestigd
+- [ ] Maximum deliveryorders per slot bevestigd
+- [ ] Verpakking en transportkosten verwerkt in marge
+- [ ] Bezorgmethode / chauffeur geregeld
+- [ ] Transportverpakking getest (warm / koud gescheiden)
+- [ ] Procedure bij vertraging vastgelegd
+- [ ] Procedure bij fout adres / onbereikbare klant vastgelegd
 - [ ] `DELIVERY_QUOTE_SECRET` ≥ 32 tekens (Vercel)
-- [ ] `GOOGLE_MAPS_API_KEY` aanwezig (server-only)
-- [ ] Slotcapaciteit in `timeslot_caps` of RPC-defaults geverifieerd
+- [ ] `GOOGLE_MAPS_API_KEY` aanwezig **als** `pricingMode === "distance_zones"`
+- [ ] Flat-fee mode getest **zonder** Maps (allowlist-only pad)
+
+## Pickup
+
+- [ ] Pickup actief besluit (`pickupEnabled`) in launch-PR
+- [ ] Afhaallocatie operationeel getest
 
 ## Mollie
 
 - [ ] Liveprofiel goedgekeurd
-- [ ] Productiekey aanwezig (of bewuste testkey in preview)
-- [ ] Webhook URL live: `/api/mollie/webhook`
-- [ ] Redirect URL live: `/bestellen/status/...`
-- [ ] Testbetaling geslaagd (testmode)
+- [ ] Productiekey / preview testkey aanwezig
+- [ ] Webhook URL live
+- [ ] Redirect URL live
+- [ ] Testbetaling pickup geslaagd
+- [ ] Testbetaling delivery geslaagd (burger + drank)
 - [ ] Mislukte / geannuleerde / verlopen betaling getest
-- [ ] Dubbele webhook getest (geen dubbele mail)
-- [ ] Bedragmismatch-pad getest (geen bevestiging)
+- [ ] Dubbele webhook → één mail
+- [ ] Bedragmismatch → geen bevestiging
 - [ ] Refund getest
 
 ## Database
 
-- [ ] Migratie `20260719210000_ordering_readiness.sql` toegepast op Grill Gasten-project
-- [ ] `payment_status` accepteert `pending` / `canceled` / `expired`
-- [ ] Tabel `order_events` aanwezig
-- [ ] Unique index op `mollie_payment_id` en `idempotency_key`
+- [ ] Migratie `20260719210000_ordering_readiness.sql` toegepast
+- [ ] `order_events` aanwezig
+- [ ] Unique indexes (Mollie / idempotency)
 - [ ] Clean-install + upgrade getest
 - [ ] Backup vóór remote apply
 
-## Kitchen
+## Kitchen / print / status
 
-- [ ] Tablet getest
-- [ ] Login getest (HttpOnly cookie)
-- [ ] Printer / printbon getest
-- [ ] Statusflow geoefend (paid → preparing → ready → completed)
-- [ ] Fallbackprocedure vastgelegd (WhatsApp)
-
-## E-mail (Resend)
-
-- [ ] Geverifieerde afzender
-- [ ] Eigenaarmail bij paid
-- [ ] Klantmail bij paid met statuslink
-- [ ] Geen dubbele mail bij webhook-retry
+- [ ] Tablet: AFHALEN vs BEZORGEN duidelijk
+- [ ] Delivery: adres + instructie + telefoon
+- [ ] Printbon 80mm (delivery + dranken)
+- [ ] Statuslink (geen zone-ID voor klant)
+- [ ] Bevestigingsmail met adres, fee, dranken
 
 ## Juridisch / privacy
 
-- [ ] Voorwaarden
-- [ ] Privacybeleid
-- [ ] Cookiebeleid
-- [ ] Bedrijfsgegevens
+- [ ] Voorwaarden, privacy, cookies
 - [ ] Annuleringsbeleid
 - [ ] Allergenenverwijzing
 - [ ] Mollie / Resend vermeld waar nodig
 
-## Launch
+## Launch-PR (aparte PR — niet deze readiness-branch)
 
-- [ ] `getOrderingReadiness()` zonder critical blockers
-- [ ] Volledige testorder (testmode)
-- [ ] E-mail ontvangen
-- [ ] Kitchen ontvangt order
-- [ ] Printbon correct
-- [ ] Statuslink correct
-- [ ] Monitoring / logs gecontroleerd
-- [ ] WhatsApp-fallback werkt
-- [ ] Rollbackplan: `orderingEnabled: false` + lege `openWeekdays`
+1. Migratie + Mollie-testflow groen
+2. Zakelijke waarden in `deliveryConfig` + `DRINK_DRAFTS` bevestigd
+3. Expliciete toestemming eigenaar
+4. Zet `pickupEnabled` + `deliveryEnabled` + `deliveryConfig.enabled` + `openWeekdays`
+5. Zet `orderingEnabled: true`
+6. Deploy + smoke (één echte testorder alleen met toestemming)
 
-## Activation (alleen eigenaar)
+## Rollback
 
-1. Migratie toegepast en geverifieerd
-2. Zakelijke waarden ingevuld
-3. Mollie testflow groen
-4. Expliciete toestemming eigenaar
-5. Zet `pickupEnabled` / `deliveryEnabled` naar wens
-6. Zet `openWeekdays` naar bevestigde dagen
-7. Zet `orderingEnabled: true`
-8. Deploy + live smoke (één echte testorder alleen met toestemming)
+```ts
+orderingEnabled: false
+pickupEnabled: false
+deliveryEnabled: false
+openWeekdays: []
+```
+
+WhatsApp-fallback blijft beschikbaar.
 
 **Nooit activeren vanuit deze checklist zonder eigenaarstoestemming.**
+**Nooit alleen pickup lanceren zonder delivery.**

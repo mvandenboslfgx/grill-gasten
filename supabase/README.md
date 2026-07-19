@@ -34,7 +34,9 @@ Of bestand-voor-bestand:
 
 Geen drops van orders/klanten.
 
-Zie ook `docs/ORDERING-LAUNCH-CHECKLIST.md` vóór activatie.
+Zie ook:
+- `docs/ORDERING-LAUNCH-CHECKLIST.md` — **Pickup + delivery from day one**
+- `docs/DELIVERY-LAUNCH.md` — deliveryconfig, allowlist, pricing modes
 
 ## Env (Vercel)
 
