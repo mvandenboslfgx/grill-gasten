@@ -81,7 +81,7 @@ export default function ContactPage() {
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <GlowButton href="/bestellen" variant="flame">
-              Bestel nu
+              Bestellen
             </GlowButton>
             <GlowButton href={contactWhatsApp} variant="outline">
               Open WhatsApp

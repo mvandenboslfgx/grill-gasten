@@ -41,7 +41,7 @@ export function HeroSection() {
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <HeroCta href="/bestellen" variant="flame">
-            Bestel nu
+            Bestellen
           </HeroCta>
           <HeroCta href="/menu" variant="outline">
             Bekijk menu

@@ -19,6 +19,7 @@ import {
   validatePickupMoment,
 } from "@/lib/ordering/availability";
 import { getDeliveryWindowById } from "@/lib/ordering/delivery-windows";
+import { orderingConfig } from "@/lib/ordering/opening-hours";
 import { createOrderSchema } from "@/lib/ordering/validate";
 import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 import { isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
@@ -36,7 +37,7 @@ function sanitizeNote(raw: string | undefined, max: number): string | undefined 
 }
 
 export async function POST(request: Request) {
-  if (!isSupabaseConfigured() || !isMollieConfigured()) {
+  if (!orderingConfig.orderingEnabled || !isSupabaseConfigured() || !isMollieConfigured()) {
     return NextResponse.json(
       {
         ok: false,

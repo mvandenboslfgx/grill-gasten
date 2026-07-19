@@ -17,6 +17,7 @@ import {
 } from "@/lib/catalog/products";
 import { priceOrderLines } from "@/lib/catalog/pricing";
 import type { DeliveryQuoteResult } from "@/lib/delivery/types";
+import { CLOSED_ORDERING_COPY } from "@/features/order/closed-ordering-content";
 import { getWhatsAppHref } from "@/lib/whatsapp";
 
 type FulfillmentMethod = "pickup" | "delivery";
@@ -368,24 +369,22 @@ export function OrderFlow() {
   }
 
   if (orderingEnabled === false) {
+    const copy = CLOSED_ORDERING_COPY;
     return (
       <div className="rounded-3xl border border-white/10 bg-[#111] p-6 md:p-8">
         <p className="text-primary text-xs font-semibold uppercase tracking-[0.28em]">
-          Online bestellen
+          {copy.badge}
         </p>
         <h2 className="font-heading mt-3 text-2xl uppercase tracking-wide text-white">
-          Tijdelijk gesloten
+          {copy.h1}
         </h2>
-        <p className="text-muted-foreground mt-3 max-w-xl text-sm leading-relaxed">
-          Online bestellen staat momenteel uit. Bestel via WhatsApp of bel ons —
-          we helpen je graag.
-        </p>
+        <p className="text-muted-foreground mt-3 max-w-xl text-sm leading-relaxed">{copy.intro}</p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <GlowButton href={getWhatsAppHref("home")} variant="flame">
-            WhatsApp ons
+          <GlowButton href={getWhatsAppHref("order")} variant="flame">
+            {copy.primaryCta}
           </GlowButton>
           <GlowButton href="/menu" variant="outline">
-            Bekijk menu
+            {copy.secondaryCta}
           </GlowButton>
         </div>
       </div>

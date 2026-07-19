@@ -39,7 +39,7 @@ export function PickupDeliverySection() {
         </div>
         <div className="mt-8">
           <GlowButton href="/bestellen" variant="flame">
-            Bestel nu
+            Bestellen
           </GlowButton>
         </div>
       </div>

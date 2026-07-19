@@ -47,7 +47,7 @@ export function BurgerSizesSection() {
                     href="/bestellen"
                     className="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-primary text-xs font-bold uppercase tracking-wider text-primary-foreground"
                   >
-                    Bestel nu
+                    Bestellen
                   </Link>
                 </article>
               </AnimatedContainer>

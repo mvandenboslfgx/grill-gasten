@@ -41,7 +41,7 @@ export default function MenuPage() {
           />
           <div className="mt-6">
             <GlowButton href="/bestellen" variant="flame">
-              Bestel nu
+              Bestellen
             </GlowButton>
           </div>
           <p className="text-muted-foreground mt-4 max-w-2xl text-xs leading-relaxed">{ALLERGEN_NOTICE}</p>
@@ -125,7 +125,7 @@ export default function MenuPage() {
 
         <div className="flex justify-center">
           <GlowButton href="/bestellen" variant="flame">
-            Bestel nu
+            Bestellen
           </GlowButton>
         </div>
       </div>

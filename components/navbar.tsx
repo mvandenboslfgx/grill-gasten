@@ -90,14 +90,14 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Mid: Bestel nu naast hamburger — niet op kleinste telefoons */}
+        {/* Mid: Bestellen naast hamburger — niet op kleinste telefoons */}
         <div className="flex shrink-0 items-center justify-end gap-2 justify-self-end sm:gap-3">
           <GlowButton
             href="/bestellen"
             variant="flame"
             className="hidden px-4 text-xs sm:inline-flex xl:hidden"
           >
-            Bestel nu
+            Bestellen
           </GlowButton>
 
           <div className="hidden shrink-0 items-center gap-2 xl:flex xl:gap-3">
@@ -109,7 +109,7 @@ export function Navbar() {
               WhatsApp
             </WhatsAppButton>
             <GlowButton href="/bestellen" variant="flame" className="px-5 text-xs">
-              Bestel nu
+              Bestellen
             </GlowButton>
           </div>
 
@@ -159,7 +159,7 @@ export function Navbar() {
               })}
               <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-5">
                 <GlowButton href="/bestellen" variant="flame" className="min-h-12 w-full">
-                  Bestel nu
+                  Bestellen
                 </GlowButton>
                 <WhatsAppButton
                   intent={waIntent}

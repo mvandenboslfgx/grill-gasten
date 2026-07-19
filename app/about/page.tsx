@@ -34,7 +34,7 @@ export default function AboutPage() {
         </AnimatedContainer>
         <div className="flex flex-wrap gap-3">
           <GlowButton href="/bestellen" variant="flame">
-            Bestel nu
+            Bestellen
           </GlowButton>
           <GlowButton href={getWhatsAppHref("home")} variant="outline">
             WhatsApp

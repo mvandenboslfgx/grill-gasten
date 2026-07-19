@@ -3,6 +3,7 @@ import { site } from "@/lib/site";
 /** Vooringevulde WhatsApp-berichten per pagina / intent */
 export const WHATSAPP_MESSAGES = {
   home: "Hoi Grill Gasten, ik heb een vraag over jullie smashburgers / bestellen.",
+  order: "Hoi Grill Gasten, ik heb een vraag of wil graag iets bestellen.",
   zakelijk: "Hoi Grill Gasten, ik wil een offerte voor een bedrijfsevent.",
   festival: "Hoi Grill Gasten, ik wil graag catering voor een evenement bespreken.",
   bruiloft: "Hoi Grill Gasten, ik wil catering voor een bruiloft.",
@@ -40,6 +41,6 @@ export function whatsappIntentFromPath(pathname: string): WhatsAppIntent {
   if (pathname.startsWith("/catering")) return "catering";
   if (pathname.startsWith("/menu")) return "menu";
   if (pathname.startsWith("/about")) return "about";
-  if (pathname.startsWith("/bestellen")) return "home";
+  if (pathname.startsWith("/bestellen")) return "order";
   return "home";
 }
