@@ -39,6 +39,13 @@ type DeliveryWindowOption = {
 
 const UI_OPTION_IDS = new Set(["egg", "bacon", "pickle-swap"]);
 
+function newIdempotencyKey(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID().replace(/-/g, "");
+  }
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 14)}`;
+}
+
 const selectClass =
   "flex h-11 w-full rounded-md border border-input bg-[#0a0a0a] px-3 py-2 text-sm text-white ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -84,6 +91,7 @@ export function OrderFlow() {
     "idle" | "loading" | "error"
   >("idle");
   const [quoteError, setQuoteError] = React.useState<string | null>(null);
+  const idempotencyKeyRef = React.useRef(newIdempotencyKey());
 
   const priced = React.useMemo(
     () =>
@@ -318,6 +326,7 @@ export function OrderFlow() {
       time: String(fd.get("time") ?? ""),
       note: String(fd.get("note") ?? "") || undefined,
       website: String(fd.get("website") ?? ""),
+      idempotencyKey: idempotencyKeyRef.current,
       lines: cart.map(({ productId, qty, optionIds, sauceChoice }) => ({
         productId,
         qty,
@@ -352,6 +361,11 @@ export function OrderFlow() {
       if (!res.ok || !data.ok) {
         setStatus("error");
         setErrorMsg(data.error ?? "Bestellen mislukt.");
+        // Houd idempotency key bij netwerk-/serverfout zodat retry geen dubbele order maakt.
+        // Vernieuw alleen bij expliciet conflict (andere payload) of clientvalidatie.
+        if (res.status === 409) {
+          idempotencyKeyRef.current = newIdempotencyKey();
+        }
         return;
       }
 

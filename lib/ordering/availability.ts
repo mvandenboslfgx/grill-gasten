@@ -46,9 +46,11 @@ export function addDaysIso(isoDate: string, days: number): string {
 
 export function getAvailableDates(): string[] {
   if (!orderingConfig.orderingEnabled) return [];
+  if (!orderingConfig.pickupEnabled && !orderingConfig.deliveryEnabled) return [];
   const today = todayIsoDate();
   const out: string[] = [];
-  for (let i = 0; i <= orderingConfig.daysAhead; i++) {
+  const horizon = orderingConfig.maximumAdvanceDays ?? orderingConfig.daysAhead;
+  for (let i = 0; i <= horizon; i++) {
     const date = addDaysIso(today, i);
     if (isDateOpen(date)) out.push(date);
   }
@@ -68,7 +70,13 @@ function nowMinutes(now: Date): number {
 }
 
 export function getAvailablePickupSlots(isoDate: string, now = new Date()): string[] {
-  if (!orderingConfig.orderingEnabled || !isDateOpen(isoDate)) return [];
+  if (
+    !orderingConfig.orderingEnabled ||
+    !orderingConfig.pickupEnabled ||
+    !isDateOpen(isoDate)
+  ) {
+    return [];
+  }
   const all = generatePickupSlots();
   const today = todayIsoDate();
   if (isoDate < today) return [];
@@ -81,7 +89,13 @@ export function getAvailableDeliveryWindows(
   isoDate: string,
   now = new Date(),
 ): DeliveryWindow[] {
-  if (!orderingConfig.orderingEnabled || !isDateOpen(isoDate)) return [];
+  if (
+    !orderingConfig.orderingEnabled ||
+    !orderingConfig.deliveryEnabled ||
+    !isDateOpen(isoDate)
+  ) {
+    return [];
+  }
   const all = generateDeliveryWindows();
   const today = todayIsoDate();
   if (isoDate < today) return [];
@@ -95,7 +109,7 @@ export function validatePickupMoment(
   time: string,
   now = new Date(),
 ): { ok: true } | { ok: false; error: string } {
-  if (!orderingConfig.orderingEnabled) {
+  if (!orderingConfig.orderingEnabled || !orderingConfig.pickupEnabled) {
     return { ok: false, error: "Online bestellen is momenteel gesloten." };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -122,7 +136,7 @@ export function validateDeliveryMoment(
   windowId: string,
   now = new Date(),
 ): { ok: true } | { ok: false; error: string } {
-  if (!orderingConfig.orderingEnabled) {
+  if (!orderingConfig.orderingEnabled || !orderingConfig.deliveryEnabled) {
     return { ok: false, error: "Online bestellen is momenteel gesloten." };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {

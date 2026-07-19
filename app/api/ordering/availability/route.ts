@@ -17,22 +17,35 @@ export async function GET(request: Request) {
   const method = url.searchParams.get("method") === "delivery" ? "delivery" : "pickup";
 
   const infraReady = isSupabaseConfigured() && isMollieConfigured();
-  const open = infraReady && orderingConfig.orderingEnabled && isOrderingOpen();
+  const fulfillmentReady =
+    orderingConfig.pickupEnabled || orderingConfig.deliveryEnabled;
+  const open =
+    infraReady &&
+    orderingConfig.orderingEnabled &&
+    orderingConfig.openWeekdays.length > 0 &&
+    fulfillmentReady &&
+    isOrderingOpen();
   const deliveryRoutingConfigured =
-    isDeliveryRoutingConfigured() && isQuoteSecretConfigured();
+    orderingConfig.deliveryEnabled &&
+    isDeliveryRoutingConfigured() &&
+    isQuoteSecretConfigured();
 
   if (!date) {
     return NextResponse.json({
       ok: true,
       orderingEnabled: open,
       deliveryRoutingConfigured,
+      pickupEnabled: orderingConfig.pickupEnabled,
+      deliveryEnabled: orderingConfig.deliveryEnabled && deliveryRoutingConfigured,
       reason: !infraReady
         ? "infra"
         : !orderingConfig.orderingEnabled
           ? "config"
-          : open
-            ? null
-            : "no_slots",
+          : !fulfillmentReady
+            ? "fulfillment"
+            : open
+              ? null
+              : "no_slots",
       dates: open ? getAvailableDates() : [],
       pickupCapacity: orderingConfig.pickupSlotCapacity,
       deliveryCapacity: orderingConfig.deliveryWindowCapacity,

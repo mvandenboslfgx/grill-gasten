@@ -29,6 +29,13 @@ export const createOrderSchema = z
     houseNumber: z.string().max(10).optional(),
     addition: z.string().max(12).optional(),
     lines: z.array(orderLineSchema).min(1).max(30),
+    /** Client-generated key (base64url, 16–64 chars) — prevents double charge on retry */
+    idempotencyKey: z
+      .string()
+      .min(16)
+      .max(64)
+      .regex(/^[A-Za-z0-9_-]+$/, "Ongeldige idempotency key")
+      .optional(),
     website: z.string().max(200).optional(),
   })
   .superRefine((data, ctx) => {

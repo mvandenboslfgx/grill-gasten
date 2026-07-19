@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { buildDeliveryQuote } from "@/lib/delivery/build-quote";
+import { orderingConfig } from "@/lib/ordering/opening-hours";
 import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 import { z } from "zod";
 
@@ -12,6 +13,21 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
+  if (
+    !orderingConfig.orderingEnabled ||
+    !orderingConfig.deliveryEnabled ||
+    !orderingConfig.openWeekdays.length
+  ) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Online bezorgen is momenteel niet beschikbaar.",
+        code: "ORDERING_UNAVAILABLE",
+      },
+      { status: 503 },
+    );
+  }
+
   const ip = clientIp(request);
   const rl = await rateLimitAsync(`delivery-quote:${ip}`, 20, 60_000);
   if (!rl.ok) {

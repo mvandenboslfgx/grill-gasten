@@ -10,10 +10,13 @@ import { addressesMatchQuote, verifySignedQuote } from "@/lib/delivery/quote";
 import { zoneForDistanceMeters } from "@/lib/delivery/zones";
 import { isDeliveryRoutingConfigured, isQuoteSecretConfigured } from "@/lib/delivery/config";
 import { createMollieCheckout } from "@/lib/mollie/create-payment";
+import { orderLog } from "@/lib/observability/order-log";
 import {
   createOrderAtomic,
+  findOrderByIdempotencyKey,
   updateOrderPayment,
 } from "@/lib/orders/create-order";
+import { hashIdempotencyPayload } from "@/lib/orders/order-events";
 import {
   validateDeliveryMoment,
   validatePickupMoment,
@@ -37,7 +40,12 @@ function sanitizeNote(raw: string | undefined, max: number): string | undefined 
 }
 
 export async function POST(request: Request) {
-  if (!orderingConfig.orderingEnabled || !isSupabaseConfigured() || !isMollieConfigured()) {
+  if (
+    !orderingConfig.orderingEnabled ||
+    !orderingConfig.openWeekdays.length ||
+    !isSupabaseConfigured() ||
+    !isMollieConfigured()
+  ) {
     return NextResponse.json(
       {
         ok: false,
@@ -76,10 +84,96 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "Spam gedetecteerd." }, { status: 400 });
   }
 
+  if (data.method === "pickup" && !orderingConfig.pickupEnabled) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Afhalen is momenteel niet beschikbaar. Neem contact op via WhatsApp.",
+        code: "PICKUP_UNAVAILABLE",
+      },
+      { status: 503 },
+    );
+  }
+
+  if (data.method === "delivery" && !orderingConfig.deliveryEnabled) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: "Bezorgen is momenteel niet beschikbaar. Neem contact op via WhatsApp.",
+        code: "DELIVERY_UNAVAILABLE",
+      },
+      { status: 503 },
+    );
+  }
+
   const priced = priceOrderLines(data.lines);
   if (!priced.ok) {
+    orderLog("ORDER_VALIDATION_REJECTED", { reason: "pricing" });
     return NextResponse.json({ ok: false, error: priced.error }, { status: 400 });
   }
+
+  if (
+    orderingConfig.minimumOrderAmountCents > 0 &&
+    priced.subtotalCents < orderingConfig.minimumOrderAmountCents
+  ) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: `Minimum bestelbedrag is ${formatPriceCents(orderingConfig.minimumOrderAmountCents)}.`,
+        code: "MIN_ORDER",
+      },
+      { status: 400 },
+    );
+  }
+
+  if (priced.subtotalCents > orderingConfig.maximumOrderAmountCents) {
+    return NextResponse.json(
+      { ok: false, error: "Bestelling is te groot. Neem contact op via WhatsApp." },
+      { status: 400 },
+    );
+  }
+
+  const idempotencyPayloadHash = hashIdempotencyPayload({
+    method: data.method,
+    email: data.email.toLowerCase(),
+    date: data.date,
+    time: data.time,
+    lines: data.lines,
+    quoteId: data.quoteId ?? null,
+    postcode: data.postcode ?? null,
+    houseNumber: data.houseNumber ?? null,
+    addition: data.addition ?? null,
+    totalHint: priced.subtotalCents,
+  });
+
+  if (data.idempotencyKey) {
+    const existing = await findOrderByIdempotencyKey(data.idempotencyKey);
+    if (existing) {
+      if (
+        existing.idempotency_payload_hash &&
+        existing.idempotency_payload_hash !== idempotencyPayloadHash
+      ) {
+        return NextResponse.json(
+          { ok: false, error: "Idempotency-conflict. Vernieuw de pagina en probeer opnieuw." },
+          { status: 409 },
+        );
+      }
+      if (existing.checkout_url) {
+        return NextResponse.json({
+          ok: true,
+          orderNumber: existing.order_number,
+          checkoutUrl: existing.checkout_url,
+          statusUrl: null,
+          totalCents: existing.total_cents,
+          subtotalCents: existing.subtotal_cents,
+          deliveryFeeCents: existing.delivery_fee_cents ?? 0,
+          idempotentReplay: true,
+        });
+      }
+    }
+  }
+
+  orderLog("ORDER_CREATE_STARTED", { method: data.method });
 
   let deliveryFeeCents = 0;
   let deliveryMeta: {
@@ -227,6 +321,9 @@ export async function POST(request: Request) {
     .filter(Boolean)
     .join("\n");
 
+  const totalWithFees =
+    totalCents + (orderingConfig.serviceFeeCents > 0 ? orderingConfig.serviceFeeCents : 0);
+
   const created = await createOrderAtomic({
     name: data.name,
     phone: data.phone,
@@ -237,7 +334,7 @@ export async function POST(request: Request) {
     lines: priced.lines,
     subtotalCents: priced.subtotalCents,
     deliveryFeeCents,
-    totalCents,
+    totalCents: totalWithFees,
     notes: emailBody,
     customerNote,
     deliveryWindow: deliveryMeta.window,
@@ -250,12 +347,17 @@ export async function POST(request: Request) {
     deliveryDistanceMeters: deliveryMeta.distanceMeters,
     deliveryDurationSeconds: deliveryMeta.durationSeconds,
     deliveryInstructions: deliveryMeta.instructions,
+    idempotencyKey: data.idempotencyKey,
+    idempotencyPayloadHash,
   });
 
   if (!created.ok) {
+    orderLog("ORDER_CREATE_FAILED", { code: created.code });
     const status = created.code === "slot_full" ? 409 : 500;
     return NextResponse.json({ ok: false, error: created.message }, { status });
   }
+
+  orderLog("ORDER_CREATE_OK", { orderNumber: created.order.order_number });
 
   const { order, accessToken } = created;
   let checkoutUrl: string | null = null;
@@ -282,16 +384,21 @@ export async function POST(request: Request) {
   }
 
   try {
+    orderLog("PAYMENT_CREATE_STARTED", { orderNumber: order.order_number });
     const payment = await createMollieCheckout({
       orderId: order.id,
       orderNumber: order.order_number,
-      totalCents,
+      totalCents: totalWithFees,
       description: `Grill Gasten ${order.order_number}`,
       customerEmail: data.email,
       accessToken,
     });
     if (!payment?.paymentId || !payment.checkoutUrl) {
       await cancelOrphanOrder("MOLLIE_CREATE_NULL");
+      orderLog("PAYMENT_CREATE_FAILED", {
+        orderNumber: order.order_number,
+        code: "MOLLIE_CREATE_NULL",
+      });
       return NextResponse.json(
         { ok: false, error: "Betaling starten mislukt. Probeer opnieuw of WhatsApp ons." },
         { status: 502 },
@@ -303,8 +410,13 @@ export async function POST(request: Request) {
       mollie_payment_id: payment.paymentId,
       checkout_url: payment.checkoutUrl,
     });
+    orderLog("PAYMENT_CREATE_OK", { orderNumber: order.order_number });
   } catch {
     await cancelOrphanOrder("MOLLIE_CREATE_EXCEPTION");
+    orderLog("PAYMENT_CREATE_FAILED", {
+      orderNumber: order.order_number,
+      code: "MOLLIE_CREATE_EXCEPTION",
+    });
     return NextResponse.json(
       { ok: false, error: "Betaling starten mislukt. Probeer opnieuw of WhatsApp ons." },
       { status: 502 },
@@ -317,7 +429,7 @@ export async function POST(request: Request) {
     orderNumber: order.order_number,
     checkoutUrl,
     statusUrl: `${site.url}/bestellen/status/${encodeURIComponent(order.order_number)}?t=${encodeURIComponent(accessToken)}`,
-    totalCents,
+    totalCents: totalWithFees,
     subtotalCents: priced.subtotalCents,
     deliveryFeeCents,
   });
