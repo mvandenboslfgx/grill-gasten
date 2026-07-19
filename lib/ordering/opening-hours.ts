@@ -1,5 +1,6 @@
 /**
  * Openingstijden & bestelconfig — gesloten standaard tot eigenaar activeert.
+ * Launchscope: **afhalen én bezorgen vanaf dag 1** (zie docs/ORDERING-LAUNCH-CHECKLIST.md).
  * Alle bedragen in gehele eurocenten. Geen floating-point.
  */
 

@@ -1,8 +1,13 @@
+import { getActiveDrinkProducts, getConfirmedDrinkProducts } from "@/lib/catalog/drinks";
 import { getVisibleProducts } from "@/lib/catalog/products";
 import {
   isDeliveryRoutingConfigured,
   isQuoteSecretConfigured,
 } from "@/lib/delivery/config";
+import {
+  deliveryConfig,
+  isDeliveryConfigComplete,
+} from "@/lib/delivery/delivery-config";
 import { orderingConfig } from "@/lib/ordering/opening-hours";
 import { getKitchenSecret, isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 import { site } from "@/lib/site";
@@ -17,20 +22,18 @@ export type OrderingReadinessBlocker = {
 
 export type OrderingReadiness = {
   ready: boolean;
-  /** Safe for public: never expose secrets or infra detail */
   publicAvailable: boolean;
   blockers: OrderingReadinessBlocker[];
 };
 
 function hasConfirmedPickupAddress(): boolean {
-  // Regional placeholder is not a street pickup address.
   const a = site.address.toLowerCase();
   return Boolean(a) && !a.includes("regio") && !a.includes("aanvraag");
 }
 
 /**
- * Server-side activation gate. Ordering stays closed until every blocker is cleared
- * AND orderingEnabled / openWeekdays are set by the owner.
+ * Launch = pickup + delivery from day one.
+ * Ready only when BOTH fulfillment modes and drinks are fully configured.
  */
 export function getOrderingReadiness(): OrderingReadiness {
   const blockers: OrderingReadinessBlocker[] = [];
@@ -55,17 +58,28 @@ export function getOrderingReadiness(): OrderingReadiness {
     });
   }
 
-  if (!orderingConfig.pickupEnabled && !orderingConfig.deliveryEnabled) {
+  // Day-one launch requires BOTH pickup and delivery
+  if (!orderingConfig.pickupEnabled) {
     blockers.push({
-      id: "no_fulfillment_mode",
+      id: "pickup_flag_off",
       severity: "critical",
       kind: "business",
-      message: "Noch pickup noch delivery is geactiveerd in orderingConfig.",
+      message: "pickupEnabled staat op false — launch vereist afhalen én bezorgen.",
       owner: "owner",
     });
   }
 
-  if (orderingConfig.pickupEnabled && !hasConfirmedPickupAddress()) {
+  if (!orderingConfig.deliveryEnabled || !deliveryConfig.enabled) {
+    blockers.push({
+      id: "delivery_flag_off",
+      severity: "critical",
+      kind: "business",
+      message: "deliveryEnabled staat op false — launch vereist afhalen én bezorgen.",
+      owner: "owner",
+    });
+  }
+
+  if (!hasConfirmedPickupAddress()) {
     blockers.push({
       id: "pickup_address_unconfirmed",
       severity: "critical",
@@ -75,25 +89,58 @@ export function getOrderingReadiness(): OrderingReadiness {
     });
   }
 
-  if (orderingConfig.deliveryEnabled) {
-    if (!isDeliveryRoutingConfigured()) {
-      blockers.push({
-        id: "delivery_maps_missing",
-        severity: "critical",
-        kind: "technical",
-        message: "Delivery staat aan maar Google Maps routing is niet geconfigureerd.",
-        owner: "owner",
-      });
-    }
-    if (!isQuoteSecretConfigured()) {
-      blockers.push({
-        id: "delivery_quote_secret_missing",
-        severity: "critical",
-        kind: "technical",
-        message: "Delivery staat aan maar DELIVERY_QUOTE_SECRET ontbreekt of is te kort.",
-        owner: "owner",
-      });
-    }
+  if (!isDeliveryConfigComplete()) {
+    blockers.push({
+      id: "delivery_config_incomplete",
+      severity: "critical",
+      kind: "business",
+      message:
+        "Deliveryconfig onvolledig (postcode-allowlist, pricingMode, fee/min of zone-bevestiging).",
+      owner: "owner",
+    });
+  }
+
+  if (deliveryConfig.allowedPostalCodeAreas.length === 0) {
+    blockers.push({
+      id: "delivery_area_empty",
+      severity: "critical",
+      kind: "business",
+      message: "allowedPostalCodeAreas is leeg — bezorggebied niet bevestigd.",
+      owner: "owner",
+    });
+  }
+
+  if (
+    deliveryConfig.pricingMode === "distance_zones" &&
+    !isDeliveryRoutingConfigured()
+  ) {
+    blockers.push({
+      id: "delivery_maps_missing",
+      severity: "critical",
+      kind: "technical",
+      message: "distance_zones vereist GOOGLE_MAPS_API_KEY (server-only).",
+      owner: "owner",
+    });
+  }
+
+  if (!isQuoteSecretConfigured()) {
+    blockers.push({
+      id: "delivery_quote_secret_missing",
+      severity: "critical",
+      kind: "technical",
+      message: "DELIVERY_QUOTE_SECRET ontbreekt of is te kort.",
+      owner: "owner",
+    });
+  }
+
+  if (orderingConfig.pickupSlotCapacity <= 0 || deliveryConfig.maximumOrdersPerSlot <= 0) {
+    blockers.push({
+      id: "invalid_capacity",
+      severity: "critical",
+      kind: "business",
+      message: "Pickup- of deliverycapaciteit per slot is ongeldig.",
+      owner: "owner",
+    });
   }
 
   if (!isSupabaseConfigured()) {
@@ -136,14 +183,35 @@ export function getOrderingReadiness(): OrderingReadiness {
     });
   }
 
-  const activeProducts = getVisibleProducts();
-  if (activeProducts.length === 0) {
+  const food = getVisibleProducts().filter((p) => p.category !== "drinks" && p.category !== "sauces");
+  if (food.length === 0) {
     blockers.push({
-      id: "no_active_products",
+      id: "no_active_food",
       severity: "critical",
       kind: "business",
-      message: "Geen actieve producten in de servercatalogus.",
+      message: "Geen actief gerecht in de servercatalogus.",
       owner: "cursor",
+    });
+  }
+
+  if (getActiveDrinkProducts().length === 0) {
+    blockers.push({
+      id: "no_active_drinks",
+      severity: "critical",
+      kind: "business",
+      message:
+        "Geen bevestigde actieve frisdrank (prijs + maat + ownerConfirmed vereist).",
+      owner: "owner",
+    });
+  }
+
+  if (getConfirmedDrinkProducts().length === 0) {
+    blockers.push({
+      id: "drinks_unconfirmed",
+      severity: "high",
+      kind: "business",
+      message: "Frisdrankdrafts staan klaar maar zijn nog niet door de eigenaar bevestigd.",
+      owner: "owner",
     });
   }
 
@@ -162,6 +230,8 @@ export function getOrderingReadiness(): OrderingReadiness {
   const publicAvailable =
     ready &&
     orderingConfig.orderingEnabled &&
+    orderingConfig.pickupEnabled &&
+    orderingConfig.deliveryEnabled &&
     orderingConfig.openWeekdays.length > 0 &&
     isSupabaseConfigured() &&
     isMollieConfigured();
