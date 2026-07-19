@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { KITCHEN_COOKIE, verifyKitchenSessionToken } from "@/lib/auth/kitchen";
 import { OrderDetail } from "@/features/orders/order-detail";
 import { getOrderByNumber } from "@/lib/orders/create-order";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
@@ -13,6 +15,12 @@ export const metadata: Metadata = {
 
 export default async function KitchenPrintPage({ params }: Props) {
   if (!isSupabaseConfigured()) notFound();
+
+  const jar = await cookies();
+  if (!verifyKitchenSessionToken(jar.get(KITCHEN_COOKIE)?.value)) {
+    redirect("/kitchen");
+  }
+
   const { orderNumber } = await params;
   const order = await getOrderByNumber(decodeURIComponent(orderNumber));
   if (!order) notFound();

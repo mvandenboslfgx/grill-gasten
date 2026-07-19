@@ -76,7 +76,7 @@ function playBeep() {
   }
 }
 
-export function KitchenBoard({ apiKey }: { apiKey: string }) {
+export function KitchenBoard() {
   const [orders, setOrders] = React.useState<OrderDetailModel[]>([]);
   const [date, setDate] = React.useState(() => new Date().toISOString().slice(0, 10));
   const [filter, setFilter] = React.useState<FilterId>("all");
@@ -95,18 +95,16 @@ export function KitchenBoard({ apiKey }: { apiKey: string }) {
     alertedRef.current = loadAlerted();
   }, []);
 
-  const headers = React.useMemo(
-    () => ({ "Content-Type": "application/json", "x-kitchen-key": apiKey }),
-    [apiKey],
-  );
-
   const load = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const q = new URLSearchParams({ date });
       if (showHistory) q.set("history", "1");
-      const res = await fetch(`/api/kitchen/orders?${q}`, { headers });
+      const res = await fetch(`/api/kitchen/orders?${q}`, {
+        credentials: "include",
+        cache: "no-store",
+      });
       const data = (await res.json()) as {
         ok?: boolean;
         orders?: OrderDetailModel[];
@@ -140,7 +138,7 @@ export function KitchenBoard({ apiKey }: { apiKey: string }) {
     } finally {
       setLoading(false);
     }
-  }, [date, headers, muted, showHistory]);
+  }, [date, muted, showHistory]);
 
   React.useEffect(() => {
     load();
@@ -151,7 +149,8 @@ export function KitchenBoard({ apiKey }: { apiKey: string }) {
   async function setStatus(id: string, status: OrderStatus, force = false) {
     const res = await fetch("/api/kitchen/orders", {
       method: "PATCH",
-      headers,
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, status, force }),
     });
     const data = (await res.json()) as { ok?: boolean; error?: string };

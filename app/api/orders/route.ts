@@ -256,7 +256,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: created.message }, { status });
   }
 
-  const { order } = created;
+  const { order, accessToken } = created;
   let checkoutUrl: string | null = null;
 
   async function cancelOrphanOrder(code: string) {
@@ -287,6 +287,7 @@ export async function POST(request: Request) {
       totalCents,
       description: `Grill Gasten ${order.order_number}`,
       customerEmail: data.email,
+      accessToken,
     });
     if (!payment?.paymentId || !payment.checkoutUrl) {
       await cancelOrphanOrder("MOLLIE_CREATE_NULL");
@@ -314,7 +315,7 @@ export async function POST(request: Request) {
     ok: true,
     orderNumber: order.order_number,
     checkoutUrl,
-    statusUrl: `${site.url}/bestellen/status/${encodeURIComponent(order.order_number)}`,
+    statusUrl: `${site.url}/bestellen/status/${encodeURIComponent(order.order_number)}?t=${encodeURIComponent(accessToken)}`,
     totalCents,
     subtotalCents: priced.subtotalCents,
     deliveryFeeCents,

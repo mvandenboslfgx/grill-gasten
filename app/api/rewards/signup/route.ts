@@ -2,11 +2,21 @@ import { NextResponse } from "next/server";
 import { deliverInquiry } from "@/lib/email/send-inquiry";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    const ip = clientIp(request);
+    const limited = await rateLimitAsync(`rewards:${ip}`, 8, 60_000);
+    if (!limited.ok) {
+      return NextResponse.json(
+        { ok: false, error: "Te veel verzoeken. Probeer later." },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+      );
+    }
+
     const body = (await request.json()) as {
       name?: string;
       email?: string;
@@ -74,8 +84,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ ok: true });
-  } catch (e) {
-    console.error("[api/rewards/signup]", e);
+  } catch {
+    console.error("[api/rewards/signup]", { code: "SIGNUP_FAILED" });
     return NextResponse.json({ ok: false, error: "Aanmelding mislukt." }, { status: 500 });
   }
 }

@@ -9,13 +9,18 @@ import {
   orderStatusLabel,
 } from "@/lib/orders/labels";
 import { parseOrderLines } from "@/lib/orders/parse-lines";
-import { getOrderByNumber } from "@/lib/orders/create-order";
+import { getOrderForCustomer } from "@/lib/orders/create-order";
 import type { OrderStatus } from "@/lib/orders/types";
+import { rateLimitAsync } from "@/lib/security/rate-limit";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { getWhatsAppHref } from "@/lib/whatsapp";
 import { site } from "@/lib/site";
+import { headers } from "next/headers";
 
-type Props = { params: Promise<{ orderNumber: string }> };
+type Props = {
+  params: Promise<{ orderNumber: string }>;
+  searchParams: Promise<{ t?: string }>;
+};
 
 export const metadata: Metadata = {
   title: "Bestelstatus",
@@ -60,8 +65,9 @@ function timelineSteps(
   }));
 }
 
-export default async function OrderStatusPage({ params }: Props) {
+export default async function OrderStatusPage({ params, searchParams }: Props) {
   const { orderNumber } = await params;
+  const { t: accessToken } = await searchParams;
   const decoded = decodeURIComponent(orderNumber);
 
   if (!isSupabaseConfigured()) {
@@ -78,9 +84,30 @@ export default async function OrderStatusPage({ params }: Props) {
     );
   }
 
+  if (!accessToken || accessToken.length < 20) {
+    notFound();
+  }
+
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    h.get("x-real-ip") ||
+    "unknown";
+  const limited = await rateLimitAsync(`status-lookup:${ip}`, 30, 60_000);
+  if (!limited.ok) {
+    return (
+      <div className="mx-auto max-w-lg px-4 py-32 text-center">
+        <h1 className="font-heading text-2xl uppercase text-white">Even wachten</h1>
+        <p className="text-muted-foreground mt-3 text-sm">
+          Te veel verzoeken. Probeer over een minuut opnieuw.
+        </p>
+      </div>
+    );
+  }
+
   let order;
   try {
-    order = await getOrderByNumber(decoded);
+    order = await getOrderForCustomer(decoded, accessToken);
   } catch {
     notFound();
   }
