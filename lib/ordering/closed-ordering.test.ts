@@ -11,6 +11,8 @@ describe("closed ordering experience", () => {
   it("houdt online bestellen uit en openWeekdays leeg", () => {
     expect(orderingConfig.orderingEnabled).toBe(false);
     expect(orderingConfig.openWeekdays).toEqual([]);
+    expect(orderingConfig.pickupEnabled).toBe(false);
+    expect(orderingConfig.deliveryEnabled).toBe(false);
   });
 
   it("metadata claimt geen live checkout", () => {
