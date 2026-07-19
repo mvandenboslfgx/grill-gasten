@@ -3,10 +3,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { site } from "@/lib/site";
 
-export const LOGO_SRC = "/brand/grill-gasten-logo.png" as const;
+export const LOGO_SRC = "/brand/grill-gasten-logo.webp" as const;
 
-const LOGO_WIDTH = 512;
-const LOGO_HEIGHT = 560;
+const LOGO_WIDTH = 432;
+const LOGO_HEIGHT = 432;
 
 type BrandLogoSize = "sm" | "md" | "nav" | "footer";
 
@@ -52,7 +52,7 @@ export function BrandLogo({
     >
       <Image
         src={LOGO_SRC}
-        alt={`${site.name} logo`}
+        alt={linked ? "" : `${site.name} logo`}
         width={LOGO_WIDTH}
         height={LOGO_HEIGHT}
         priority={priority}

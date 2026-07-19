@@ -24,6 +24,7 @@ export function PopularDishesSection() {
       <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
         <AnimatedContainer>
           <SectionTitle
+            id="popular-heading"
             eyebrow="Menu"
             title="Populaire gerechten"
             description="Onze smashburgers en loaded fries — echte prijzen, klaar om te bestellen."
@@ -33,8 +34,7 @@ export function PopularDishesSection() {
           {items.map((p, i) => {
             const label = badgeLabel(p.badge);
             return (
-              <AnimatedContainer key={p.id} delay={i * 0.05}>
-                <li className="list-none">
+              <AnimatedContainer key={p.id} as="li" delay={i * 0.05} className="list-none">
                 <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#111]">
                   <div className="relative aspect-[4/3]">
                     <Image
@@ -51,7 +51,7 @@ export function PopularDishesSection() {
                     ) : null}
                   </div>
                   <div className="flex flex-1 flex-col gap-2 p-4">
-                    <h3 id={i === 0 ? "popular-heading" : undefined} className="font-heading text-lg uppercase text-white">
+                    <h3 className="font-heading text-lg uppercase text-white">
                       {p.name}
                     </h3>
                     <p className="text-muted-foreground line-clamp-2 flex-1 text-sm">{p.description}</p>
@@ -64,7 +64,6 @@ export function PopularDishesSection() {
                     </Link>
                   </div>
                 </article>
-                </li>
               </AnimatedContainer>
             );
           })}

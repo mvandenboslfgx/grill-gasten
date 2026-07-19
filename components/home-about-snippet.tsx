@@ -7,7 +7,7 @@ export function HomeAboutSnippet() {
     <section className="border-t border-white/10 bg-[#080808] py-14 md:py-20" aria-labelledby="about-snippet">
       <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
         <AnimatedContainer className="max-w-2xl">
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.28em]">Over ons</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#ff8a50]">Over ons</p>
           <h2 id="about-snippet" className="font-heading mt-3 text-2xl uppercase tracking-wide text-white md:text-3xl">
             Mike en Matthijs
           </h2>

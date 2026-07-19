@@ -13,6 +13,7 @@ type WhatsAppLinkProps = {
   intent?: WhatsAppIntent;
   className?: string;
   children: React.ReactNode;
+  /** Alleen zetten voor icon-only links; bij zichtbare tekst weglaten. */
   ariaLabel?: string;
 };
 
@@ -27,7 +28,7 @@ export function WhatsAppLink({ intent, className, children, ariaLabel }: WhatsAp
       target="_blank"
       rel="noopener noreferrer"
       className={cn(className)}
-      aria-label={ariaLabel ?? "Open WhatsApp met Grill Gasten"}
+      {...(ariaLabel ? { "aria-label": ariaLabel } : {})}
     >
       {children}
     </Link>

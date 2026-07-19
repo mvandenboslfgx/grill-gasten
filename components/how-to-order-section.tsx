@@ -39,12 +39,15 @@ export function HowToOrderSection() {
         </AnimatedContainer>
         <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           {STEPS.map((s, i) => (
-            <AnimatedContainer key={s.n} delay={i * 0.04}>
-              <li className="list-none rounded-2xl border border-white/10 bg-[#111] p-5">
-                <span className="text-primary font-heading text-3xl">{s.n}</span>
-                <h3 className="mt-3 font-heading text-base uppercase text-white">{s.title}</h3>
-                <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{s.body}</p>
-              </li>
+            <AnimatedContainer
+              key={s.n}
+              as="li"
+              delay={i * 0.04}
+              className="list-none rounded-2xl border border-white/10 bg-[#111] p-5"
+            >
+              <span className="text-primary font-heading text-3xl">{s.n}</span>
+              <h3 className="mt-3 font-heading text-base uppercase text-white">{s.title}</h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">{s.body}</p>
             </AnimatedContainer>
           ))}
         </ol>
