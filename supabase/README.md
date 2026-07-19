@@ -1,6 +1,26 @@
 # Supabase — handmatige stappen Grill Gasten
 
+## Productiestatus (checklist)
+
+Vercel Production moet hebben:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `KITCHEN_SECRET` (≥ 32 tekens)
+
+Na env-wijziging: production **redeploy** (env wordt pas actief na nieuwe deployment).
+
+Database: zolang `public.orders` ontbreekt (PostgREST `PGRST205`) zijn kitchen/print/status DB-afhankelijk nog niet volledig. Bestellen blijft fail-closed / uit.
+
+**Niet** migraties draaien op andere Supabase-projecten (bijv. VDB). Alleen op het project achter `NEXT_PUBLIC_SUPABASE_URL` van Grill Gasten.
+
 ## Migraties (SQL Editor), in volgorde
+
+Snelste pad (leeg project / eerste bootstrap): plak één keer  
+`scripts/apply-grill-gasten-schema.sql` in de SQL Editor → **Run**.
+
+Of bestand-voor-bestand:
 
 1. `supabase/migrations/20250518120000_orders_rewards.sql`
 2. `supabase/migrations/20260718210000_atomic_order_slot.sql`
