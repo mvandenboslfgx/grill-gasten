@@ -54,7 +54,10 @@ export function buildOwnerPaidEmail(order: DbOrder): { subject: string; text: st
   };
 }
 
-export function buildCustomerPaidEmail(order: DbOrder): {
+export function buildCustomerPaidEmail(
+  order: DbOrder,
+  accessToken: string,
+): {
   subject: string;
   text: string;
   html: string;
@@ -63,7 +66,7 @@ export function buildCustomerPaidEmail(order: DbOrder): {
   const isDelivery = order.fulfillment_method === "delivery";
   const subtotal = order.subtotal_cents ?? order.total_cents - (order.delivery_fee_cents ?? 0);
   const fee = order.delivery_fee_cents ?? 0;
-  const statusUrl = `${site.url.replace(/\/$/, "")}/bestellen/status/${encodeURIComponent(order.order_number)}`;
+  const statusUrl = `${site.url.replace(/\/$/, "")}/bestellen/status/${encodeURIComponent(order.order_number)}?t=${encodeURIComponent(accessToken)}`;
   const products = lines
     .map((l) => {
       const extras = l.options.map((o) => `  - ${o.label}`).join("\n");

@@ -25,6 +25,8 @@
 
 # editor / local AI
 .cursor/
+.agents/
+skills-lock.json
 *.pem
 
 # debug

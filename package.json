@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@mollie/api-client": "^4.5.0",
-    "@supabase/supabase-js": "^2.106.0",
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",

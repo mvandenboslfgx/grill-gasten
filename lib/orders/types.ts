@@ -49,6 +49,8 @@ export type DbOrder = {
   checkout_url: string | null;
   notes: string | null;
   customer_note: string | null;
+  /** SHA-256 hex of customer status token — never expose to clients. */
+  access_token_hash?: string | null;
   batch_status: string | null;
   created_at: string;
   updated_at?: string;

@@ -21,6 +21,12 @@ export function isMollieConfigured(): boolean {
   return Boolean(process.env.MOLLIE_API_KEY?.trim());
 }
 
+/**
+ * Kitchen shared secret — KITCHEN_SECRET only (no ADMIN_SECRET fallback).
+ * Must be ≥ 32 characters.
+ */
 export function getKitchenSecret(): string | null {
-  return process.env.KITCHEN_SECRET?.trim() || process.env.ADMIN_SECRET?.trim() || null;
+  const secret = process.env.KITCHEN_SECRET?.trim() || null;
+  if (!secret || secret.length < 32) return null;
+  return secret;
 }

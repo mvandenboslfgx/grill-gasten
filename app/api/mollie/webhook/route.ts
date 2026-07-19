@@ -19,6 +19,13 @@ export async function POST(request: Request) {
   }
 
   try {
+    const { clientIp, rateLimitAsync } = await import("@/lib/security/rate-limit");
+    const ip = clientIp(request);
+    const limited = await rateLimitAsync(`mollie-webhook:${ip}`, 120, 60_000);
+    if (!limited.ok) {
+      return NextResponse.json({ ok: false }, { status: 429 });
+    }
+
     const body = await request.formData();
     const paymentId = String(body.get("id") ?? "");
     if (!paymentId) {
@@ -75,10 +82,13 @@ export async function POST(request: Request) {
       );
 
       const full = { ...order, ...patch } as DbOrder;
+      const accessToken = typeof meta?.accessToken === "string" ? meta.accessToken : "";
       const ownerMail = buildOwnerPaidEmail(full);
-      const customerMail = buildCustomerPaidEmail(full);
+      const customerMail = accessToken
+        ? buildCustomerPaidEmail(full, accessToken)
+        : null;
 
-      await Promise.all([
+      const mailJobs = [
         sendTransactionalEmail({
           to: ownerInbox(),
           subject: ownerMail.subject,
@@ -86,14 +96,27 @@ export async function POST(request: Request) {
           html: ownerMail.html,
           replyTo: full.customer_email,
         }),
-        sendTransactionalEmail({
-          to: full.customer_email,
-          subject: customerMail.subject,
-          text: customerMail.text,
-          html: customerMail.html,
-        }),
-      ]).catch(() => {
-        console.error("[api/mollie/webhook] mail", { code: "MAIL_FAILED", orderNumber: full.order_number });
+      ];
+      if (customerMail) {
+        mailJobs.push(
+          sendTransactionalEmail({
+            to: full.customer_email,
+            subject: customerMail.subject,
+            text: customerMail.text,
+            html: customerMail.html,
+          }),
+        );
+      } else {
+        console.error("[api/mollie/webhook] mail", {
+          code: "CUSTOMER_STATUS_TOKEN_MISSING",
+          orderNumber: full.order_number,
+        });
+      }
+      await Promise.all(mailJobs).catch(() => {
+        console.error("[api/mollie/webhook] mail", {
+          code: "MAIL_FAILED",
+          orderNumber: full.order_number,
+        });
       });
     }
 

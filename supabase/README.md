@@ -7,6 +7,7 @@
 3. `supabase/migrations/20260718220000_delivery_orders.sql`
 4. `supabase/migrations/20260718230000_delivery_safety_fix.sql`
 5. `supabase/migrations/20260718240000_customer_note.sql` ← **customer_note kolom**
+6. `supabase/migrations/20260718250000_order_access_token_security.sql` ← **access_token_hash + REVOKE anon/authenticated**
 
 Geen drops van orders/klanten.
 
@@ -14,9 +15,10 @@ Geen drops van orders/klanten.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 MOLLIE_API_KEY=
-KITCHEN_SECRET=
+KITCHEN_SECRET=                 # ≥ 32 tekens; HttpOnly sessiecookie, geen ?key=
 DELIVERY_ORIGIN_LABEL=Klaaswaal
 DELIVERY_ORIGIN_LAT=
 DELIVERY_ORIGIN_LNG=

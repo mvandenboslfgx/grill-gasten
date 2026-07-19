@@ -122,10 +122,11 @@ describe("order emails", () => {
   });
 
   it("klantmail toont geen interne UUID of mollie metadata", () => {
-    const mail = buildCustomerPaidEmail(sampleOrder);
+    const mail = buildCustomerPaidEmail(sampleOrder, "test-access-token-32chars-minimum!!");
     expect(mail.text).not.toContain("uuid-1");
     expect(mail.text).not.toContain("tr_test");
     expect(mail.text).toMatch(/Bedankt/);
     expect(mail.text).toMatch(/bestellen\/status/);
+    expect(mail.text).toMatch(/\?t=/);
   });
 });

@@ -1,3 +1,4 @@
+import { generateAccessToken, verifyAccessToken } from "@/lib/orders/access-token";
 import { generateOrderNumber } from "@/lib/orders/order-number";
 import type { PricedOrderLine } from "@/lib/catalog/types";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -34,7 +35,7 @@ export type CreateOrderDbInput = {
 };
 
 export type CreateOrderDbResult =
-  | { ok: true; order: DbOrder }
+  | { ok: true; order: DbOrder; accessToken: string }
   | { ok: false; code: "slot_full" | "conflict" | "error"; message: string };
 
 export async function createOrderAtomic(
@@ -42,6 +43,7 @@ export async function createOrderAtomic(
 ): Promise<CreateOrderDbResult> {
   const db = getSupabaseAdmin();
   const orderNumber = generateOrderNumber();
+  const { token: accessToken, hash: accessTokenHash } = generateAccessToken();
 
   const linesJson = input.lines.map((l) => ({
     productId: l.productId,
@@ -87,14 +89,16 @@ export async function createOrderAtomic(
     }
     if (row?.id) {
       const order = row as DbOrder;
+      const patch: Record<string, string> = {
+        access_token_hash: accessTokenHash,
+      };
       if (input.customerNote) {
-        await db
-          .from("orders")
-          .update({ customer_note: input.customerNote })
-          .eq("id", order.id);
+        patch.customer_note = input.customerNote;
         order.customer_note = input.customerNote;
       }
-      return { ok: true, order };
+      await db.from("orders").update(patch).eq("id", order.id);
+      order.access_token_hash = accessTokenHash;
+      return { ok: true, order, accessToken };
     }
   }
 
@@ -112,7 +116,7 @@ export async function createOrderAtomic(
     return createOrderAtomic(input);
   }
 
-  console.error("[createOrderAtomic]", error?.message ?? "error");
+  console.error("[createOrderAtomic]", { code: error?.code ?? "error" });
   return { ok: false, code: "error", message: "Bestelling kon niet worden opgeslagen." };
 }
 
@@ -139,6 +143,17 @@ export async function getOrderByNumber(orderNumber: string): Promise<DbOrder | n
     .maybeSingle();
   if (error) throw error;
   return (data as DbOrder) ?? null;
+}
+
+/** Customer status lookup — requires matching access token. */
+export async function getOrderForCustomer(
+  orderNumber: string,
+  accessToken: string,
+): Promise<DbOrder | null> {
+  const order = await getOrderByNumber(orderNumber);
+  if (!order) return null;
+  if (!verifyAccessToken(accessToken, order.access_token_hash)) return null;
+  return order;
 }
 
 export async function awardPointsForPaidOrder(
