@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildDeliveryQuote } from "@/lib/delivery/build-quote";
 import { orderingConfig } from "@/lib/ordering/opening-hours";
+import { deliveryConfig } from "@/lib/delivery/delivery-config";
 import { clientIp, rateLimitAsync } from "@/lib/security/rate-limit";
 import { z } from "zod";
 
@@ -12,10 +13,13 @@ const bodySchema = z.object({
   addition: z.string().max(12).optional(),
 });
 
+const MAX_BODY_BYTES = 4_096;
+
 export async function POST(request: Request) {
   if (
     !orderingConfig.orderingEnabled ||
     !orderingConfig.deliveryEnabled ||
+    !deliveryConfig.enabled ||
     !orderingConfig.openWeekdays.length
   ) {
     return NextResponse.json(
@@ -26,6 +30,11 @@ export async function POST(request: Request) {
       },
       { status: 503 },
     );
+  }
+
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) {
+    return NextResponse.json({ ok: false, error: "Ongeldig verzoek." }, { status: 415 });
   }
 
   const ip = clientIp(request);
@@ -39,7 +48,11 @@ export async function POST(request: Request) {
 
   let raw: unknown;
   try {
-    raw = await request.json();
+    const text = await request.text();
+    if (text.length > MAX_BODY_BYTES) {
+      return NextResponse.json({ ok: false, error: "Verzoek te groot." }, { status: 413 });
+    }
+    raw = JSON.parse(text) as unknown;
   } catch {
     return NextResponse.json({ ok: false, error: "Ongeldig verzoek." }, { status: 400 });
   }

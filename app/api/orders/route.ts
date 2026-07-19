@@ -8,6 +8,11 @@ import {
 } from "@/lib/delivery/address-validation";
 import { addressesMatchQuote, verifySignedQuote } from "@/lib/delivery/quote";
 import { zoneForDistanceMeters } from "@/lib/delivery/zones";
+import {
+  applyFreeDeliveryThreshold,
+  deliveryConfig,
+} from "@/lib/delivery/delivery-config";
+import { checkDeliveryPostcode } from "@/lib/delivery/postal-allowlist";
 import { isDeliveryRoutingConfigured, isQuoteSecretConfigured } from "@/lib/delivery/config";
 import { createMollieCheckout } from "@/lib/mollie/create-payment";
 import { orderLog } from "@/lib/observability/order-log";
@@ -222,6 +227,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const postal = checkDeliveryPostcode(postcode);
+    if (!postal.ok) {
+      return NextResponse.json({ ok: false, error: postal.message }, { status: 400 });
+    }
+
     if (!data.quoteId) {
       return NextResponse.json(
         { ok: false, error: "Controleer eerst je bezorgadres." },
@@ -241,31 +251,49 @@ export async function POST(request: Request) {
       );
     }
 
-    // Zone opnieuw bepalen vanuit afstand in quote (niet client zone)
-    const zone = zoneForDistanceMeters(verified.payload.distanceMeters);
-    if (!zone || zone.id !== verified.payload.zoneId) {
-      return NextResponse.json(
-        { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." },
-        { status: 400 },
-      );
-    }
-
-    if (priced.subtotalCents < zone.minOrderCents) {
-      const need = zone.minOrderCents - priced.subtotalCents;
+    const minOrderCents = verified.payload.minOrderCents;
+    if (priced.subtotalCents < minOrderCents) {
+      const need = minOrderCents - priced.subtotalCents;
       return NextResponse.json(
         {
           ok: false,
-          error: `Minimum bestelling voor jouw zone is ${formatPriceCents(zone.minOrderCents)} (excl. bezorgkosten). Nog ${formatPriceCents(need)} nodig.`,
+          error: `Minimum bestelling voor bezorging is ${formatPriceCents(minOrderCents)} (excl. bezorgkosten). Nog ${formatPriceCents(need)} nodig.`,
           code: "MIN_ORDER",
-          minOrderCents: zone.minOrderCents,
+          minOrderCents,
           shortfallCents: need,
         },
         { status: 400 },
       );
     }
 
-    // Fee opnieuw uit zone — niet uit client
-    deliveryFeeCents = zone.feeCents;
+    // Fee opnieuw server-side: quote fee + gratis-drempel — nooit client
+    let feeFromQuote = verified.payload.feeCents;
+    if (deliveryConfig.pricingMode === "distance_zones") {
+      const zone = zoneForDistanceMeters(verified.payload.distanceMeters);
+      if (!zone || zone.id !== verified.payload.zoneId) {
+        return NextResponse.json(
+          { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." },
+          { status: 400 },
+        );
+      }
+      feeFromQuote = zone.feeCents;
+    } else if (deliveryConfig.pricingMode === "flat_fee") {
+      if (
+        deliveryConfig.deliveryFeeCents === null ||
+        feeFromQuote !== deliveryConfig.deliveryFeeCents
+      ) {
+        return NextResponse.json(
+          { ok: false, error: "Bezorgkosten ongeldig. Controleer je adres opnieuw." },
+          { status: 400 },
+        );
+      }
+    }
+
+    deliveryFeeCents = applyFreeDeliveryThreshold(
+      feeFromQuote,
+      priced.subtotalCents,
+      deliveryConfig.freeDeliveryThresholdCents,
+    );
     const window = getDeliveryWindowById(data.time);
 
     deliveryMeta = {
@@ -274,7 +302,7 @@ export async function POST(request: Request) {
       houseNumber,
       addition,
       city: verified.payload.city,
-      zone: zone.id,
+      zone: verified.payload.zoneId,
       distanceMeters: verified.payload.distanceMeters,
       durationSeconds: verified.payload.durationSeconds,
       window: window?.id ?? data.time,
