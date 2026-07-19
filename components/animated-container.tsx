@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  motion,
-  useReducedMotion,
-  type HTMLMotionProps,
-} from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const defaultVariants = {
@@ -12,11 +8,14 @@ const defaultVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-type AnimatedContainerProps = HTMLMotionProps<"div"> & {
+type AnimatedContainerProps = {
   className?: string;
   delay?: number;
   once?: boolean;
   amount?: number | "some" | "all";
+  children?: React.ReactNode;
+  /** Use `li` when wrapping list items so `<ul>`/`<ol>` stays valid. */
+  as?: "div" | "li";
 };
 
 export function AnimatedContainer({
@@ -25,25 +24,25 @@ export function AnimatedContainer({
   once = true,
   amount = 0.35,
   children,
-  ...props
+  as = "div",
 }: AnimatedContainerProps) {
   const reduceMotion = useReducedMotion();
+  const motionProps = {
+    className: cn(className),
+    initial: reduceMotion ? false : ("hidden" as const),
+    whileInView: reduceMotion ? undefined : ("show" as const),
+    viewport: { once, amount },
+    transition: {
+      duration: reduceMotion ? 0 : 0.65,
+      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+      delay: reduceMotion ? 0 : delay,
+    },
+    variants: defaultVariants,
+  };
 
-  return (
-    <motion.div
-      className={cn(className)}
-      initial={reduceMotion ? false : "hidden"}
-      whileInView={reduceMotion ? undefined : "show"}
-      viewport={{ once, amount }}
-      transition={{
-        duration: reduceMotion ? 0 : 0.65,
-        ease: [0.22, 1, 0.36, 1],
-        delay: reduceMotion ? 0 : delay,
-      }}
-      variants={defaultVariants}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
+  if (as === "li") {
+    return <motion.li {...motionProps}>{children}</motion.li>;
+  }
+
+  return <motion.div {...motionProps}>{children}</motion.div>;
 }

@@ -61,7 +61,7 @@ export function Navbar() {
           "grid-cols-[auto_minmax(0,1fr)_auto]",
         )}
       >
-        <BrandLogo linked priority size="nav" className="shrink-0 justify-self-start" />
+        <BrandLogo linked size="nav" className="shrink-0 justify-self-start" />
 
         <nav
           className="hidden min-w-0 items-center justify-center gap-5 text-xs font-semibold uppercase tracking-[0.08em] xl:flex 2xl:gap-7"

@@ -13,7 +13,7 @@ export function BurgerSizesSection() {
     <section className="border-t border-white/10 bg-[#0a0a0a] py-16 md:py-24" aria-labelledby="sizes-heading">
       <div className="mx-auto max-w-6xl px-4 md:px-6 lg:px-8">
         <AnimatedContainer>
-          <p className="text-primary text-xs font-semibold uppercase tracking-[0.28em]">Smashburgers</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#ff8a50]">Smashburgers</p>
           <h2 id="sizes-heading" className="font-heading mt-3 text-3xl uppercase tracking-wide text-white md:text-4xl">
             Single, Double of Triple
           </h2>
@@ -25,8 +25,7 @@ export function BurgerSizesSection() {
           {SIZES.map(({ id, highlight }, i) => {
             const p = getProductById(id)!;
             return (
-              <AnimatedContainer key={id} delay={i * 0.06}>
-                <li className="list-none">
+              <AnimatedContainer key={id} as="li" delay={i * 0.06} className="list-none">
                 <article
                   className={`flex h-full flex-col rounded-2xl border p-6 ${
                     highlight
@@ -51,7 +50,6 @@ export function BurgerSizesSection() {
                     Bestel nu
                   </Link>
                 </article>
-                </li>
               </AnimatedContainer>
             );
           })}

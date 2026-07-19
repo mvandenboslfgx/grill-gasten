@@ -19,8 +19,7 @@ export function ExtraOptionsSection() {
         </AnimatedContainer>
         <ul className="mt-8 grid gap-4 sm:grid-cols-3">
           {extras.map((o, i) => (
-            <AnimatedContainer key={o.id} delay={i * 0.04}>
-              <li className="list-none">
+            <AnimatedContainer key={o.id} as="li" delay={i * 0.04} className="list-none">
               <div className="rounded-2xl border border-white/10 bg-[#111] p-5">
                 <p className="font-heading text-lg uppercase text-white">{o.name}</p>
                 <p className="mt-2 text-sm font-semibold text-[#d4af37]">
@@ -28,7 +27,6 @@ export function ExtraOptionsSection() {
                 </p>
                 <p className="text-muted-foreground mt-2 text-sm">{o.description}</p>
               </div>
-              </li>
             </AnimatedContainer>
           ))}
         </ul>
