@@ -13,6 +13,7 @@ import {
   deliveryConfig,
 } from "@/lib/delivery/delivery-config";
 import { checkDeliveryPostcode } from "@/lib/delivery/postal-allowlist";
+import { zoneForPostcodePrefix } from "@/lib/delivery/postal-zones";
 import { isDeliveryRoutingConfigured, isQuoteSecretConfigured } from "@/lib/delivery/config";
 import { createMollieCheckout } from "@/lib/mollie/create-payment";
 import { orderLog } from "@/lib/observability/order-log";
@@ -266,9 +267,24 @@ export async function POST(request: Request) {
       );
     }
 
-    // Fee opnieuw server-side: quote fee + gratis-drempel — nooit client
+    // Fee opnieuw server-side — nooit client
     let feeFromQuote = verified.payload.feeCents;
-    if (deliveryConfig.pricingMode === "distance_zones") {
+    if (deliveryConfig.pricingMode === "postcode_zones") {
+      const zone = zoneForPostcodePrefix(postcode);
+      if (!zone || zone.id !== verified.payload.zoneId) {
+        return NextResponse.json(
+          { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." },
+          { status: 400 },
+        );
+      }
+      feeFromQuote = zone.feeCents;
+      if (verified.payload.minOrderCents !== zone.minimumOrderAmountCents) {
+        return NextResponse.json(
+          { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." },
+          { status: 400 },
+        );
+      }
+    } else if (deliveryConfig.pricingMode === "distance_zones") {
       const zone = zoneForDistanceMeters(verified.payload.distanceMeters);
       if (!zone || zone.id !== verified.payload.zoneId) {
         return NextResponse.json(

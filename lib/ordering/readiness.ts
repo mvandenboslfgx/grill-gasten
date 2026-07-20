@@ -1,13 +1,13 @@
+import { kitchenLocation } from "@/lib/business/location";
 import { getActiveDrinkProducts, getConfirmedDrinkProducts } from "@/lib/catalog/drinks";
 import { getVisibleProducts } from "@/lib/catalog/products";
-import {
-  isDeliveryRoutingConfigured,
-  isQuoteSecretConfigured,
-} from "@/lib/delivery/config";
+import { isQuoteSecretConfigured } from "@/lib/delivery/config";
 import {
   deliveryConfig,
   isDeliveryConfigComplete,
 } from "@/lib/delivery/delivery-config";
+import { validatePostalZones } from "@/lib/delivery/postal-zones";
+import { launchHoursAreValid } from "@/lib/ordering/launch-hours";
 import { orderingConfig } from "@/lib/ordering/opening-hours";
 import { getKitchenSecret, isMollieConfigured, isSupabaseConfigured } from "@/lib/supabase/env";
 import { site } from "@/lib/site";
@@ -15,7 +15,7 @@ import { site } from "@/lib/site";
 export type OrderingReadinessBlocker = {
   id: string;
   severity: "critical" | "high" | "medium";
-  kind: "technical" | "business";
+  kind: "technical" | "business" | "operational";
   message: string;
   owner: "cursor" | "owner";
 };
@@ -26,14 +26,9 @@ export type OrderingReadiness = {
   blockers: OrderingReadinessBlocker[];
 };
 
-function hasConfirmedPickupAddress(): boolean {
-  const a = site.address.toLowerCase();
-  return Boolean(a) && !a.includes("regio") && !a.includes("aanvraag");
-}
-
 /**
- * Launch = pickup + delivery from day one.
- * Ready only when BOTH fulfillment modes and drinks are fully configured.
+ * Activation gate: pickup + delivery day one.
+ * Business config may be stored while flags stay off.
  */
 export function getOrderingReadiness(): OrderingReadiness {
   const blockers: OrderingReadinessBlocker[] = [];
@@ -53,18 +48,17 @@ export function getOrderingReadiness(): OrderingReadiness {
       id: "no_open_weekdays",
       severity: "critical",
       kind: "business",
-      message: "openWeekdays is leeg — geen openingsdagen bevestigd.",
+      message: "openWeekdays is leeg — activation-PR vereist (kandidaat: vr/za/zo).",
       owner: "owner",
     });
   }
 
-  // Day-one launch requires BOTH pickup and delivery
   if (!orderingConfig.pickupEnabled) {
     blockers.push({
       id: "pickup_flag_off",
       severity: "critical",
       kind: "business",
-      message: "pickupEnabled staat op false — launch vereist afhalen én bezorgen.",
+      message: "pickupEnabled staat op false.",
       owner: "owner",
     });
   }
@@ -74,52 +68,109 @@ export function getOrderingReadiness(): OrderingReadiness {
       id: "delivery_flag_off",
       severity: "critical",
       kind: "business",
-      message: "deliveryEnabled staat op false — launch vereist afhalen én bezorgen.",
+      message: "deliveryEnabled / deliveryConfig.enabled staat op false.",
       owner: "owner",
     });
   }
 
-  if (!hasConfirmedPickupAddress()) {
+  if (!kitchenLocation.publicPickupAddressEnabled) {
     blockers.push({
-      id: "pickup_address_unconfirmed",
+      id: "public_pickup_address_off",
+      severity: "critical",
+      kind: "operational",
+      message: "publicPickupAddressEnabled is false — volledig afhaaladres niet publiek.",
+      owner: "owner",
+    });
+  }
+
+  if (!kitchenLocation.municipalPickupUseConfirmed) {
+    blockers.push({
+      id: "municipal_pickup_unconfirmed",
+      severity: "critical",
+      kind: "operational",
+      message: "Gemeentelijke bevestiging afhalen op keukenlocatie ontbreekt.",
+      owner: "owner",
+    });
+  }
+
+  if (!kitchenLocation.deliveryFromKitchenApproved) {
+    blockers.push({
+      id: "delivery_kitchen_unapproved",
+      severity: "critical",
+      kind: "operational",
+      message: "Delivery vanaf keukenlocatie operationeel nog niet goedgekeurd.",
+      owner: "owner",
+    });
+  }
+
+  if (!kitchenLocation.nvwaRegistrationConfirmed) {
+    blockers.push({
+      id: "nvwa_unconfirmed",
+      severity: "critical",
+      kind: "operational",
+      message: "NVWA-registratie nog niet bevestigd.",
+      owner: "owner",
+    });
+  }
+
+  if (!kitchenLocation.foodSafetyPlanConfirmed) {
+    blockers.push({
+      id: "food_safety_unconfirmed",
+      severity: "critical",
+      kind: "operational",
+      message: "Voedselveiligheidsplan / HACCP-hygiënecode nog niet bevestigd.",
+      owner: "owner",
+    });
+  }
+
+  const zonesCheck = validatePostalZones();
+  if (!zonesCheck.ok) {
+    blockers.push({
+      id: "postal_zones_invalid",
+      severity: "critical",
+      kind: "technical",
+      message: `Postcodezones ongeldig (${zonesCheck.error}).`,
+      owner: "cursor",
+    });
+  }
+
+  if (deliveryConfig.pricingMode !== "postcode_zones") {
+    blockers.push({
+      id: "pricing_mode_wrong",
       severity: "critical",
       kind: "business",
-      message: "Afhaaladres is niet als concreet straatadres bevestigd.",
+      message: "Launch vereist pricingMode postcode_zones.",
+      owner: "cursor",
+    });
+  }
+
+  if (deliveryConfig.freeDeliveryThresholdCents !== null) {
+    blockers.push({
+      id: "free_delivery_enabled",
+      severity: "critical",
+      kind: "business",
+      message: "Gratis bezorgen moet uit (freeDeliveryThresholdCents null).",
       owner: "owner",
     });
   }
 
-  if (!isDeliveryConfigComplete()) {
+  if (deliveryConfig.enabled && !isDeliveryConfigComplete()) {
     blockers.push({
       id: "delivery_config_incomplete",
       severity: "critical",
       kind: "business",
-      message:
-        "Deliveryconfig onvolledig (postcode-allowlist, pricingMode, fee/min of zone-bevestiging).",
+      message: "Deliveryconfig onvolledig terwijl enabled true.",
       owner: "owner",
     });
   }
 
-  if (deliveryConfig.allowedPostalCodeAreas.length === 0) {
+  if (!launchHoursAreValid()) {
     blockers.push({
-      id: "delivery_area_empty",
+      id: "launch_hours_invalid",
       severity: "critical",
       kind: "business",
-      message: "allowedPostalCodeAreas is leeg — bezorggebied niet bevestigd.",
-      owner: "owner",
-    });
-  }
-
-  if (
-    deliveryConfig.pricingMode === "distance_zones" &&
-    !isDeliveryRoutingConfigured()
-  ) {
-    blockers.push({
-      id: "delivery_maps_missing",
-      severity: "critical",
-      kind: "technical",
-      message: "distance_zones vereist GOOGLE_MAPS_API_KEY (server-only).",
-      owner: "owner",
+      message: "Launch-kandidaat openingstijden ongeldig.",
+      owner: "cursor",
     });
   }
 
@@ -163,6 +214,22 @@ export function getOrderingReadiness(): OrderingReadiness {
     });
   }
 
+  blockers.push({
+    id: "mollie_e2e_required",
+    severity: "high",
+    kind: "operational",
+    message: "Mollie testmode E2E (pickup + delivery) nog vereist vóór activatie.",
+    owner: "owner",
+  });
+
+  blockers.push({
+    id: "readiness_migration_required",
+    severity: "high",
+    kind: "operational",
+    message: "Migratie 20260719210000_ordering_readiness.sql nog remote toepassen.",
+    owner: "owner",
+  });
+
   if (!process.env.NEXT_PUBLIC_SITE_URL?.trim() && !site.url) {
     blockers.push({
       id: "site_url_missing",
@@ -183,7 +250,9 @@ export function getOrderingReadiness(): OrderingReadiness {
     });
   }
 
-  const food = getVisibleProducts().filter((p) => p.category !== "drinks" && p.category !== "sauces");
+  const food = getVisibleProducts().filter(
+    (p) => p.category !== "drinks" && p.category !== "sauces",
+  );
   if (food.length === 0) {
     blockers.push({
       id: "no_active_food",
@@ -194,23 +263,22 @@ export function getOrderingReadiness(): OrderingReadiness {
     });
   }
 
+  if (getConfirmedDrinkProducts().length < 6) {
+    blockers.push({
+      id: "drinks_incomplete",
+      severity: "critical",
+      kind: "business",
+      message: "Niet alle zes launch-dranken zijn bevestigd.",
+      owner: "owner",
+    });
+  }
+
   if (getActiveDrinkProducts().length === 0) {
     blockers.push({
       id: "no_active_drinks",
       severity: "critical",
       kind: "business",
-      message:
-        "Geen bevestigde actieve frisdrank (prijs + maat + ownerConfirmed vereist).",
-      owner: "owner",
-    });
-  }
-
-  if (getConfirmedDrinkProducts().length === 0) {
-    blockers.push({
-      id: "drinks_unconfirmed",
-      severity: "high",
-      kind: "business",
-      message: "Frisdrankdrafts staan klaar maar zijn nog niet door de eigenaar bevestigd.",
+      message: "Geen drank op voorraad (available).",
       owner: "owner",
     });
   }
@@ -221,6 +289,17 @@ export function getOrderingReadiness(): OrderingReadiness {
       severity: "critical",
       kind: "technical",
       message: "Ongeldige preparation- of slotinterval-configuratie.",
+      owner: "cursor",
+    });
+  }
+
+  // Publiek mag geen Molendijk lekken
+  if (site.address.toLowerCase().includes("molendijk")) {
+    blockers.push({
+      id: "public_address_leak",
+      severity: "critical",
+      kind: "technical",
+      message: "site.address bevat keukenstraat — niet toegestaan.",
       owner: "cursor",
     });
   }

@@ -2,6 +2,8 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { z } from "zod";
 import { normalizeHouseNumber, normalizePostcode } from "@/lib/delivery/address-validation";
 import { getQuoteSecret, isQuoteSecretConfigured } from "@/lib/delivery/config";
+import { deliveryConfig } from "@/lib/delivery/delivery-config";
+import { zoneForPostcodePrefix } from "@/lib/delivery/postal-zones";
 import type { DeliveryQuotePayload, DeliveryZoneId } from "@/lib/delivery/types";
 import { MAX_DELIVERY_METERS, QUOTE_TTL_MS, zoneForDistanceMeters } from "@/lib/delivery/zones";
 
@@ -132,12 +134,42 @@ export function verifySignedQuote(
     return { ok: false, error: "Je bezorgquote is verlopen. Controleer je adres opnieuw." };
   }
 
+  if (deliveryConfig.pricingMode === "postcode_zones") {
+    const zone = zoneForPostcodePrefix(pc);
+    if (!zone || zone.id !== payload.zoneId) {
+      return { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." };
+    }
+    if (
+      payload.feeCents !== zone.feeCents ||
+      payload.minOrderCents !== zone.minimumOrderAmountCents
+    ) {
+      return { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." };
+    }
+    if (payload.distanceMeters !== 0) {
+      return { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." };
+    }
+    return { ok: true, payload: payload as DeliveryQuotePayload };
+  }
+
+  if (deliveryConfig.pricingMode === "flat_fee") {
+    const expectedFee = deliveryConfig.deliveryFeeCents;
+    const expectedMin = deliveryConfig.minimumOrderAmountCents;
+    if (
+      expectedFee === null ||
+      expectedMin === null ||
+      payload.feeCents !== expectedFee ||
+      payload.minOrderCents !== expectedMin
+    ) {
+      return { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." };
+    }
+    return { ok: true, payload: payload as DeliveryQuotePayload };
+  }
+
   const zone = zoneForDistanceMeters(payload.distanceMeters);
   if (!zone || zone.id !== payload.zoneId) {
     return { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." };
   }
 
-  // Centrale zoneconfig is bron van waarheid — payload fee/min moeten matchen
   if (payload.feeCents !== zone.feeCents || payload.minOrderCents !== zone.minOrderCents) {
     return { ok: false, error: "Bezorgzone ongeldig. Controleer je adres opnieuw." };
   }

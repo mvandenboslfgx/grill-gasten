@@ -1,28 +1,29 @@
 /**
  * Centrale delivery-configuratie — bedragen in eurocenten.
- * Ontbrekende/ongeldige waarden ⇒ deliveryAvailable = false (geen permissieve defaults).
- *
- * Zone-tabel in zones.ts is een technische skeleton; launch vereist
- * ownerConfirmed-velden + postcode-allowlist.
+ * Launch: postcode_zones (Hoeksche Waard). Maps uit. Gratis bezorgen uit.
+ * enabled blijft false tot activation-PR.
  */
 
-export type DeliveryPricingMode = "unconfigured" | "flat_fee" | "distance_zones";
+import {
+  allPostalZonePrefixes,
+  validatePostalZones,
+} from "@/lib/delivery/postal-zones";
+
+export type DeliveryPricingMode =
+  | "unconfigured"
+  | "flat_fee"
+  | "distance_zones"
+  | "postcode_zones";
 
 export type DeliveryConfig = {
-  /** Spiegel van orderingConfig.deliveryEnabled — niet alleen aanzetten. */
   enabled: boolean;
   pricingMode: DeliveryPricingMode;
-  /** null = niet door eigenaar bevestigd */
+  /** Flat-fee only; unused in postcode_zones */
   minimumOrderAmountCents: number | null;
-  /** Flat-fee modus; null wanneer distance_zones of unconfigured */
   deliveryFeeCents: number | null;
-  /** null = bewust uit / niet bevestigd */
+  /** null = bewust uit */
   freeDeliveryThresholdCents: number | null;
   maximumDistanceKm: number | null;
-  /**
-   * Allowlist: 4-cijferige gebiedscodes (bijv. "3281") of volledige 6-teken postcodes.
-   * Leeg = gebied niet bevestigd → delivery niet launch-ready.
-   */
   allowedPostalCodeAreas: string[];
   blockedPostalCodes: string[];
   deliveryPreparationMinutes: number;
@@ -30,7 +31,6 @@ export type DeliveryConfig = {
   maximumAdvanceDays: number;
   orderingCutoffMinutes: number;
   maximumOrdersPerSlot: number;
-  /** Eigenaar heeft DELIVERY_ZONES-tarieven zakelijk goedgekeurd */
   distanceZonesOwnerConfirmed: boolean;
 };
 
@@ -39,38 +39,42 @@ export type FulfilmentCapacity = {
   deliveryOrdersPerSlot: number;
 };
 
-/**
- * Launch-defaults: technisch voorbereid, zakelijk nog niet bevestigd.
- * Geen verzonnen postcodes of tarieven als “live”.
- */
 export const deliveryConfig: DeliveryConfig = {
   enabled: false,
-  pricingMode: "unconfigured",
+  pricingMode: "postcode_zones",
   minimumOrderAmountCents: null,
   deliveryFeeCents: null,
   freeDeliveryThresholdCents: null,
   maximumDistanceKm: null,
-  allowedPostalCodeAreas: [],
+  allowedPostalCodeAreas: allPostalZonePrefixes(),
+  /** Tiengemeten eiland — niet online bezorgen */
   blockedPostalCodes: ["3284BE"],
-  deliveryPreparationMinutes: 90,
+  deliveryPreparationMinutes: 35,
   deliverySlotIntervalMinutes: 30,
-  maximumAdvanceDays: 14,
-  orderingCutoffMinutes: 90,
-  maximumOrdersPerSlot: 8,
+  maximumAdvanceDays: 7,
+  orderingCutoffMinutes: 30,
+  maximumOrdersPerSlot: 2,
   distanceZonesOwnerConfirmed: false,
 };
 
 export function isDeliveryConfigComplete(cfg: DeliveryConfig = deliveryConfig): boolean {
   if (!cfg.enabled) return false;
-  if (cfg.allowedPostalCodeAreas.length === 0) return false;
   if (cfg.maximumOrdersPerSlot <= 0) return false;
   if (cfg.deliveryPreparationMinutes <= 0) return false;
   if (cfg.deliverySlotIntervalMinutes <= 0) return false;
+  if (cfg.freeDeliveryThresholdCents !== null) return false; // launch: gratis bezorgen uit
 
   if (cfg.pricingMode === "unconfigured") return false;
 
+  if (cfg.pricingMode === "postcode_zones") {
+    if (cfg.allowedPostalCodeAreas.length === 0) return false;
+    const zonesOk = validatePostalZones();
+    return zonesOk.ok;
+  }
+
   if (cfg.pricingMode === "flat_fee") {
     return (
+      cfg.allowedPostalCodeAreas.length > 0 &&
       cfg.deliveryFeeCents !== null &&
       cfg.deliveryFeeCents >= 0 &&
       cfg.minimumOrderAmountCents !== null &&
@@ -89,15 +93,10 @@ export function isDeliveryConfigComplete(cfg: DeliveryConfig = deliveryConfig): 
   return false;
 }
 
-/** Runtime: mag delivery-quote/order worden aangeboden? */
 export function isDeliveryAvailable(cfg: DeliveryConfig = deliveryConfig): boolean {
   return cfg.enabled && isDeliveryConfigComplete(cfg);
 }
 
-/**
- * Pas gratis-bezorgdrempel toe (server-side).
- * threshold null ⇒ geen gratis bezorging.
- */
 export function applyFreeDeliveryThreshold(
   feeCents: number,
   subtotalCents: number,

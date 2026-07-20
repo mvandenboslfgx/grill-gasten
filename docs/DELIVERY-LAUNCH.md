@@ -2,7 +2,7 @@
 
 ## Scope
 
-**Pickup + delivery from day one.** Bezorgen is geen latere fase.
+**Pickup + delivery from day one.** Bezorgen is launch-critical.
 
 Flags blijven uit tot de aparte activatie-PR:
 
@@ -16,26 +16,36 @@ Flags blijven uit tot de aparte activatie-PR:
 
 | Stuk | Pad |
 |------|-----|
+| Kitchen location (server-only) | `lib/business/location.ts` |
+| Launch hours candidate | `lib/ordering/launch-hours.ts` |
 | DeliveryConfig | `lib/delivery/delivery-config.ts` |
-| Postcode allowlist | `lib/delivery/postal-allowlist.ts` |
+| Postcode zones A/B/C | `lib/delivery/postal-zones.ts` |
+| Allowlist / blocklist | `lib/delivery/postal-allowlist.ts` |
 | Quote build | `lib/delivery/build-quote.ts` |
 | Signed quote | `lib/delivery/quote.ts` |
-| Zone skeleton | `lib/delivery/zones.ts` (alleen na owner sign-off) |
-| Quote API | `app/api/delivery/quote/route.ts` |
 
-## Pricing modes
+## Pricing mode (launch)
 
-1. **`unconfigured`** (huidige default) → delivery niet beschikbaar
-2. **`flat_fee`** → allowlist + bevestigde fee/min; **geen Maps nodig**
-3. **`distance_zones`** → allowlist + Maps + `distanceZonesOwnerConfirmed`
+**`postcode_zones`** — server-side prefix → fee/min. **Maps uit.** **Gratis bezorgen uit.**
 
-## Marge
+| Zone | Fee | Min. order | Prefixen |
+|------|-----|------------|----------|
+| A Lokaal | €3,95 | €20 | 3286, 3273, 3271, 3281 |
+| B Middellang | €5,95 | €25 | 3274, 3261–3263, 3284, 3291, 3299 |
+| C Buitengebied | €7,95 | €30 | 3264, 3265, 3267, 3292, 3293, 3295, 3297 |
 
-Server berekent: producten + modifiers + delivery fee (+ optionele free-threshold) + service fee (alleen indien bevestigd).
+`3284BE` (Tiengemeten) blijft geblokkeerd.
 
-Geen client fees. Capaciteit pickup ≠ delivery.
+## Adresprivacy
+
+Intern: Molendijk 29, 3286 BE Klaaswaal.  
+Publiek: alleen **Klaaswaal** zolang `publicPickupAddressEnabled: false`.
+
+## Migraties
+
+Geen nieuwe DB-migratie voor zones — statische serverconfig volstaat.  
+Bestaande `20260719210000_ordering_readiness.sql` blijft remote open (niet in deze opdracht toepassen).
 
 ## Frisdrank
 
-Drafts in `lib/catalog/drinks.ts` — pas live na `ownerConfirmed`, `sizeLabel` en `priceCents`.
-Geen alcohol in deze launch.
+Zes bevestigde producten in `lib/catalog/drinks.ts` — zichtbaar op menu; bestelbaar pas bij `orderingEnabled`.

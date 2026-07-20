@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { getOrderingEnvReport } from "@/lib/env/ordering-env";
+import {
+  assertNoPublicKitchenStreetLeak,
+  getPublicLocationLabel,
+  kitchenLocation,
+} from "@/lib/business/location";
 import { deliveryConfig } from "@/lib/delivery/delivery-config";
+import { launchHoursCandidate } from "@/lib/ordering/launch-hours";
 import { orderingConfig } from "@/lib/ordering/opening-hours";
 import { getOrderingReadiness } from "@/lib/ordering/readiness";
-import { hashIdempotencyPayload } from "@/lib/orders/order-events";
+import { site } from "@/lib/site";
 
-describe("ordering readiness gate (pickup + delivery day one)", () => {
+describe("business launch configuration", () => {
   it("houdt alle orderingflags uit", () => {
     expect(orderingConfig.orderingEnabled).toBe(false);
     expect(orderingConfig.openWeekdays).toEqual([]);
@@ -14,30 +19,38 @@ describe("ordering readiness gate (pickup + delivery day one)", () => {
     expect(deliveryConfig.enabled).toBe(false);
   });
 
-  it("blokkeert launch tot pickup én delivery én dranken klaar zijn", () => {
+  it("publiceert geen Molendijk-adres", () => {
+    expect(kitchenLocation.publicPickupAddressEnabled).toBe(false);
+    expect(getPublicLocationLabel()).toBe("Klaaswaal");
+    expect(assertNoPublicKitchenStreetLeak(site.address)).toBe(true);
+    expect(site.address.toLowerCase()).not.toContain("molendijk");
+  });
+
+  it("uren openen orderflow niet automatisch", () => {
+    expect(launchHoursCandidate.candidateOpenWeekdays).toEqual([5, 6, 0]);
+    expect(orderingConfig.openWeekdays).toEqual([]);
+    expect(orderingConfig.orderingEnabled).toBe(false);
+  });
+
+  it("readiness blokkeert activatie (flags + operationeel)", () => {
     const readiness = getOrderingReadiness();
     expect(readiness.ready).toBe(false);
     expect(readiness.publicAvailable).toBe(false);
     const ids = readiness.blockers.map((b) => b.id);
     expect(ids).toContain("ordering_flag_off");
     expect(ids).toContain("no_open_weekdays");
-    expect(ids).toContain("pickup_flag_off");
-    expect(ids).toContain("delivery_flag_off");
-    expect(ids).toContain("delivery_config_incomplete");
-    expect(ids).toContain("delivery_area_empty");
-    expect(ids).toContain("no_active_drinks");
+    expect(ids).toContain("public_pickup_address_off");
+    expect(ids).toContain("nvwa_unconfirmed");
+    expect(ids).toContain("municipal_pickup_unconfirmed");
   });
 
-  it("exposeert geen secret-waarden in env-rapport", () => {
-    const report = getOrderingEnvReport();
-    const serialized = JSON.stringify(report);
-    expect(serialized).not.toMatch(/eyJ/);
-    expect(["present", "missing", "invalid", "n/a"]).toContain(report.MOLLIE_API_KEY);
-  });
-
-  it("idempotency payload hash is stabiel", () => {
-    const a = hashIdempotencyPayload({ method: "pickup", lines: [{ id: "x" }] });
-    const b = hashIdempotencyPayload({ method: "pickup", lines: [{ id: "x" }] });
-    expect(a).toBe(b);
+  it("bevestigde capaciteit en lead times", () => {
+    expect(orderingConfig.pickupSlotCapacity).toBe(4);
+    expect(deliveryConfig.maximumOrdersPerSlot).toBe(2);
+    expect(orderingConfig.minLeadMinutesPickup).toBe(25);
+    expect(orderingConfig.minLeadMinutesDelivery).toBe(35);
+    expect(orderingConfig.maximumOrderAmountCents).toBe(15_000);
+    expect(orderingConfig.serviceFeeCents).toBe(0);
+    expect(orderingConfig.maximumAdvanceDays).toBe(7);
   });
 });

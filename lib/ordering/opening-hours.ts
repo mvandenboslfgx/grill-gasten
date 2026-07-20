@@ -1,65 +1,53 @@
 /**
  * Openingstijden & bestelconfig — gesloten standaard tot eigenaar activeert.
- * Launchscope: **afhalen én bezorgen vanaf dag 1** (zie docs/ORDERING-LAUNCH-CHECKLIST.md).
- * Alle bedragen in gehele eurocenten. Geen floating-point.
+ * Launchscope: afhalen én bezorgen vanaf dag 1.
+ * openWeekdays blijft [] tot aparte activation-PR (uren staan in launch-hours candidate).
  */
 
 export const orderingConfig = {
-  /** Zet op true wanneer Supabase + Mollie live zijn en dagen zijn ingesteld. */
   orderingEnabled: false,
-
-  /**
-   * Activatieschakelaar pickup — blijft false tot afhaaladres + openingstijden
-   * zakelijk bevestigd zijn (zie docs/ORDERING-LAUNCH-CHECKLIST.md).
-   */
   pickupEnabled: false,
-
-  /**
-   * Activatieschakelaar delivery — blijft false tot zones/kosten/env bevestigd zijn.
-   */
   deliveryEnabled: false,
-
   orderingMode: "pickup_and_delivery" as const,
 
-  /** ISO weekday: 0 = zondag … 6 = zaterdag — leeg = geen dagen open */
+  /** Leeg tot activation-PR — voorkomt dat uren bestellen automatisch openen */
   openWeekdays: [] as number[],
 
   timezone: "Europe/Amsterdam",
 
-  /** Voorbereiding / lead time (pickup) */
-  preparationMinutes: 60,
-  orderingCutoffMinutes: 60,
+  /** Bevestigde launch-waarden (actief pas mét flags + openWeekdays) */
+  preparationMinutes: 25,
+  orderingCutoffMinutes: 30,
   slotIntervalMinutes: 15,
-  maximumAdvanceDays: 14,
+  maximumAdvanceDays: 7,
 
-  /** Bedragen in centen — 0 = geen minimum tot zakelijk bevestigd */
   minimumOrderAmountCents: 0,
-  maximumOrderAmountCents: 50_000,
+  maximumOrderAmountCents: 15_000,
   serviceFeeCents: 0,
 
-  pickupSlotStart: "17:00",
-  pickupSlotEnd: "21:00",
+  /** Fallbackvensters — per-dag overrides in launch-hours wanneer geactiveerd */
+  pickupSlotStart: "16:30",
+  pickupSlotEnd: "22:00",
   pickupSlotMinutes: 15,
-  pickupSlotCapacity: 12,
+  pickupSlotCapacity: 4,
 
   deliveryWindowStart: "17:00",
-  deliveryWindowEnd: "21:00",
+  deliveryWindowEnd: "21:30",
   deliveryWindowMinutes: 30,
-  deliveryWindowCapacity: 8,
+  deliveryWindowCapacity: 2,
 
-  minLeadMinutesPickup: 60,
-  minLeadMinutesDelivery: 90,
+  minLeadMinutesPickup: 25,
+  minLeadMinutesDelivery: 35,
 
-  daysAhead: 14,
+  daysAhead: 7,
   closedDates: [] as string[],
   extraOpenDates: [] as string[],
 
-  /** Legacy aliases — gehouden voor bestaande imports */
-  slotStart: "17:00",
-  slotEnd: "21:00",
+  slotStart: "16:30",
+  slotEnd: "22:00",
   slotMinutes: 15,
-  slotCapacity: 12,
-  minLeadMinutes: 60,
+  slotCapacity: 4,
+  minLeadMinutes: 25,
 };
 
 export type OrderingConfig = typeof orderingConfig;

@@ -1,6 +1,6 @@
 /**
- * Frisdrank — draft/catalogusstructuur.
- * Geen alcohol. Geen live prijzen tot de eigenaar bevestigt (ownerConfirmed + priceCents).
+ * Frisdrank — bevestigd launchassortiment (alcoholvrij).
+ * Zichtbaar op menu; bestelbaar pas wanneer orderingEnabled true.
  */
 
 import type { CatalogProduct, ProductAvailability } from "@/lib/catalog/types";
@@ -11,28 +11,24 @@ export type DrinkDraft = {
   slug: string;
   name: string;
   description: string;
-  /** null = maat nog niet bevestigd */
   sizeLabel: string | null;
-  /** null = prijs nog niet bevestigd — nooit live verkopen */
   priceCents: number | null;
+  packaging: "blik" | "fles" | null;
   ownerConfirmed: boolean;
   stockStatus: "available" | "sold_out";
   sortOrder: number;
 };
 
-/**
- * Voorbeeldassortiment — uitsluitend ter voorbereiding.
- * ownerConfirmed: false ⇒ niet in menu/checkout.
- */
 export const DRINK_DRAFTS: readonly DrinkDraft[] = [
   {
     id: "drink-cola",
-    slug: "coca-cola",
-    name: "Coca-Cola",
+    slug: "coca-cola-original",
+    name: "Coca-Cola Original",
     description: "Klassieke cola, gekoeld.",
-    sizeLabel: null,
-    priceCents: null,
-    ownerConfirmed: false,
+    sizeLabel: "330 ml",
+    packaging: "blik",
+    priceCents: 275,
+    ownerConfirmed: true,
     stockStatus: "available",
     sortOrder: 10,
   },
@@ -41,9 +37,10 @@ export const DRINK_DRAFTS: readonly DrinkDraft[] = [
     slug: "coca-cola-zero",
     name: "Coca-Cola Zero",
     description: "Cola zonder suiker, gekoeld.",
-    sizeLabel: null,
-    priceCents: null,
-    ownerConfirmed: false,
+    sizeLabel: "330 ml",
+    packaging: "blik",
+    priceCents: 275,
+    ownerConfirmed: true,
     stockStatus: "available",
     sortOrder: 20,
   },
@@ -52,9 +49,10 @@ export const DRINK_DRAFTS: readonly DrinkDraft[] = [
     slug: "fanta-orange",
     name: "Fanta Orange",
     description: "Sinaasappel frisdrank, gekoeld.",
-    sizeLabel: null,
-    priceCents: null,
-    ownerConfirmed: false,
+    sizeLabel: "330 ml",
+    packaging: "blik",
+    priceCents: 275,
+    ownerConfirmed: true,
     stockStatus: "available",
     sortOrder: 30,
   },
@@ -63,35 +61,41 @@ export const DRINK_DRAFTS: readonly DrinkDraft[] = [
     slug: "sprite",
     name: "Sprite",
     description: "Citrus frisdrank, gekoeld.",
-    sizeLabel: null,
-    priceCents: null,
-    ownerConfirmed: false,
+    sizeLabel: "330 ml",
+    packaging: "blik",
+    priceCents: 275,
+    ownerConfirmed: true,
     stockStatus: "available",
     sortOrder: 40,
-  },
-  {
-    id: "drink-water-sparkling",
-    slug: "water-bruisend",
-    name: "Bruisend water",
-    description: "Gekoeld bruisend water.",
-    sizeLabel: null,
-    priceCents: null,
-    ownerConfirmed: false,
-    stockStatus: "available",
-    sortOrder: 50,
   },
   {
     id: "drink-water-still",
     slug: "water-plat",
     name: "Plat water",
     description: "Gekoeld plat water.",
-    sizeLabel: null,
-    priceCents: null,
-    ownerConfirmed: false,
+    sizeLabel: "500 ml",
+    packaging: "fles",
+    priceCents: 250,
+    ownerConfirmed: true,
+    stockStatus: "available",
+    sortOrder: 50,
+  },
+  {
+    id: "drink-water-sparkling",
+    slug: "water-bruisend",
+    name: "Bruisend water",
+    description: "Gekoeld bruisend water.",
+    sizeLabel: "500 ml",
+    packaging: "fles",
+    priceCents: 250,
+    ownerConfirmed: true,
     stockStatus: "available",
     sortOrder: 60,
   },
 ] as const;
+
+/** Generieke drankvisual — geen merkspecifieke branding. */
+const DRINK_IMAGE = FOOD.drinkLemonade.src;
 
 export function drinkDraftToCatalogProduct(draft: DrinkDraft): CatalogProduct | null {
   if (!draft.ownerConfirmed || draft.priceCents === null || !draft.sizeLabel) {
@@ -99,7 +103,8 @@ export function drinkDraftToCatalogProduct(draft: DrinkDraft): CatalogProduct | 
   }
   const availability: ProductAvailability =
     draft.stockStatus === "sold_out" ? "sold_out" : "available";
-  const sizeBit = draft.sizeLabel ? ` (${draft.sizeLabel})` : "";
+  const pack = draft.packaging ? ` ${draft.packaging}` : "";
+  const sizeBit = ` (${draft.sizeLabel}${pack})`;
   return {
     id: draft.id,
     slug: draft.slug,
@@ -109,7 +114,7 @@ export function drinkDraftToCatalogProduct(draft: DrinkDraft): CatalogProduct | 
     description: draft.description,
     priceCents: draft.priceCents,
     category: "drinks",
-    imageSrc: FOOD.drinkLemonade?.src ?? FOOD.heroSmash.src,
+    imageSrc: DRINK_IMAGE,
     availability,
     badge: null,
     spicyLevel: 0,
@@ -122,7 +127,6 @@ export function drinkDraftToCatalogProduct(draft: DrinkDraft): CatalogProduct | 
   };
 }
 
-/** Alleen bevestigde, geprijsde dranken — leeg tot eigenaar bevestigt. */
 export function getConfirmedDrinkProducts(): CatalogProduct[] {
   return DRINK_DRAFTS.map(drinkDraftToCatalogProduct).filter(
     (p): p is CatalogProduct => p !== null,

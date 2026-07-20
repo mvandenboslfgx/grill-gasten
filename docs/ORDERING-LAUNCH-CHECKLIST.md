@@ -124,6 +124,18 @@ Dit is een technische/operationele checklist, geen juridisch advies.
 5. Zet `orderingEnabled: true`
 6. Deploy + smoke (één echte testorder alleen met toestemming)
 
+## Operationeel vóór activatie (geen restaurantvergunning-eisen in code)
+
+- [ ] Gemeente: afhalen door klanten op Molendijk 29 toegestaan
+- [ ] NVWA-registratie bevestigd
+- [ ] Voedselveiligheidsplan / hygiënecode bevestigd
+- [ ] Delivery vanaf keukenlocatie operationeel goedgekeurd
+- [ ] `publicPickupAddressEnabled: true` pas na goedkeuring afhalen
+- [ ] Readiness-migratie op productie
+- [ ] Mollie testmode E2E (pickup + delivery)
+
+**Restaurant-specifieke exploitatievergunningen** vallen buiten deze technische readiness; locatie voor een toekomstig restaurant is nog niet vastgesteld.
+
 ## Rollback
 
 ```ts

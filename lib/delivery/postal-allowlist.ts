@@ -1,10 +1,6 @@
 import { normalizePostcode } from "@/lib/delivery/address-validation";
 import { deliveryConfig } from "@/lib/delivery/delivery-config";
-
-/**
- * Postcode-allowlist / blocklist — server-side only.
- * Areas: "3281" (4-digit prefix) of volledige "3281AB".
- */
+import { zoneForPostcodePrefix } from "@/lib/delivery/postal-zones";
 
 export function normalizeAreaToken(raw: string): string | null {
   const cleaned = raw.replace(/\s+/g, "").toUpperCase();
@@ -25,9 +21,6 @@ export function isPostcodeBlocked(
   return blockedNorm.includes(pc);
 }
 
-/**
- * Allowlist leeg ⇒ geen postcode toegestaan (fail-closed tot eigenaar bevestigt).
- */
 export function isPostcodeAllowed(
   postcode: string,
   allowed: string[] = deliveryConfig.allowedPostalCodeAreas,
@@ -52,7 +45,17 @@ export function isPostcodeAllowed(
 
 export type PostalCheckResult =
   | { ok: true }
-  | { ok: false; code: "invalid" | "blocked" | "outside_area" | "area_unconfigured"; message: string };
+  | {
+      ok: false;
+      code: "invalid" | "blocked" | "outside_area" | "area_unconfigured" | "pobox";
+      message: string;
+    };
+
+/** Detecteer postbus in vrije tekst (straat/toevoeging). */
+export function looksLikePoBox(raw: string | undefined): boolean {
+  if (!raw?.trim()) return false;
+  return /\b(postbus|p\.?\s*o\.?\s*box|pb)\b/i.test(raw);
+}
 
 export function checkDeliveryPostcode(postcode: string): PostalCheckResult {
   const pc = normalizePostcode(postcode);
@@ -79,6 +82,14 @@ export function checkDeliveryPostcode(postcode: string): PostalCheckResult {
     };
   }
   if (!isPostcodeAllowed(pc)) {
+    return {
+      ok: false,
+      code: "outside_area",
+      message: "Dit adres ligt buiten ons bezorggebied. Kies afhalen of WhatsApp ons.",
+    };
+  }
+  // Extra: zone moet bestaan (fail-closed bij overlap/miss)
+  if (deliveryConfig.pricingMode === "postcode_zones" && !zoneForPostcodePrefix(pc)) {
     return {
       ok: false,
       code: "outside_area",

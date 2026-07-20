@@ -7,7 +7,6 @@ import {
   MIN_QUOTE_SECRET_LENGTH,
 } from "@/lib/delivery/config";
 import { createSignedQuote, verifySignedQuote } from "@/lib/delivery/quote";
-import { zoneForDistanceMeters } from "@/lib/delivery/zones";
 
 describe("isTiengemeten", () => {
   it("3284BE met straat Tiengemeten → geblokkeerd", () => {
@@ -172,20 +171,19 @@ describe("quote payload validation", () => {
     expect(verifySignedQuote(quoteId).ok).toBe(false);
   });
 
-  it("geldige quote met zone match geaccepteerd", () => {
+  it("geldige quote met postcodezone match geaccepteerd", () => {
     vi.stubEnv("DELIVERY_QUOTE_SECRET", secret);
-    const zone = zoneForDistanceMeters(2500)!;
     const quoteId = createSignedQuote({
-      postcode: "3282AB",
+      postcode: "3286AB",
       houseNumber: "10",
       addition: "",
       street: "Teststraat",
       city: "Klaaswaal",
-      distanceMeters: 2500,
-      durationSeconds: 300,
-      zoneId: zone.id,
-      feeCents: zone.feeCents,
-      minOrderCents: zone.minOrderCents,
+      distanceMeters: 0,
+      durationSeconds: 0,
+      zoneId: 1,
+      feeCents: 395,
+      minOrderCents: 2000,
     });
     const verified = verifySignedQuote(quoteId);
     expect(verified.ok).toBe(true);

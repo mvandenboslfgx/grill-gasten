@@ -40,6 +40,8 @@ export type DeliveryQuoteResult = {
   feeCents: number;
   minOrderCents: number;
   expiresAt: number;
+  /** Klantveilige zonenaam (geen interne regels) */
+  zoneLabel?: string;
   blocked?: false;
 };
 

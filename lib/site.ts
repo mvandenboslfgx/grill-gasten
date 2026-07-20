@@ -20,7 +20,7 @@ export const site = {
   whatsapp: "https://wa.me/31649565698",
   instagram: "https://www.instagram.com/grill_gasten/",
   tiktok: "https://www.tiktok.com/@grillgasten1",
-  address: "Regio Hoeksche Waard — afhalen, bezorgen en catering op aanvraag",
+  address: "Klaaswaal — Hoeksche Waard",
 } as const;
 
 export const navLinks = [
